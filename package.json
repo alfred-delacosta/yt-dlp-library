@@ -1,0 +1,17 @@
+{
+  "name": "api-starter-template",
+  "version": "1.0.0",
+  "description": "My template for starting any Node API project.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alfred De La Costa",
+  "license": "MIT",
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.49.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
