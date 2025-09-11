@@ -5,11 +5,13 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from "./routes/auth.route.js"
+import initializeRoutes from "./routes/initialize.route.js"
 
 //#region Initializations
 const app = express();
 const env = process.env;
 app.use(helmet());
+app.use(express.json());
 //#endregion
 
 //#region Dev Conditions
@@ -24,6 +26,7 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/auth", authRoutes);
+app.use("/api/initialize", initializeRoutes);
 //#endregion
 
 //#region Production Conditions
