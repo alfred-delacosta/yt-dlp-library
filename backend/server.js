@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from "./routes/auth.route.js"
 import initializeRoutes from "./routes/initialize.route.js"
+import ytdlpRoutes from './routes/yt-dlp.route.js';
 
 //#region Initializations
 const app = express();
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/initialize", initializeRoutes);
+app.use("/api/ytdlp", ytdlpRoutes);
 //#endregion
 
 //#region Production Conditions

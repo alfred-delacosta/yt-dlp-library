@@ -1,9 +1,9 @@
 import express from "express";
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { updateYtDlp, downloadRegular } from "../controllers/yt-dlp.controller.js";
 
 const router = express.Router();
 
-
+router.get("/update", updateYtDlp);
+router.post("/download/regular", downloadRegular);
 
 export default router;
