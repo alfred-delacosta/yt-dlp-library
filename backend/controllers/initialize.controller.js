@@ -1,9 +1,10 @@
 import mysql from "mysql2/promise";
 import "@dotenvx/dotenvx/config";
 import { createVideosTable, createThumbnailsTable, createMP3sTable } from "../db/queries.initialize.db.js";
+import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
 
 // TODO Come back and refactor this at some point...
-export const initialize = async (req, res) => {
+export const initializeDb = async (req, res) => {
   let pool = {};
 
   try {
@@ -146,3 +147,15 @@ export const initialize = async (req, res) => {
   }
 };
 
+export const initializeFolders = async (req, res) => {
+    try {
+        await createFolders();
+        res.status(200).json({ message: "Folders successfully created."})
+    } catch (error) {
+        if (error.errno === -4075) res.status(200).json({ message: "Folders already created!"});
+        else {
+            res.status(400).json({ message: "There was an error initializing the folders."});
+            console.error(error);
+        }
+    }
+}
