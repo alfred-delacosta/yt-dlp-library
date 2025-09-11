@@ -51,11 +51,7 @@ export const createVideoProcessingFolder = async (req, res) => {
   }
 };
 
-export const deleteVideoProcessingFolder = async (
-  req,
-  res,
-  videoProcessingFolder
-) => {
+export const deleteVideoProcessingFolder = async (req, res, videoProcessingFolder) => {
   try {
     await fs.rmdir(videoProcessingFolder);
   } catch (error) {
@@ -115,22 +111,23 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         res.write("data: Thumbnail file moved\n\n");
       }
       // Handle MP3
-    //   else if (file.fileType === "mp3") {
-    //     mp3 = file;
-    //     const oldPath = path.join(videoProcessingFolder, file.fullFileName);
+      else if (file.fileType === "audio") {
+        mp3 = file;
+        const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
-    //     const newPath = path.join(
-    //       rootFolder,
-    //       "media",
-    //       "mp3s",
-    //       file.fullFileName
-    //     );
-    //     mp3.path = newPath;
+        const newPath = path.join(
+          rootFolder,
+          "media",
+          "mp3s",
+          file.fullFileName
+        );
+        mp3.path = newPath;
+        mp3.link = link;
 
-    //     // Move the MP3
-    //     await fs.rename(oldPath, newPath);
-    //     res.write("data: MP3 file moved\n\n");
-    //   }
+        // Move the MP3
+        await fs.rename(oldPath, newPath);
+        res.write("data: MP3 file moved\n\n");
+      }
       // Description
       else if (file.fileType === "description") {
         description = await fs.readFile(
@@ -152,10 +149,11 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         res.write("data: Thumbnail added to database!\n\n");
     }
 
-    // if (mp3 !== undefined) {
-    //     const mp3 = await addMp3ToDb(mp3, description);
-    //     res.write("data: MP3 added to database!\n\n");
-    // }
+    if (mp3 !== undefined) {
+        console.log(mp3);
+        const queryResults = await addMp3ToDb(mp3, description);
+        res.write("data: MP3 added to database!\n\n");
+    }
 
     // Delete the video processing folder
     await fs.rm(videoProcessingFolder, { recursive: true, force: true});
