@@ -1,17 +1,20 @@
 {
-  "name": "api-starter-template",
+  "name": "yt-dlp-library",
   "version": "1.0.0",
-  "description": "My template for starting any Node API project.",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "npm run start --prefix backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alfred-delacosta/yt-dlp-library.git"
   },
   "author": "Alfred De La Costa",
-  "license": "MIT",
-  "dependencies": {
-    "@dotenvx/dotenvx": "^1.49.0",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "express": "^5.1.0"
-  }
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alfred-delacosta/yt-dlp-library/issues"
+  },
+  "homepage": "https://github.com/alfred-delacosta/yt-dlp-library#readme",
+  "description": ""
 }

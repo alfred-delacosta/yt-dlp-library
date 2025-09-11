@@ -1,0 +1,27 @@
+{
+  "name": "api-starter-template",
+  "version": "1.0.0",
+  "description": "My template for starting any Node API project.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "run": "node server.js"
+  },
+  "author": "Alfred De La Costa",
+  "license": "MIT",
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.49.0",
+    "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.14.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
