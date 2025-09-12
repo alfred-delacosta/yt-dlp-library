@@ -56,7 +56,7 @@ export const deleteVideoProcessingFolder = async (req, res, videoProcessingFolde
     await fs.rmdir(videoProcessingFolder);
   } catch (error) {
     console.error(error);
-    res.send(400).json({
+    res.status(400).json({
       message: "There was an error deleting the processing video directory.",
     });
   }
@@ -139,7 +139,7 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
     }
 
     if (video !== undefined) {
-        const queryResults = await addVideoToDb(video, description);
+        const queryResults = await addVideoToDb(video, description, req.userId);
         videoId = queryResults.insertId;
         res.write("data: Video added to database!\n\n");
     }
@@ -151,7 +151,7 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
 
     if (mp3 !== undefined) {
         console.log(mp3);
-        const queryResults = await addMp3ToDb(mp3, description);
+        const queryResults = await addMp3ToDb(mp3, description, req.userId);
         res.write("data: MP3 added to database!\n\n");
     }
 

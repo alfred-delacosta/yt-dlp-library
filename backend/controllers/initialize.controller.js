@@ -189,6 +189,6 @@ export const updateLegacyTables = async (req, res) => {
     res.status(200).json({ message: "Tables updated successfully!"})
   } catch (error) {
     console.error(error);
-    res.send(400).json({ message: 'There was an error updating the Legacy Tables.' })
+    res.status(400).json({ message: 'There was an error updating the Legacy Tables.' })
   }
 }

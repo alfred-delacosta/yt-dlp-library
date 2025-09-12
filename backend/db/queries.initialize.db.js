@@ -7,14 +7,12 @@ export const createMP3sTable = "CREATE TABLE mp3s (id INT NOT NULL PRIMARY KEY A
 export const createUsersTable = `
 CREATE TABLE users (
   id INT NOT NULL AUTO_INCREMENT,
-  username VARCHAR(45) NOT NULL,
-  password VARCHAR(45) NOT NULL,
-  lastLoginDate DATETIME NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  password TEXT NOT NULL,
+  lastLoginDate DATETIME NULL,
   resetPasswordToken VARCHAR(45) NULL,
   resetPasswordTokenExpiresAt DATETIME NULL,
-  refreshToken VARCHAR(45) NOT NULL,
-  refreshTokenExpiresAt VARCHAR(45) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE INDEX username_UNIQUE (username ASC) VISIBLE,
+  UNIQUE INDEX email_UNIQUE (email ASC) VISIBLE,
   UNIQUE INDEX resetPasswordToken_UNIQUE (resetPasswordToken ASC) VISIBLE)
 `;

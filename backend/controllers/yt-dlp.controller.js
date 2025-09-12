@@ -19,7 +19,7 @@ export const updateYtDlp = async (req, res) => {
     sseProcessOutput(req, res, ytdlpProcess);
   } catch (error) {
     console.error(error);
-    res.send(400).json({ message: "There was an error updating yt-dlp." });
+    res.status(400).json({ message: "There was an error updating yt-dlp." });
   }
 };
 
@@ -54,7 +54,7 @@ export const downloadRegular = async (req, res) => {
         res.end();
       } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error!' })
+        res.status(400).json({ message: 'There was an error!' })
       }
     });
 
@@ -66,7 +66,7 @@ export const downloadRegular = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.send(400).json({ message: "There was an error updating yt-dlp." });
+    res.status(400).json({ message: "There was an error updating yt-dlp." });
   }
 };
 
@@ -101,7 +101,7 @@ export const downloadX = async (req, res) => {
         res.end();
       } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error!' })
+        res.status(400).json({ message: 'There was an error!' })
       }
     });
 
@@ -113,7 +113,7 @@ export const downloadX = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.send(400).json({ message: "There was an error updating yt-dlp." });
+    res.status(400).json({ message: "There was an error updating yt-dlp." });
   }
 };
 
@@ -147,7 +147,7 @@ export const downloadMp3 = async (req, res) => {
         res.end();
       } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error!' })
+        res.status(400).json({ message: 'There was an error!' })
       }
     });
 
@@ -159,7 +159,7 @@ export const downloadMp3 = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.send(400).json({ message: "There was an error updating yt-dlp." });
+    res.status(400).json({ message: "There was an error updating yt-dlp." });
   }
 };
 
@@ -196,7 +196,7 @@ export const downloadMp4 = async (req, res) => {
         res.end();
       } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error!' })
+        res.status(400).json({ message: 'There was an error!' })
       }
     });
 
@@ -208,6 +208,6 @@ export const downloadMp4 = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.send(400).json({ message: "There was an error updating yt-dlp." });
+    res.status(400).json({ message: "There was an error updating yt-dlp." });
   }
 };
