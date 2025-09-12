@@ -1,6 +1,6 @@
 import argon2 from 'argon2'
 import crypto from "node:crypto";
-import { generateTokenAndSetCookie } from '../utils/jwt.js';
+import { createAccessToken, generateRefreshTokenAndSetCookie, verifyAccessToken } from '../utils/jwt.js';
 
 export const signUp = async (req, res) => {
   try {
@@ -172,22 +172,35 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-// TODO Consider removing this and replacing it with refreshTokens.
-export const checkAuth = async (req, res) => {
+export const refreshAccessToken = async (req, res) => {
   try {
-    // TODO Find the user from the DB. If no user is found return an error.
-    // const user = await User.findById(req.userId);
-    // if (!user) return res.status(400).json({ message: "User not found. " });
-
-    // TODO Return a 200 response
-    // res.status(200).json({
-    //   user: {
-    //     ...user._doc,
-    //     password: undefined,
-    //   },
-    // });
+    const accessToken = createAccessToken();
+    res.send(200).json({ accessToken }); 
   } catch (error) {
-    console.log("Error in checkAuth: ", error);
-    res.status(400).json({ message: error.message })
+    console.error(error);
+    res.send(400).json({ message: 'There was an error refreshing the access token.' })
   }
-};
+}
+
+// TODO Consider removing this and replacing it with refreshTokens.
+// export const checkAuth = async (req, res) => {
+//   try {
+//     // Confirm AccessToken is still valid
+//     const accessToken = req.get('Authorization');
+//     const valid = verifyAccessToken(accessToken);
+//     // TODO Find the user from the DB. If no user is found return an error.
+//     // const user = await User.findById(req.userId);
+//     // if (!user) return res.status(400).json({ message: "User not found. " });
+
+//     // TODO Return a 200 response
+//     // res.status(200).json({
+//     //   user: {
+//     //     ...user._doc,
+//     //     password: undefined,
+//     //   },
+//     // });
+//   } catch (error) {
+//     console.log("Error in checkAuth: ", error);
+//     res.status(400).json({ message: error.message })
+//   }
+// };
