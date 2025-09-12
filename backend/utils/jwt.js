@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import '@dotenvx/dotenvx/config';
 import crypto from 'node:crypto';
 
-export const generateTokenAndSetCookie = (res, userId) => {
+export const generateRefreshTokenAndSetCookie = (res, userId) => {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
         expiresIn: `${process.env.JWT_NUMBER_OF_DAYS_EXPIRATION}d`
     })
@@ -15,6 +15,19 @@ export const generateTokenAndSetCookie = (res, userId) => {
     })
     
     return token;
+}
+
+export const createAccessToken = (userId) => {
+    const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: `${process.env.ACCESS_TOKEN_NUMBER_OF_MINUTES_EXPIRATION}m`
+    })
+
+    return accessToken;
+}
+
+export const verifyAccessToken = (token) => {
+    const valid = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    return valid;
 }
 
 // You can use these functions below to create the JWT_SECRET string.

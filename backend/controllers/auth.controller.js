@@ -1,39 +1,40 @@
 import argon2 from 'argon2'
 import crypto from "node:crypto";
-import { generateTokenAndSetCookie } from '../utils/jwt.js';
+import { createAccessToken, generateRefreshTokenAndSetCookie, verifyAccessToken } from '../utils/jwt.js';
+import { checkForUserByEmail, createNewUser, updateUserLastLoginDate, getUser } from '../db/queries.users.js';
 
 export const signUp = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
-    if (!email || !password || !name) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       throw new Error("All fields are required.");
     }
 
-    // TODO Get confirm the user from the db exists
-    // const userAlreadyExists = await User.findOne({ email });
+    // Confirm the user from the db exists
+    const userAlreadyExists = await checkForUserByEmail(email);
 
-    // TODO If the user exists then return an error.
-    // if (userAlreadyExists) {
-    //   return res.status(400).json({ message: "User already exists. " });
-    // }
+    // If the user exists then return an error.
+    if (userAlreadyExists.length > 0) {
+      return res.status(400).json({ message: "User already exists." });
+    }
 
-    const hashedPassword = await argon2.hash(password);
+    const secret = Buffer.from(process.env.ARGON2_SECRET);
+    const hashedPassword = await argon2.hash(password, { secret });
 
-    const verificationToken = Math.floor(randomInt(100000, 900000)).toString();
+    // TODO Implement email verification
+    // const verificationToken = Math.floor(randomInt(100000, 900000)).toString();
 
-    // TODO Create the new user in the DB and save.
-    // const user = new User({
-    //   email,
-    //   password: hashedPassword,
-    //   name,
-    //   verificationToken,
-    //   verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-    // });
+    // Create the new user in the DB and save.
+    const dbResults = await createNewUser(email, hashedPassword);
+    const userId = dbResults.insertId;
 
-    // await user.save();
+    // Generate the JWT
+    generateRefreshTokenAndSetCookie(res, userId);
 
-    // TODO Generate the JWT
-    // generateTokenAndSetCookie(res, user._id);
+    // Generate the access token
+    const accessToken = createAccessToken(res, userId);
+
+    res.status(200).json({ message: "User created successfully!", accessToken});
 
   } catch (error) {
     console.error("Error in signup function: ", error);
@@ -42,36 +43,47 @@ export const signUp = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    // TODO Get confirm the user from the db exists
-    // const user = await User.findOne({ email });
+    const { email, password } = req.body;
 
-    // TODO If the user does not exists then return an error.
-    // if (!user) return res.status(400).json({ message: "Invalid credentials." });
+    // Confirm the user from the db exists
+    const userAlreadyExists = await checkForUserByEmail(email);
 
-    // TODO Get the password from the user in the db and verify it
-    // const isPasswordValid = await argon2.verify(user.password, password);
+    // If the user does not exists then return an error.
+    if (userAlreadyExists.length < 1) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
-    // TODO If the passwords do not match, return an error.
-    // if (!isPasswordValid)
-    //   return res.status(400).json({ message: "Invalid credentials." });
+    const [ user ] = userAlreadyExists;
+    const secret = Buffer.from(process.env.ARGON2_SECRET);
 
-    // TODO Generate the JWT
-    // generateTokenAndSetCookie(res, user._id);
+    // Get the password from the user in the db and verify it
+    const isPasswordValid = await argon2.verify(user.password, password, { secret });
 
-    // TODO Return the user and a Logged in successfully message
-    // res.status(201).json({
-    //   message: "Logged in successfully.",
-    //   user: {
-    //     ...user._doc,
-    //     password: undefined,
-    //   },
-    // });
+    // If the passwords do not match, return an error.
+    if (!isPasswordValid)
+      return res.status(400).json({ message: "Invalid credentials." });
 
-    // TODO Set the last login date.
-    // user.lastLogin = Date.now();
+    // Generate the JWT
+    generateRefreshTokenAndSetCookie(res, user.id);
+
+    // Generate the access token
+    const accessToken = createAccessToken(user.id);
+
+    // Update the users lastLoginDate
+    await updateUserLastLoginDate(user.id);
+    const [ updatedUser ] = await getUser(user.id);
+
+
+    // Return the user and a Logged in successfully message
+    res.status(200).json({
+      message: "Logged in successfully.",
+      user: {
+        ...updatedUser,
+        password: undefined,
+      },
+      accessToken
+    });
   } catch (error) {
     console.error("Error in login function: ", error);
     return res.status(400).json({ message: error.message });
@@ -172,22 +184,35 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-// TODO Consider removing this and replacing it with refreshTokens.
-export const checkAuth = async (req, res) => {
+export const getNewAccessToken = async (req, res) => {
   try {
-    // TODO Find the user from the DB. If no user is found return an error.
-    // const user = await User.findById(req.userId);
-    // if (!user) return res.status(400).json({ message: "User not found. " });
-
-    // TODO Return a 200 response
-    // res.status(200).json({
-    //   user: {
-    //     ...user._doc,
-    //     password: undefined,
-    //   },
-    // });
+    const accessToken = createAccessToken(req.userId);
+    res.status(200).json({ accessToken }); 
   } catch (error) {
-    console.log("Error in checkAuth: ", error);
-    res.status(400).json({ message: error.message })
+    console.error(error);
+    res.status(400).json({ message: 'There was an error refreshing the access token.' })
   }
-};
+}
+
+// TODO Consider removing this and replacing it with refreshTokens.
+// export const checkAuth = async (req, res) => {
+//   try {
+//     // Confirm AccessToken is still valid
+//     const accessToken = req.get('Authorization');
+//     const valid = verifyAccessToken(accessToken);
+//     // TODO Find the user from the DB. If no user is found return an error.
+//     // const user = await User.findById(req.userId);
+//     // if (!user) return res.status(400).json({ message: "User not found. " });
+
+//     // TODO Return a 200 response
+//     // res.status(200).json({
+//     //   user: {
+//     //     ...user._doc,
+//     //     password: undefined,
+//     //   },
+//     // });
+//   } catch (error) {
+//     console.log("Error in checkAuth: ", error);
+//     res.status(400).json({ message: error.message })
+//   }
+// };

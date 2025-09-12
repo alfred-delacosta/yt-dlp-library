@@ -1,7 +1,9 @@
 import mysql from "mysql2/promise";
 import "@dotenvx/dotenvx/config";
-import { createVideosTable, createThumbnailsTable, createMP3sTable } from "../db/queries.initialize.db.js";
+import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable } from "../db/queries.initialize.db.js";
+import { addUsersToVideosTable, addUsersToMp3sTable } from "../db/queries.general.js";
 import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
+import { pool } from "../db/db.pool.js";
 
 // TODO Come back and refactor this at some point...
 export const initializeDb = async (req, res) => {
@@ -44,9 +46,18 @@ export const initializeDb = async (req, res) => {
   } catch (error) {
     if (error.code === "ER_NO_SUCH_TABLE") {
       try {
+        // Create the users table
+        const [results, fields] = await pool.query(createUsersTable);
+      } catch (error) {
+        console.error(error);
+        res.status(400).json({
+          message:
+            "There was an error creating the videos table. Please check your database connection, mysql instance, or hard drive space."
+        });
+      }
+      try {
         // Create videos table
         const [results, fields] = await pool.query(createVideosTable);
-        console.log("Videos table created.");
       } catch (error) {
         console.error(error);
         res.status(400).json({
@@ -58,7 +69,6 @@ export const initializeDb = async (req, res) => {
       try {
         // Create the thumbnails
         const [results, fields] = await pool.query(createThumbnailsTable);
-        console.log("Thumbnails table created.");
       } catch (error) {
         console.error(error);
         res.status(400).json({
@@ -69,7 +79,6 @@ export const initializeDb = async (req, res) => {
 
       try {
         const [results, fields] = await pool.query(createMP3sTable);
-        console.log("MP3's table created.");
       } catch (error) {
         console.error(error);
         res.status(400).json({
@@ -140,6 +149,17 @@ export const initializeDb = async (req, res) => {
             });
           }
 
+          try {
+            const [results, fields] = await pool.query(createUsersTable);
+            console.log("Users table created.");
+          } catch (error) {
+            console.error(error);
+            res.status(400).json({
+              message:
+                "There was an error creating the users table. Please check your database connection, mysql instance, or hard drive space."
+            });
+          }
+
           res.status(200).json({ message: "Database successfully initialized."});
         }
       }
@@ -158,4 +178,17 @@ export const initializeFolders = async (req, res) => {
             console.error(error);
         }
     }
+}
+
+export const updateLegacyTables = async (req, res) => {
+  try {
+    const [ uResults, uFields ] = await pool.query(createUsersTable);
+    const [ uvResults, uvFields ] = await pool.query(addUsersToVideosTable);
+    const [ umResults, umFields ] = await pool.query(addUsersToMp3sTable);
+
+    res.status(200).json({ message: "Tables updated successfully!"})
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: 'There was an error updating the Legacy Tables.' })
+  }
 }
