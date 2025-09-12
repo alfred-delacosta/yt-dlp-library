@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.route.js"
 import initializeRoutes from "./routes/initialize.route.js"
 import ytdlpRoutes from './routes/yt-dlp.route.js';
 import videosRoutes from './routes/videos.route.js';
+import mp3Routes from './routes/mp3s.route.js';
 import cookieParser from 'cookie-parser';
 
 //#region Initializations
@@ -33,7 +34,9 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/initialize", initializeRoutes);
 app.use("/api/ytdlp", ytdlpRoutes);
-app.use("/api/videos", videosRoutes)
+app.use("/api/videos", videosRoutes);
+app.use("/api/mp3s", mp3Routes);
+
 //#endregion
 
 //#region Production Conditions
