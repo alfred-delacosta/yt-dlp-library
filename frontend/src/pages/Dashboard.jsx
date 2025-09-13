@@ -2,10 +2,9 @@ import { useAuthStore, api } from "../lib/axios"
 import { Link } from "react-router";
 import Downloader from "../components/Downloader";
 import { useLayoutEffect } from "react";
-import { checkAuth } from "../../../backend/middleware/jwt.middleware";
 
 const Dashboard = () => {
-    const { accessToken, user, isAuthenticated } = useAuthStore();
+    const { accessToken, user, isAuthenticated, checkAuth } = useAuthStore();
 
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
