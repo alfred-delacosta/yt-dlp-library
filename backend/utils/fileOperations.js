@@ -150,7 +150,6 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
     }
 
     if (mp3 !== undefined) {
-        console.log(mp3);
         const queryResults = await addMp3ToDb(mp3, description, req.userId);
         res.write("data: MP3 added to database!\n\n");
     }

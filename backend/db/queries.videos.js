@@ -1,8 +1,12 @@
 import { pool } from "./db.pool.js"
 
 export const getAllVideosForUser = async (userId) => {
-    const [ results, fields ] = await pool.execute('SELECT * FROM videos WHERE userId = ?;', [userId]);
+    const [ results, fields ] = await pool.execute('SELECT * FROM videos LEFT JOIN thumbnails on videos.id = thumbnails.videoId WHERE userId = ?;', [userId]);
+    return results;
+}
 
+export const getVideo = async (userId, videoId) => {
+    const [ results, fields ] = await pool.execute('SELECT * FROM videos LEFT JOIN thumbnails on videos.id = thumbnails.videoId WHERE userId = ? AND id = ?;', [userId, videoId]);
     return results;
 }
 
