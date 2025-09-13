@@ -20,7 +20,7 @@ app.use(express.json());
 
 //#region Dev Conditions
 if (env.ENVIRONMENT === 'development') {
-    app.use(cors());
+    app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 }
 //#endregion
 
