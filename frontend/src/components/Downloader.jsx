@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
-const Downloader = ({ api }) => {
+const Downloader = ({ api, loadLibrary }) => {
     const [videoUrl, setVideoUrl] = useState('');
     const [serverMessages, setServerMessages] = useState('');
     const [downloaderLoading, setDownloaderLoading] = useState(false);
+    const serverMessagesEndRef = useRef(null);
+
+      const scrollToBottomForServerMessages = () => {
+        serverMessagesEndRef.current.scrollTop = serverMessagesEndRef.current.scrollHeight;
+    }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -30,7 +35,12 @@ const Downloader = ({ api }) => {
             setServerMessages(newMessages);
         }
         setDownloaderLoading(false);
+        loadLibrary();
     }
+
+    useEffect(() => {
+        scrollToBottomForServerMessages();
+    }, [serverMessages])
 
     return (
         <div>
@@ -48,7 +58,7 @@ const Downloader = ({ api }) => {
                 <button type="submit">Submit</button>
                 {downloaderLoading && <span>Downloading</span>}
             </form>
-            <div className="whitespace-pre">
+            <div className="whitespace-pre overflow-y-auto max-h-24" ref={serverMessagesEndRef}>
                 {/* TODO Make this look nicer. */}
                 {serverMessages}
             </div>
