@@ -5,6 +5,11 @@ export const getAllMp3sForUser = async (userId) => {
     return results;
 }
 
+export const getMp3CountForUser = async (userId) => {
+    const [ results, fields ] = await pool.execute('SELECT COUNT(*) FROM mp3s where userId = ?;', [userId]);
+    return results;
+}
+
 export const getMp3 = async (userId, mp3Id) => {
     const [ results, fields ] = await pool.execute('SELECT * FROM mp3s WHERE userId = ? AND id = ?;', [userId, mp3Id]);
     return results;
