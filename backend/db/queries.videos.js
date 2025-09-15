@@ -5,6 +5,11 @@ export const getAllVideosForUser = async (userId) => {
     return results;
 }
 
+export const getVideoCountForUser = async (userId) => {
+    const [ results, fields ] = await pool.execute('SELECT COUNT(*) FROM videos where userId = ?;', [userId]);
+    return results;
+}
+
 export const getVideo = async (userId, videoId) => {
     const [ results, fields ] = await pool.execute('SELECT * FROM videos LEFT JOIN thumbnails on videos.id = thumbnails.videoId WHERE userId = ? AND id = ?;', [userId, videoId]);
     return results;

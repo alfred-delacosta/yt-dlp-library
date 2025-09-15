@@ -1,11 +1,13 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 
 const Downloader = ({ api }) => {
     const [videoUrl, setVideoUrl] = useState('');
     const [serverMessages, setServerMessages] = useState('');
+    const [downloaderLoading, setDownloaderLoading] = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setDownloaderLoading(true);
         const response = await api.post('/ytdlp/download/regular', { videoUrl }, {
             headers: {
                 'Accept': 'text/event-stream'
@@ -27,6 +29,7 @@ const Downloader = ({ api }) => {
             newMessages += `${value}`;
             setServerMessages(newMessages);
         }
+        setDownloaderLoading(false);
     }
 
     return (
@@ -43,6 +46,7 @@ const Downloader = ({ api }) => {
                     <option value="4">Other</option>
                 </select>
                 <button type="submit">Submit</button>
+                {downloaderLoading && <span>Downloading</span>}
             </form>
             <div className="whitespace-pre">
                 {/* TODO Make this look nicer. */}

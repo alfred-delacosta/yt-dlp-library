@@ -1,4 +1,4 @@
-import { getAllMp3sForUser, getMp3 } from "../db/queries.mp3s.js"
+import { getAllMp3sForUser, getMp3, getMp3CountForUser } from "../db/queries.mp3s.js"
 
 export const getMp3s = async (req, res) => {
     try {
@@ -20,5 +20,16 @@ export const getMp3ById = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+    }
+}
+
+export const getUserMp3Count = async (req, res) => {
+    try {
+        const count = await getMp3CountForUser(req.userId);
+
+        return res.json(count);
+    } catch (error) {
+        console.error(error);
+        return res.send(400).json({ message: 'There was an error getting the videos for the user.' })
     }
 }
