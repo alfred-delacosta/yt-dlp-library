@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import { randomUUID } from "crypto";
 import { fileURLToPath } from "url";
 import getFileParts from "./fileUtils.js";
-import { addVideoToDb } from "../db/queries.videos.js";
+import { sqlAddVideo } from "../db/queries.videos.js";
 import { addThumbnailToDb } from "../db/queries.thumbnails.js";
 import { addMp3ToDb } from "../db/queries.mp3s.js";
 
@@ -139,7 +139,7 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
     }
 
     if (video !== undefined) {
-        const queryResults = await addVideoToDb(video, description, req.userId);
+        const queryResults = await sqlAddVideo(video, description, req.userId);
         videoId = queryResults.insertId;
         res.write("data: Video added to database!\n\n");
     }
