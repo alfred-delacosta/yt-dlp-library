@@ -1,7 +1,7 @@
 import mysql from "mysql2/promise";
 import "@dotenvx/dotenvx/config";
 import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable } from "../db/queries.initialize.db.js";
-import { addUsersToVideosTable, addUsersToMp3sTable } from "../db/queries.general.js";
+import { addUsersToVideosTable, addUsersToMp3sTable, addServerPathToVideos, addServerPathToMp3s, addServerPathToThumbnails } from "../db/queries.general.js";
 import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
 import { pool } from "../db/db.pool.js";
 
@@ -185,6 +185,9 @@ export const updateLegacyTables = async (req, res) => {
     const [ uResults, uFields ] = await pool.query(createUsersTable);
     const [ uvResults, uvFields ] = await pool.query(addUsersToVideosTable);
     const [ umResults, umFields ] = await pool.query(addUsersToMp3sTable);
+    const [ spvResults, spvFields ] = await pool.query(addServerPathToVideos);
+    const [ spmResults, spmFields ] = await pool.query(addServerPathToMp3s);
+    const [ sptResults, sptFields ] = await pool.query(addServerPathToThumbnails);
 
     res.status(200).json({ message: "Tables updated successfully!"})
   } catch (error) {

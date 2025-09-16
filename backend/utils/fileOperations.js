@@ -79,18 +79,19 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         video = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
-        // const newPath = path.join(
-        //   rootFolder,
-        //   "media",
-        //   "videos",
-        //   file.fullFileName
-        // );
+        const serverPath = path.join(
+          rootFolder,
+          "media",
+          "videos",
+          file.fullFileName
+        );
         const newPath = path.join(
           "media",
           "videos",
           file.fullFileName
         );
         video.path = newPath;
+        video.serverPath = serverPath;
         video.link = link;
 
         // Move the video
@@ -102,18 +103,20 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         thumbnail = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
-        // const newPath = path.join(
-        //   rootFolder,
-        //   "media",
-        //   "videos",
-        //   "thumbnails",
-        //   file.fullFileName
-        // );
+        const serverPath = path.join(
+          rootFolder,
+          "media",
+          "videos",
+          "thumbnails",
+          file.fullFileName
+        );
         const newPath = path.join(
           "media",
           "videos",
+          "thumbnails",
           file.fullFileName
         );
+        thumbnail.serverPath = serverPath;
         thumbnail.path = newPath;
 
         // Move the Thumbnail
@@ -125,18 +128,19 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         mp3 = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
-        // const newPath = path.join(
-        //   rootFolder,
-        //   "media",
-        //   "mp3s",
-        //   file.fullFileName
-        // );
+        const serverPath = path.join(
+          rootFolder,
+          "media",
+          "mp3s",
+          file.fullFileName
+        );
         const newPath = path.join(
           "media",
           "mp3s",
           file.fullFileName
         );
         mp3.path = newPath;
+        mp3.serverPath = serverPath;
         mp3.link = link;
 
         // Move the MP3

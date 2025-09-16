@@ -52,8 +52,8 @@ const Downloader = ({ api, loadLibrary }) => {
                 <label htmlFor="videoUrl">Video URL</label>
                 <input type="url" name="videoUrl" id="videoUrl" value={videoUrl} onChange={(e) => { setVideoUrl(e.target.value)}} />
                 <label htmlFor="downloadType">DownloadType</label>
-                <select name="downloadType" id="downloadType" onChange={(e) => setDownloadType(e.target.value)}>
-                    <option value="regular" selected>YouTube</option>
+                <select name="downloadType" id="downloadType" onChange={(e) => setDownloadType(e.target.value)} defaultValue="regular">
+                    <option value="regular">YouTube</option>
                     <option value="x">X/Twitter</option>
                     <option value="mp3">MP3</option>
                     <option value="mp4">Mp4</option>
