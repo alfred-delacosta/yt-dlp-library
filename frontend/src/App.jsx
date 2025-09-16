@@ -4,14 +4,15 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
+import Logout from './components/Logout'
 import { useAuthStore } from './lib/axios'
 
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
-	const { isAuthenticated } = useAuthStore();
+	const { isAuthenticated, accessToken } = useAuthStore();
 
-	if (!isAuthenticated) {
+	if (!isAuthenticated && !accessToken) {
 		return <Navigate to='/login' replace />;
 	}
 
@@ -36,13 +37,10 @@ const RedirectAuthenticatedUser = ({ children }) => {
 function App() {
   const { accessToken } = useAuthStore();
 
-  useEffect(() => {
-    console.log(accessToken)
-  }, [accessToken])
-
   return (
     <div className='h-screen'>
       {accessToken ? <p>{accessToken}</p> : <p>No access token found</p>}
+      <Logout />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={

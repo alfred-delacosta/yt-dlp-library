@@ -1,12 +1,13 @@
 import { useAuthStore, api } from "../lib/axios"
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Downloader from "../components/Downloader";
 import Library from "../components/Library";
 import LibraryCounts from "../components/LibraryCounts";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 
 const Dashboard = () => {
-    const { accessToken, user, isAuthenticated, checkAuth } = useAuthStore();
+    const { accessToken, isAuthenticated, getNewAccessToken } = useAuthStore();
+    const navigate = useNavigate();
 
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
@@ -14,15 +15,20 @@ const Dashboard = () => {
     const [mp3Library, setMp3Library] = useState([]);
 
     async function loadLibrary() {
-        const videoApiResponse = await api.get('/videos');
-        const mp3ApiResponse = await api.get('/mp3s');
+      const videoApiResponse = await api.get('/videos');
+      const mp3ApiResponse = await api.get('/mp3s');
 
-        setVideoLibrary(videoApiResponse.data);
-        setMp3Library(mp3ApiResponse.data);
+      setVideoLibrary(videoApiResponse.data);
+      setMp3Library(mp3ApiResponse.data);
+    }
+
+    async function checkAuthentication() {
+      if (isAuthenticated && !accessToken) await getNewAccessToken();
+      await loadLibrary();
     }
 
     useEffect(() => {
-        loadLibrary();
+      checkAuthentication();
     }, [])
 
   return (
