@@ -1,7 +1,6 @@
 import { Link } from "react-router"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useAuthStore } from "../lib/axios"
-import { useState } from "react"
 
 const Login = () => {
   const [email, setEmail] = useState("");

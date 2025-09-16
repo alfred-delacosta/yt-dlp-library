@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Routes, Route, Link, Navigate } from 'react-router'
+import { Routes, Route, Navigate } from 'react-router'
 import Login from './pages/Login'
 import Home from './pages/Home'
 import Signup from './pages/Signup'

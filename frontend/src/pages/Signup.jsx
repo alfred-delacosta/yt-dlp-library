@@ -12,11 +12,17 @@ const Signup = () => {
     await signup(email, password);
   }
 
+  async function checkAuth() {
+    try {
+      await checkRefreshToken();
+      if (isAuthenticated) await getNewAccessToken(); 
+    } catch (error) {
+      return;
+    }
+  }
+
     useEffect(() => {
-      async function getAccessToken() {
-        await getNewAccessToken();
-      }
-      getAccessToken();
+      checkAuth();
     }, [accessToken])
 
   return (

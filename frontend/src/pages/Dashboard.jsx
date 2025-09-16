@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import Downloader from "../components/Downloader";
 import Library from "../components/Library";
 import LibraryCounts from "../components/LibraryCounts";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 
 const Dashboard = () => {
     const { accessToken, isAuthenticated, getNewAccessToken } = useAuthStore();
@@ -34,7 +34,7 @@ const Dashboard = () => {
   return (
     <div>
         <h1>Dashboard</h1>
-        <LibraryCounts api={api} videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
+        <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
         <Library api={api} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} />
         <Link to="/">Home</Link>
