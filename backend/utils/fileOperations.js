@@ -79,8 +79,13 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         video = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
+        // const newPath = path.join(
+        //   rootFolder,
+        //   "media",
+        //   "videos",
+        //   file.fullFileName
+        // );
         const newPath = path.join(
-          rootFolder,
           "media",
           "videos",
           file.fullFileName
@@ -97,11 +102,16 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         thumbnail = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
+        // const newPath = path.join(
+        //   rootFolder,
+        //   "media",
+        //   "videos",
+        //   "thumbnails",
+        //   file.fullFileName
+        // );
         const newPath = path.join(
-          rootFolder,
           "media",
           "videos",
-          "thumbnails",
           file.fullFileName
         );
         thumbnail.path = newPath;
@@ -115,8 +125,13 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         mp3 = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
+        // const newPath = path.join(
+        //   rootFolder,
+        //   "media",
+        //   "mp3s",
+        //   file.fullFileName
+        // );
         const newPath = path.join(
-          rootFolder,
           "media",
           "mp3s",
           file.fullFileName

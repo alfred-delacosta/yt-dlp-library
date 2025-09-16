@@ -5,10 +5,11 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { login, getNewAccessToken, isLoading, error, accessToken } = useAuthStore();
+  const { login, getNewAccessToken, isLoading, error, accessToken, signup } = useAuthStore();
 
   async function handleSubmit(e) {
     e.preventDefault();
+    await signup(email, password);
   }
 
     useEffect(() => {

@@ -32,7 +32,7 @@ const Library = ({ api, videoLibrary, setVideoLibrary, mp3Library }) => {
         <li key={video.id}>
             <h4>{video.name}</h4>
             <div>
-                <video controls src={video.link}></video>
+                <video className="w-fit" controls src={video.videoPath}></video>
             </div>
             <div>
                 <button onClick={deleteButtonClick} data-videoid={video.id}>Delete</button>
@@ -44,7 +44,7 @@ const Library = ({ api, videoLibrary, setVideoLibrary, mp3Library }) => {
         <li key={mp3.id}>
             <h4>{mp3.name}</h4>
             <div>
-                <video controls src={mp3.link}></video>
+                <audio controls src={mp3.mp3Path}></audio>
             </div>
         </li>
     ))
