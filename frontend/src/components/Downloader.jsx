@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 const Downloader = ({ api, loadLibrary }) => {
     const [videoUrl, setVideoUrl] = useState('');
-    const [downloadType, setDownloadType] = useState('');
+    const [downloadType, setDownloadType] = useState('regular');
     const [serverMessages, setServerMessages] = useState('');
     const [downloaderLoading, setDownloaderLoading] = useState(false);
     const serverMessagesEndRef = useRef(null);
@@ -38,6 +38,7 @@ const Downloader = ({ api, loadLibrary }) => {
         setDownloaderLoading(false);
         toast.dismiss();
         toast.success("Video downloaded!")
+        setVideoUrl('');
         loadLibrary();
     }
 
@@ -52,7 +53,7 @@ const Downloader = ({ api, loadLibrary }) => {
                 <label htmlFor="videoUrl">Video URL</label>
                 <input type="url" name="videoUrl" id="videoUrl" value={videoUrl} onChange={(e) => { setVideoUrl(e.target.value)}} />
                 <label htmlFor="downloadType">DownloadType</label>
-                <select name="downloadType" id="downloadType" onChange={(e) => setDownloadType(e.target.value)} defaultValue="regular">
+                <select name="downloadType" id="downloadType" onChange={(e) => setDownloadType(e.target.value)}>
                     <option value="regular">YouTube</option>
                     <option value="x">X/Twitter</option>
                     <option value="mp3">MP3</option>

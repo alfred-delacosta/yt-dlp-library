@@ -10,8 +10,6 @@ export const api = axios.create({
   baseURL: API_URL
 });
 
-console.log(api.defaults.baseURL);
-
 export const useAuthStore = create((set) => ({
   userId: null,
   accessToken: null,
