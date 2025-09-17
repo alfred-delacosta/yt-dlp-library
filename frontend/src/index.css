@@ -1,3 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+html body {
+    min-height: 100vh;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+.h-100vh {
+    height: 100vh !important;
+}

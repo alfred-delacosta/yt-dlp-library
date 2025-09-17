@@ -5,6 +5,7 @@ import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Logout from './components/Logout'
 import ViewVideo from './pages/ViewVideo'
+import Navbar from './components/Navbar'
 import { useAuthStore } from './lib/axios'
 import ViewMp3 from './pages/ViewMp3'
 
@@ -36,12 +37,12 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { accessToken } = useAuthStore();
+  const { isAuthenticated, accessToken } = useAuthStore();
 
   return (
-    <div className='h-screen'>
-      {accessToken ? <p>{accessToken}</p> : <p>No access token found</p>}
-      <Logout />
+    <div className='h-100'>
+      {/* {accessToken ? <p>{accessToken}</p> : <p>No access token found</p>} */}
+      <Navbar isAuthenticated={isAuthenticated} accessToken={accessToken} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={
