@@ -23,7 +23,6 @@ const Dashboard = () => {
     }
 
     async function checkAuthentication() {
-      console.log(isAuthenticated);
       if (isAuthenticated && !accessToken) await getNewAccessToken();
       await loadLibrary();
     }
@@ -37,7 +36,7 @@ const Dashboard = () => {
         <h1>Dashboard</h1>
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
-        <Library api={api} serverUrl={serverUrl} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} />
+        <Library api={api} serverUrl={serverUrl} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} />
         <Link to="/">Home</Link>
     </div>
   )

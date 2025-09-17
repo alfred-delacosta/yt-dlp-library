@@ -14,32 +14,38 @@ const Downloader = ({ api, loadLibrary }) => {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        toast.loading("Downloading video!")
-        setDownloaderLoading(true);
-        const response = await api.post(`/ytdlp/download/${downloadType}`, { videoUrl }, {
-            headers: {
-                'Accept': 'text/event-stream'
-            },
-            responseType: 'stream',
-            adapter: 'fetch'
-        })
+        try {
+            toast.loading("Downloading!")
+            setDownloaderLoading(true);
+            const response = await api.post(`/ytdlp/download/${downloadType}`, { videoUrl }, {
+                headers: {
+                    'Accept': 'text/event-stream'
+                },
+                responseType: 'stream',
+                adapter: 'fetch'
+            })
 
-        const stream = response.data;
+            const stream = response.data;
 
-        const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
-        let newMessages = '';
+            const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
+            let newMessages = '';
 
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            newMessages += `${value}`;
-            setServerMessages(newMessages);
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                newMessages += `${value}`;
+                setServerMessages(newMessages);
+            }
+            setDownloaderLoading(false);
+            toast.dismiss();
+            toast.success("Download completed!")
+            setVideoUrl('');
+            loadLibrary();   
+        } catch (error) {
+            console.log(error);
+            toast.dismiss();
+            toast.error("Uh-oh! There was an error with the download. ☹")
         }
-        setDownloaderLoading(false);
-        toast.dismiss();
-        toast.success("Video downloaded!")
-        setVideoUrl('');
-        loadLibrary();
     }
 
     useEffect(() => {

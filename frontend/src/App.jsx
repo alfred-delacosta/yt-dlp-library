@@ -4,7 +4,9 @@ import Home from './pages/Home'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Logout from './components/Logout'
+import ViewVideo from './pages/ViewVideo'
 import { useAuthStore } from './lib/axios'
+import ViewMp3 from './pages/ViewMp3'
 
 
 // protect routes that require authentication
@@ -57,6 +59,16 @@ function App() {
             <Dashboard />
           </ProtectedRoute>
         }/>
+        <Route path="/video/:id" element={
+          <ProtectedRoute>
+            <ViewVideo />
+          </ProtectedRoute>
+        } />
+        <Route path="/mp3/:id" element={
+          <ProtectedRoute>
+            <ViewMp3 />
+          </ProtectedRoute>
+        } />
       </Routes>
     </div>
   )
