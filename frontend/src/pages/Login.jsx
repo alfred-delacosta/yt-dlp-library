@@ -1,21 +1,25 @@
 import { Link } from "react-router"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useAuthStore } from "../lib/axios"
-import { useState } from "react"
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { login, getNewAccessToken, isLoading, error, accessToken, setAccessToken } = useAuthStore();
+  const { login, getNewAccessToken, isLoading, error, accessToken, isAuthenticated, checkRefreshToken } = useAuthStore();
+
+  async function checkAuth() {
+    try {
+      await checkRefreshToken();
+      if (isAuthenticated) await getNewAccessToken(); 
+    } catch (error) {
+      return;
+    }
+  }
 
   useEffect(() => {
-    async function getAccessToken() {
-      await getNewAccessToken();
-    }
-
-    getAccessToken();
-  }, [accessToken])
+    checkAuth();
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault();

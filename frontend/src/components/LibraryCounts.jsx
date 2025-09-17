@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react"
-
-const LibraryCounts = ({ api, videoCount, mp3Count }) => {
+const LibraryCounts = ({ videoCount, mp3Count }) => {
     // const [videoCount, setVideoCount] = useState(0);
     // const [mp3Count, setMp3Count] = useState(0);
 

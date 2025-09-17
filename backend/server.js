@@ -20,16 +20,13 @@ app.use(express.json());
 
 //#region Dev Conditions
 if (env.ENVIRONMENT === 'development') {
-    app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+    app.use(cors({ origin: ["http://localhost:5173", /192.168.1.*:5173/], credentials: true }));
 }
 //#endregion
 
 app.use(cookieParser())
 
 //#region Global Routes
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-})
 
 app.use("/api/auth", authRoutes);
 app.use("/api/initialize", initializeRoutes);
@@ -46,6 +43,7 @@ if (process.env.ENVIRONMENT === "production") {
 
   // To make the node server serve the contents of the dist folder in the frontend/dist
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  app.use('/media', express.static(path.join(__dirname, 'media')));
 
   app.all("/*splat/", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));

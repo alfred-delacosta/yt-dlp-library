@@ -42,7 +42,6 @@ export const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      console.log(API_URL);
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
@@ -68,6 +67,7 @@ export const useAuthStore = create((set) => ({
       await axios.post(`${API_URL}/auth/logout`);
       set({
         user: null,
+        accessToken: null,
         isAuthenticated: false,
         error: null,
         isLoading: false,
@@ -103,8 +103,26 @@ export const useAuthStore = create((set) => ({
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
       const response = await axios.get(`${API_URL}/auth/checkAuth`);
+      console.log(response.data);
       set({
-        isAuthenticated: response.data.isAuthenticated,
+        isAuthenticated: response.data.isAuthorized,
+        error: null,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Error checking auth.",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+  checkRefreshToken: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/auth/checkRefreshToken`);
+      set({
+        isAuthenticated: response.data.isAuthorized,
         error: null,
         isLoading: false,
       });
@@ -116,4 +134,5 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   }
+
 }));

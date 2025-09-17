@@ -7,6 +7,11 @@ export const generateRefreshTokenAndSetCookie = (res, userId) => {
         expiresIn: `${process.env.JWT_NUMBER_OF_DAYS_EXPIRATION}d`
     })
 
+    // TODO When testing local development and trying to access from another device, test the following:
+        // httpOnly: true,
+        // secure: true,
+        // sameSite: "none",
+        // maxAge: process.env.COOKIE_EXPIRATION_TIME_IN_HOURS * 3600000,
     res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.ENVIRONMENT === 'production',

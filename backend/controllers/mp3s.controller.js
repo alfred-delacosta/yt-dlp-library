@@ -4,7 +4,7 @@ export const getMp3s = async (req, res) => {
     try {
         const mp3s = await getAllMp3sForUser(req.userId);
 
-        res.json(mp3s);
+        res.json(mp3s.reverse());
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the videos for the user.' })

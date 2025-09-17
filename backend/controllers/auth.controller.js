@@ -198,6 +198,10 @@ export const isAuthorized = async (req, res) => {
   return res.status(200).json({ message: "Tokens are valid!", isAuthorized: true});
 }
 
+export const checkRefreshToken = async (req, res) => {
+  return res.status(200).json({ message: "Refresh token is valid!", isAuthorized: true});
+}
+
 // TODO Consider removing this and replacing it with refreshTokens.
 // export const checkAuth = async (req, res) => {
 //   try {

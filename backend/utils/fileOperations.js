@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import { randomUUID } from "crypto";
 import { fileURLToPath } from "url";
 import getFileParts from "./fileUtils.js";
-import { addVideoToDb } from "../db/queries.videos.js";
+import { sqlAddVideo } from "../db/queries.videos.js";
 import { addThumbnailToDb } from "../db/queries.thumbnails.js";
 import { addMp3ToDb } from "../db/queries.mp3s.js";
 
@@ -79,13 +79,19 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         video = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
-        const newPath = path.join(
+        const serverPath = path.join(
           rootFolder,
           "media",
           "videos",
           file.fullFileName
         );
+        const newPath = path.join(
+          "media",
+          "videos",
+          file.fullFileName
+        );
         video.path = newPath;
+        video.serverPath = serverPath;
         video.link = link;
 
         // Move the video
@@ -97,13 +103,20 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         thumbnail = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
-        const newPath = path.join(
+        const serverPath = path.join(
           rootFolder,
           "media",
           "videos",
           "thumbnails",
           file.fullFileName
         );
+        const newPath = path.join(
+          "media",
+          "videos",
+          "thumbnails",
+          file.fullFileName
+        );
+        thumbnail.serverPath = serverPath;
         thumbnail.path = newPath;
 
         // Move the Thumbnail
@@ -115,13 +128,19 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
         mp3 = file;
         const oldPath = path.join(videoProcessingFolder, file.fullFileName);
 
-        const newPath = path.join(
+        const serverPath = path.join(
           rootFolder,
           "media",
           "mp3s",
           file.fullFileName
         );
+        const newPath = path.join(
+          "media",
+          "mp3s",
+          file.fullFileName
+        );
         mp3.path = newPath;
+        mp3.serverPath = serverPath;
         mp3.link = link;
 
         // Move the MP3
@@ -139,7 +158,7 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
     }
 
     if (video !== undefined) {
-        const queryResults = await addVideoToDb(video, description, req.userId);
+        const queryResults = await sqlAddVideo(video, description, req.userId);
         videoId = queryResults.insertId;
         res.write("data: Video added to database!\n\n");
     }
