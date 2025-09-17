@@ -1,14 +1,33 @@
 import { create } from "zustand";
 import axios from "axios";
 
+let API_URL = '';
+const LOCAL_DEV_IP_ADDRESS = `http://${import.meta.env.VITE_LOCAL_DEV_IP_ADDRESS}:3010`;
+
+if (import.meta.env.VITE_LOCALHOST_DEV !== "" && import.meta.env.VITE_LOCALHOST_DEV !== "false") {
+  API_URL = import.meta.env.MODE === "development" ? "http://localhost:3010/api" : "/api";
+}
+
+if (import.meta.env.VITE_IP_ADDRESS_DEV !== "" && import.meta.env.VITE_IP_ADDRESS_DEV !== "false") {
+  API_URL = import.meta.env.MODE === "development" ? `${LOCAL_DEV_IP_ADDRESS}/api` : "/api";
+}
+
+if (import.meta.env.PROD) {
+  API_URL = "/api";
+}
+
+// TODO Remove below when confirmed working.
 // in production, there's no localhost so we have to make this dynamic
-const API_URL =
-  import.meta.env.MODE === "development" ? "http://localhost:3010/api" : "/api";
+// const API_URL =
+//   import.meta.env.MODE === "development" ? "http://192.168.1.21:3010/api" : "/api";
+
 axios.defaults.withCredentials = true;
 
 export const api = axios.create({
   baseURL: API_URL
 });
+
+export const serverUrl = API_URL.split('/api')[0];
 
 export const useAuthStore = create((set) => ({
   userId: null,

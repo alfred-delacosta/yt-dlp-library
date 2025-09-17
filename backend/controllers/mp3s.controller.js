@@ -1,4 +1,4 @@
-import { getAllMp3sForUser, getMp3, getMp3CountForUser } from "../db/queries.mp3s.js"
+import { getAllMp3sForUser, getMp3, getMp3CountForUser, sqlDeleteMp3 } from "../db/queries.mp3s.js"
 
 export const getMp3s = async (req, res) => {
     try {
@@ -31,5 +31,17 @@ export const getUserMp3Count = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+    }
+}
+
+export const deleteMp3ByIdAndUserId = async (req, res) => {
+    const mp3Id = req.params.id;
+
+    try {
+        const deleteResults = await sqlDeleteMp3(req.userId, mp3Id);
+        res.json(deleteResults);
+    } catch (error) {
+        console.error(error);
+        res.send(400).json({ message: 'There was an error getting the deleting the video for the user.' })
     }
 }
