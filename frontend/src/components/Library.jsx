@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast'
 
-const Library = ({ api, videoLibrary, setVideoLibrary, mp3Library }) => {
+const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library }) => {
     // const [videoLibrary, setVideoLibrary] = useState([]);
     // const [mp3Library, setMp3Library] = useState([]);
 
@@ -18,7 +18,6 @@ const Library = ({ api, videoLibrary, setVideoLibrary, mp3Library }) => {
         try {
             const deleteResults = await api.delete(`/videos/${videoId}`);
             toast.success('Video deleted')
-            // TODO Refresh video library?
             setVideoLibrary(videoLibrary.filter(video => video.id !== videoId));
         } catch (error) {
             console.log(error);
@@ -31,7 +30,7 @@ const Library = ({ api, videoLibrary, setVideoLibrary, mp3Library }) => {
         <li key={video.id}>
             <h4>{video.name}</h4>
             <div>
-                <video className="w-fit" controls src={video.videoPath}></video>
+                <video className="w-fit" controls src={import.meta.env.PROD ? video.videoPath : `${serverUrl}/${video.videoPath}`}></video>
             </div>
             <div>
                 <button onClick={deleteButtonClick} data-videoid={video.id}>Delete</button>
@@ -43,7 +42,7 @@ const Library = ({ api, videoLibrary, setVideoLibrary, mp3Library }) => {
         <li key={mp3.id}>
             <h4>{mp3.name}</h4>
             <div>
-                <audio controls src={mp3.mp3Path}></audio>
+                <audio controls src={import.meta.env.PROD ? mp3.mp3Path : `${serverUrl}/${mp3.mp3Path}`}></audio>
             </div>
         </li>
     ))

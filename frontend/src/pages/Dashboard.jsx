@@ -1,4 +1,4 @@
-import { useAuthStore, api } from "../lib/axios"
+import { useAuthStore, api, serverUrl } from "../lib/axios"
 import { Link, useNavigate } from "react-router";
 import Downloader from "../components/Downloader";
 import Library from "../components/Library";
@@ -23,6 +23,7 @@ const Dashboard = () => {
     }
 
     async function checkAuthentication() {
+      console.log(isAuthenticated);
       if (isAuthenticated && !accessToken) await getNewAccessToken();
       await loadLibrary();
     }
@@ -36,7 +37,7 @@ const Dashboard = () => {
         <h1>Dashboard</h1>
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
-        <Library api={api} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} />
+        <Library api={api} serverUrl={serverUrl} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} />
         <Link to="/">Home</Link>
     </div>
   )

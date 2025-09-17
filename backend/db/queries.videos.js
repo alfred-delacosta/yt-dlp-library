@@ -23,6 +23,5 @@ export const sqlAddVideo = async (file, description, userId) => {
 
 export const sqlDeleteVideo = async (userId, videoId) => {
     const [ results, fields ] = await pool.execute('DELETE FROM videos WHERE userId = ? AND id = ?;', [userId, videoId]);
-    console.log(results);
     return results;
 }
