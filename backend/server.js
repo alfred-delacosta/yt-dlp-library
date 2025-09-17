@@ -22,7 +22,8 @@ app.use(express.json());
 
 //#region Dev Conditions
 if (env.ENVIRONMENT === 'development') {
-    app.use(cors({ origin: ["http://localhost:5173", "http://localhost:3010", /http:\/\/192.168.1.*:5173/, /http:\/\/192.168.1.*:3010/], credentials: true }));
+  // Adjust the ip addresses to your machines ip addresses. I use vite so that's where the 5173 port comes from.
+    app.use(cors({ origin: ["http://localhost:5173", `http://localhost:${env.PORT}`, /http:\/\/192.168.1.*:5173/, /http:\/\/192.168.1.*:\d\d\d\d/], credentials: true }));
 }
 //#endregion
 
