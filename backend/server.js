@@ -14,7 +14,9 @@ import cookieParser from 'cookie-parser';
 //#region Initializations
 const app = express();
 const env = process.env;
-// app.use(helmet());
+if (env.ENVIRONMENT === 'production') {
+    app.use(helmet());
+}
 app.use(express.json());
 //#endregion
 

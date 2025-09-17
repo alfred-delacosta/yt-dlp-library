@@ -9,12 +9,12 @@ const ViewVideo = () => {
         <h1>View Video</h1>
         <h4>{video.name}</h4>
         <div>
-            <video className="w-2/6" controls src={import.meta.env.PROD ? video.videoPath : `${serverUrl}/${video.videoPath}`}></video>
+            <video className="w-2/6" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`}></video>
         </div>
         <div>
             {/* <button type='button' onClick={deleteButtonClick} data-videoid={video.id}>Delete</button> */}
             <button type="button" className='ml-3'>
-                <a href={import.meta.env.PROD ? video.videoPath : `${serverUrl}/${video.videoPath}`} download={""}>Download</a>
+                <a href={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} download={""}>Download</a>
             </button>
         </div>
         <div>
