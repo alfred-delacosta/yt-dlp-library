@@ -8,6 +8,7 @@ import ViewVideo from './pages/ViewVideo'
 import Navbar from './components/Navbar'
 import { useAuthStore } from './lib/axios'
 import ViewMp3 from './pages/ViewMp3'
+import * as bootstrap from 'bootstrap'
 
 
 // protect routes that require authentication

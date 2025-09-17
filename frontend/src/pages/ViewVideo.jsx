@@ -1,4 +1,5 @@
 import { useParams, useLocation, Link } from "react-router"
+import Video from "../components/Video";
 
 const ViewVideo = () => {
     const location = useLocation();

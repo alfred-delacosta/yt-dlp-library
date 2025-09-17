@@ -32,7 +32,7 @@ const Dashboard = () => {
     }, [])
 
   return (
-    <div>
+    <div className="container">
         <h1>Dashboard</h1>
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
