@@ -1,20 +1,8 @@
 import { Link } from 'react-router';
 import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight } from 'lucide-react'
+import toast from "react-hot-toast";
 
-const Video = ({ video, serverUrl, setVideoLibrary }) => {
-    
-    async function deleteVideoButtonClick(e) {
-        const videoId = parseInt(e.target.dataset.videoid);
-        try {
-            const deleteResults = await api.delete(`/videos/${videoId}`);
-            toast.success('Video deleted')
-            setVideoLibrary(videoLibrary.filter(video => video.id !== videoId));
-        } catch (error) {
-            console.log(error);
-            toast.error("There was an error deleting the video")
-        }
-    }
-
+const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api }) => {
   return (
     <div>
         <div className="card shadow">

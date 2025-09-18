@@ -32,7 +32,7 @@ export const signUp = async (req, res) => {
     generateRefreshTokenAndSetCookie(res, userId);
 
     // Generate the access token
-    const accessToken = createAccessToken(res, userId);
+    const accessToken = createAccessToken(userId);
 
     res.status(200).json({ message: "User created successfully!", accessToken});
 

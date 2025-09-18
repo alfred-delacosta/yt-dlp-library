@@ -1,4 +1,5 @@
 import { getAllMp3sForUser, getMp3, getMp3CountForUser, sqlDeleteMp3 } from "../db/queries.mp3s.js"
+import { sqlSearchMp3s } from "../db/queries.search.js";
 
 export const getMp3s = async (req, res) => {
     try {
@@ -7,7 +8,7 @@ export const getMp3s = async (req, res) => {
         res.json(mp3s.reverse());
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+        res.send(400).json({ message: 'There was an error getting the mp3s for the user.' })
     }
 }
 
@@ -19,7 +20,7 @@ export const getMp3ById = async (req, res) => {
         res.json(mp3);
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+        res.send(400).json({ message: 'There was an error getting the mp3 for the user.' })
     }
 }
 
@@ -30,7 +31,7 @@ export const getUserMp3Count = async (req, res) => {
         return res.json(count);
     } catch (error) {
         console.error(error);
-        return res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+        return res.send(400).json({ message: 'There was an error getting the mp3s for the user.' })
     }
 }
 
@@ -42,6 +43,17 @@ export const deleteMp3ByIdAndUserId = async (req, res) => {
         res.json(deleteResults);
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error getting the deleting the video for the user.' })
+        res.send(400).json({ message: 'There was an error getting the deleting the mp3 for the user.' })
+    }
+}
+
+export const searchMp3s = async (req, res) => {
+    try {
+        const { searchTerm } = req.body;
+        const count = await sqlSearchMp3s(searchTerm, req.userId);
+        res.json(count);
+    } catch (error) {
+        console.error(error);
+        res.send(400).json({ message: 'There was an error searching for the mp3.' })
     }
 }

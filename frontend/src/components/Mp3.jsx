@@ -1,18 +1,8 @@
 import { Link } from "react-router";
 import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight } from 'lucide-react'
-const Mp3 = ({ mp3, serverUrl, setMp3Library}) => {
-    async function deleteMp3ButtonClick(e) {
-        const mp3Id = parseInt(e.target.dataset.mp3id);
+import toast from "react-hot-toast";
 
-        try {
-            const deleteResults = await api.delete(`/mp3s/${mp3Id}`);
-            toast.success('Mp3 deleted')
-            setMp3Library(mp3Library.filter(mp3 => mp3.id !== mp3Id));
-        } catch (error) {
-            console.log(error);
-            toast.error("There was an error deleting the MP3")
-        }
-    }
+const Mp3 = ({ mp3, serverUrl, deleteMp3ButtonClick, setMp3Library, api}) => {
   return (
     <div>
         <div className="card shadow">

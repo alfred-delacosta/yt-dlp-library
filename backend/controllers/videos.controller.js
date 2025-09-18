@@ -1,4 +1,5 @@
 import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser } from "../db/queries.videos.js"
+import { sqlSearchVideos } from "../db/queries.search.js";
 
 export const getVideos = async (req, res) => {
     try {
@@ -42,5 +43,16 @@ export const deleteVideoByIdAndUserId = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the deleting the video for the user.' })
+    }
+}
+
+export const searchVideos = async (req, res) => {
+    try {
+        const { searchTerm } = req.body;
+        const count = await sqlSearchVideos(searchTerm, req.userId);
+        res.json(count);
+    } catch (error) {
+        console.error(error);
+        res.send(400).json({ message: 'There was an error searching for the video.' })
     }
 }

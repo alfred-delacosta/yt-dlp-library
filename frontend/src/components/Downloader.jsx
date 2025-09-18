@@ -58,11 +58,11 @@ const Downloader = ({ api, loadLibrary }) => {
                 <h3>Download</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label htmlFor="videoUrl">Video URL</label>
+                        <label className="form-label" htmlFor="videoUrl">Video URL</label>
                         <input type="url" className="form-control" name="videoUrl" id="videoUrl" value={videoUrl} onChange={(e) => { setVideoUrl(e.target.value)}} required />
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="downloadType">DownloadType</label>
+                        <label className="form-label" htmlFor="downloadType">DownloadType</label>
                         <select className="form-control" name="downloadType" id="downloadType" onChange={(e) => setDownloadType(e.target.value)}>
                             <option value="regular">YouTube</option>
                             <option value="x">X/Twitter</option>
@@ -71,7 +71,6 @@ const Downloader = ({ api, loadLibrary }) => {
                         </select>
                     </div>
                     <button className="btn btn-outline-primary" type="submit">Submit</button>
-                    {downloaderLoading && <span>Downloading</span>}
                 </form>
             </div>
             <div className="col-12 col-sm-7 align-self-center mt-3 mt-sm-0">

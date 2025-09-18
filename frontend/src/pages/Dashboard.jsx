@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import Downloader from "../components/Downloader";
 import Library from "../components/Library";
 import LibraryCounts from "../components/LibraryCounts";
+import SearchBar from "../components/SearchBar";
 import { useState, useEffect } from "react";
 
 const Dashboard = () => {
@@ -35,6 +36,7 @@ const Dashboard = () => {
     <div className="container-fluid">
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
+        <SearchBar videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} api={api} loadLibrary={loadLibrary}/>
         <Library api={api} serverUrl={serverUrl} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} />
         <Link to="/">Home</Link>
     </div>

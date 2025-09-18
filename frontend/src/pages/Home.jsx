@@ -4,8 +4,7 @@ const Home = () => {
   const { accessToken, isAuthenticated } = useAuthStore();
   return (
     <div>
-        <h1>Home</h1>
-        <p>Welcome to yt-dlp-library</p>
+        <h1>Welcome to Yt-dlp Library</h1>
     </div>
   )
 }
