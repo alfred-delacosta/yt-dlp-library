@@ -32,8 +32,7 @@ const Dashboard = () => {
     }, [])
 
   return (
-    <div className="container">
-        <h1>Dashboard</h1>
+    <div className="container-fluid">
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
         <Library api={api} serverUrl={serverUrl} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} />

@@ -1,5 +1,6 @@
 import { Link } from "react-router"
 import Logout from "./Logout"
+import { Moon } from "lucide-react"
 const Navbar = ({ isAuthenticated, accessToken}) => {
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -29,6 +30,9 @@ const Navbar = ({ isAuthenticated, accessToken}) => {
                             </li>
                         )}
                     </ul>
+                    <div className="d-flex">
+                        <button data-bs-theme-value className="btn btn-dark">Toggle Dark Mode <Moon /></button>
+                    </div>
                     <form className="d-flex">
                         <Logout />
                     </form>

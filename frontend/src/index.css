@@ -9,3 +9,19 @@ html body {
 .h-100vh {
     height: 100vh !important;
 }
+
+.whitespace-pre {
+    white-space: pre;
+}
+
+.whitespace-break-spaces {
+    white-space: break-spaces;
+}
+
+.max-height-50vh {
+    max-height: 50vh;
+}
+
+.max-height-25vh {
+    max-height: 25vh;
+}
