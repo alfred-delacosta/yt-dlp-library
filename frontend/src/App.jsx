@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Logout from './components/Logout'
 import ViewVideo from './pages/ViewVideo'
 import Navbar from './components/Navbar'
+import Legacy from './pages/Legacy'
 import { useAuthStore } from './lib/axios'
 import ViewMp3 from './pages/ViewMp3'
 import * as bootstrap from 'bootstrap'
@@ -52,6 +53,7 @@ function App() {
       <Navbar isAuthenticated={isAuthenticated} accessToken={accessToken} />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/legacy" element={<Legacy />} />
         <Route path="/login" element={
           <RedirectAuthenticatedUser>
             <Login />

@@ -14,6 +14,7 @@ const Dashboard = () => {
 
     const [videoLibrary, setVideoLibrary] = useState([]);
     const [mp3Library, setMp3Library] = useState([]);
+    const [numberOfItems, setNumberOfItems] = useState(10);
 
     async function loadLibrary() {
       const videoApiResponse = await api.get('/videos');
@@ -37,7 +38,7 @@ const Dashboard = () => {
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
         <SearchBar videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} api={api} loadLibrary={loadLibrary}/>
-        <Library api={api} serverUrl={serverUrl} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} />
+        <Library api={api} serverUrl={serverUrl} videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} numberOfItems={numberOfItems} />
         <Link to="/">Home</Link>
     </div>
   )

@@ -2,14 +2,14 @@ export const addUsersToVideosTable = `
 ALTER TABLE videos
 ADD COLUMN userId INT,
 ADD CONSTRAINT fk_videos_userid
-FOREIGN KEY (userId) REFERENCES users (userId);
+FOREIGN KEY (userId) REFERENCES users (id);
 `;
 
 export const addUsersToMp3sTable = `
 ALTER TABLE mp3s
 ADD COLUMN userId INT,
 ADD CONSTRAINT fk_mp3s_userid
-FOREIGN KEY (userId) REFERENCES users (userId);
+FOREIGN KEY (userId) REFERENCES users (id);
 `;
 
 export const addServerPathToVideos = `
@@ -26,3 +26,7 @@ export const addServerPathToThumbnails = `
 ALTER TABLE thumbnails
 ADD COLUMN serverPath TEXT;
 `;
+
+export const updateVideosToFirstUser = `UPDATE videos SET userId = 1 WHERE userId is NULL;`
+
+// TODO Make a query to update the videoPath of a row in the sql database.

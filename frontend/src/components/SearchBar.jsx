@@ -30,7 +30,7 @@ const SearchBar = ({ videoLibrary, setVideoLibrary, mp3Library, setMp3Library, a
     }
 
     return (
-        <div className="row mt-3 justify-content-center">
+        <div className="row my-3 justify-content-center">
             <div className="col-12 col-sm-10">
                 <label htmlFor="search" className="form-label">Search for Videos and MP3s</label>
                 <input type="text" className="form-control" name="search" id="search" placeholder="Search..." onChange={handleFormChange} value={searchTerm} />

@@ -2,8 +2,9 @@ import toast from 'react-hot-toast'
 import { Link } from 'react-router';
 import Video from './Video';
 import Mp3 from './Mp3';
+import Pagination from './Pagination';
 
-const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, setMp3Library }) => {
+const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, setMp3Library, numberOfItems }) => {
 
     async function deleteVideoButtonClick(e) {
         try {
@@ -43,7 +44,8 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
 
   return (
     <div className='row'>
-        <div className="col-12">
+        <Pagination items={listVideos} itemsPerPage={numberOfItems} />
+        {/* <div className="col-12">
             <h2>Library</h2>
         </div>
         <div className="col-12">
@@ -71,7 +73,7 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
                     </div>
                 )}
             </div>
-        </div>
+        </div> */}
     </div>
 
   )

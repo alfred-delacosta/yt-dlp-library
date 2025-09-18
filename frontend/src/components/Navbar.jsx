@@ -14,6 +14,9 @@ const Navbar = ({ isAuthenticated, accessToken}) => {
                         <li className="nav-item">
                             <Link to="/" className="nav-link">Home</Link>
                         </li>
+                        <li className="nav-item">
+                            <Link to="/legacy" className="nav-link">Legacy Updates</Link>
+                        </li>
                         { isAuthenticated && (
                             <li className="nav-item">
                                 <Link to="/dashboard" className="nav-link">Dashboard</Link>
