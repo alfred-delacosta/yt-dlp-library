@@ -30,6 +30,7 @@ const Dashboard = () => {
     }
 
     useEffect(() => {
+      // TODO Create a way to check for the db and folders being initialized, maybe make a brand new table called maintenance and use that to initialize stuff.
       checkAuthentication();
     }, [])
 

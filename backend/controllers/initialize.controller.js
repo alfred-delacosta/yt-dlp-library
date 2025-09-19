@@ -207,7 +207,6 @@ export const updateVideoPaths = async (req, res) => {
         const newVideoPath = path.join('media', baseVideoPath);
         const newServerPath = path.join(rootFolder, 'media', 'videos', video.name);
         await sqlUpdateVideoPaths(newVideoPath, newServerPath, video.id);
-        console.log(`Video: ${video.name} updated!`)
       }
     }
 

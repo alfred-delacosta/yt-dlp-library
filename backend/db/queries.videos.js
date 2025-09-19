@@ -22,7 +22,7 @@ export const sqlAddVideo = async (file, description, userId) => {
 }
 
 export const sqlUpdateVideoPaths = async (videoPath, serverPath, videoId) => {
-    const [ results, fields ] = await pool.execute(`UPDATE videos SET videoPath = ?, serverPath = ? WHERE id = ?;`, [videoPath, serverPath, videoId]);
+    const [ results, fields ] = await pool.execute(`UPDATE videos SET videoPath = ?, serverPath = ?, userId = 1 WHERE id = ?;`, [videoPath, serverPath, videoId]);
 
     return results;
 }
