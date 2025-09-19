@@ -1,9 +1,11 @@
 import mysql from "mysql2/promise";
 import "@dotenvx/dotenvx/config";
 import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable } from "../db/queries.initialize.db.js";
-import { addUsersToVideosTable, addUsersToMp3sTable, addServerPathToVideos, addServerPathToMp3s, addServerPathToThumbnails } from "../db/queries.general.js";
+import { addUsersToVideosTable, addUsersToMp3sTable, addServerPathToVideos, addServerPathToMp3s, addServerPathToThumbnails, getAllVideos } from "../db/queries.general.js";
 import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
+import path from 'path'
 import { pool } from "../db/db.pool.js";
+import { sqlUpdateVideoPaths } from "../db/queries.videos.js";
 
 // TODO Come back and refactor this at some point...
 export const initializeDb = async (req, res) => {
@@ -193,5 +195,27 @@ export const updateLegacyTables = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: 'There was an error updating the Legacy Tables.' })
+  }
+}
+
+export const updateVideoPaths = async (req, res) => {
+  try {
+    const [videoResults, videoFields] = await pool.query(getAllVideos);
+    for (const video of videoResults) {
+      const baseVideoPath = video.videoPath.split('/videos/')[1];
+      if (baseVideoPath) {
+        const newVideoPath = path.join('media', baseVideoPath);
+        const newServerPath = path.join(rootFolder, 'media', 'videos', video.name);
+        await sqlUpdateVideoPaths(newVideoPath, newServerPath, video.id);
+        console.log(`Video: ${video.name} updated!`)
+      }
+    }
+
+    const [newVideoResults, newVideoFields] = await pool.query(getAllVideos);
+
+    res.json(newVideoResults);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ message: "There was an error!", error});
   }
 }

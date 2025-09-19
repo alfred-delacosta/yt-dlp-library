@@ -29,4 +29,4 @@ ADD COLUMN serverPath TEXT;
 
 export const updateVideosToFirstUser = `UPDATE videos SET userId = 1 WHERE userId is NULL;`
 
-// TODO Make a query to update the videoPath of a row in the sql database.
+export const getAllVideos = `SELECT * FROM videos;`

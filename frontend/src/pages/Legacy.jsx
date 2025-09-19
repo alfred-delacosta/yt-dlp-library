@@ -18,6 +18,20 @@ const Legacy = () => {
         }
     }
 
+    async function handleUpdateVideosTable(e) {
+        toast.loading("Tables are being updated.")
+        try {
+            const videoResults = await api.get('/initialize/updateVideosTable');
+            console.log(videoResults.data);
+            toast.dismiss();
+            toast.success("Tables updated!")
+        } catch (error) {
+            toast.dismiss();
+            toast.error("Uh-oh! There was an error with the download. ☹")
+            console.log(error.message);
+        }
+    }
+
   return (
     <div className="container">
         <div className="row">
@@ -28,6 +42,9 @@ const Legacy = () => {
                 <div className="row justify-content-around">
                     <div className="col-12 col-sm">
                         <button className="btn btn-primary" onClick={handleUpdateLegacyTablesClick}>Update Legacy Tables</button>
+                    </div>
+                    <div className="col-12 col-sm">
+                        <button className="btn btn-primary" onClick={handleUpdateVideosTable}>Update Videos Tables</button>
                     </div>
                 </div>
             </div>

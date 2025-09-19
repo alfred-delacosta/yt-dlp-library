@@ -21,6 +21,12 @@ export const sqlAddVideo = async (file, description, userId) => {
     return results;
 }
 
+export const sqlUpdateVideoPaths = async (videoPath, serverPath, videoId) => {
+    const [ results, fields ] = await pool.execute(`UPDATE videos SET videoPath = ?, serverPath = ? WHERE id = ?;`, [videoPath, serverPath, videoId]);
+
+    return results;
+}
+
 export const sqlDeleteVideo = async (userId, videoId) => {
     const [ results, fields ] = await pool.execute('DELETE FROM videos WHERE userId = ? AND id = ?;', [userId, videoId]);
     return results;
