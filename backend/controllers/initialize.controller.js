@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 import "@dotenvx/dotenvx/config";
-import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable, createMaintenanceTable, addMaintenanceTableEntry, getMaintenanceTableEntry } from "../db/queries.initialize.db.js";
+import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable, createMaintenanceTable, addMaintenanceTableEntry, getMaintenanceTableEntry, setLegacyUserFalse, setLegacyUserTrue, getLegacyAppUser, getLegacyAppUpdated, sqlSetLegacyAppUpdated } from "../db/queries.initialize.db.js";
 import { addUsersToVideosTable, addUsersToMp3sTable, addServerPathToVideos, addServerPathToMp3s, addServerPathToThumbnails, getAllVideos } from "../db/queries.general.js";
 import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
 import path from 'path'
@@ -335,8 +335,9 @@ export const updateVideoPaths = async (req, res) => {
     }
 
     const [newVideoResults, newVideoFields] = await pool.query(getAllVideos);
+    const [legacyAppUpdatedResults, legacyAppUpdatedFields ] = await pool.query(sqlSetLegacyAppUpdated)
 
-    res.json(newVideoResults);
+    res.json({newVideoResults, legacyAppUpdated: true});
   } catch (error) {
     console.error(error);
     return res.status(400).json({ message: "There was an error!", error});
@@ -379,21 +380,70 @@ export const createMaintenanceTableEntry = async (req, res) => {
 
 export const checkForAppInitialization = async (req, res) => {
   try {
-    const pool =  mysql.createPool({
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT === "" ? "3306" : process.env.DB_PORT,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      enableKeepAlive: true,
-      keepAliveInitialDelay: 0,
-    });
-
     const [results, fields] = await pool.query(getMaintenanceTableEntry);
     res.json({ results, appInit: true });
+  } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      res.json({ message: "Maintenance table has not been created.", appInit: false, results: [] });
+    } else {
+      console.error(error);
+      res.status(400).json({message: "There was an error creating the entry in the maintenance table. Please check your database connection, mysql instance, or hard drive space."});
+    }
+  }
+}
+
+export const checkLegacyAppUser = async (req, res) => {
+  try {
+    const [results, fields] = await pool.query(getLegacyAppUser);
+    res.json(results);
+  } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      res.json({ message: "Maintenance table has not been created.", appInit: false, results: [] });
+    } else {
+      console.error(error);
+      res.status(400).json({message: "There was an error creating the entry in the maintenance table. Please check your database connection, mysql instance, or hard drive space."});
+    }
+  }
+}
+
+export const checkLegacyAppUpdated = async (req, res) => {
+  try {
+    const [results, fields] = await pool.query(getLegacyAppUpdated);
+    res.json(results);
+  } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      res.json({ message: "Maintenance table has not been created.", appInit: false, results: [] });
+    } else {
+      console.error(error);
+      res.status(400).json({message: "There was an error creating the entry in the maintenance table. Please check your database connection, mysql instance, or hard drive space."});
+    }
+  }
+}
+
+export const setLegacyAppUser = async (req, res) => {
+  try {
+    const { legacyAppUser } = req.body;
+    if (legacyAppUser == 1) {
+      const [results, fields] = await pool.query(setLegacyUserTrue);
+      res.json({ message: "LegacyAppUser set to true.", results })
+    } else {
+      const [results, fields] = await pool.query(setLegacyUserFalse);
+      res.json({ message: "LegacyAppUser set to false.", results })
+    }
+  } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      res.json({ message: "Maintenance table has not been created.", appInit: false, results: [] });
+    } else {
+      console.error(error);
+      res.status(400).json({message: "There was an error creating the entry in the maintenance table. Please check your database connection, mysql instance, or hard drive space."});
+    }
+  }
+}
+
+export const setLegacyAppUpdated = async (req, res) => {
+  try {
+      const [results, fields] = await pool.query(sqlSetLegacyAppUpdated);
+      res.json({ message: "LegacyAppUser set to true.", results })
   } catch (error) {
     if (error.code === 'ER_NO_SUCH_TABLE') {
       res.json({ message: "Maintenance table has not been created.", appInit: false, results: [] });

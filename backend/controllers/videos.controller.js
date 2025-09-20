@@ -4,6 +4,7 @@ import { sqlSearchVideos } from "../db/queries.search.js";
 export const getVideos = async (req, res) => {
     try {
         const videos = await getAllVideosForUser(req.userId);
+        console.log(videos);
 
         res.json(videos.reverse());
     } catch (error) {
