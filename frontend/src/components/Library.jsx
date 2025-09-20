@@ -63,7 +63,7 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
         {videoLibrary.length > 0 && <Pagination items={listVideos()} itemsPerPage={numberOfItems} />}
         {videoLibrary.length < 1 && (
             <div className="col-12">
-                No videos found! Go get some!
+                <p className="lead">No videos found.</p>
             </div>
         )}
         <div className="col-12">
@@ -74,7 +74,7 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
                 {mp3Library.length > 0 && <Pagination items={listMp3s()} itemsPerPage={numberOfItems} />}
                 {mp3Library.length < 1 && (
                     <div className="col-12">
-                        No MP3's found! Go get some!
+                        <p className="lead">No MP3s found.</p>
                     </div>
                 )}
             </div>
