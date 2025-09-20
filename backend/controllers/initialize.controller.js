@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 import "@dotenvx/dotenvx/config";
-import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable } from "../db/queries.initialize.db.js";
+import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable, createMaintenanceTable } from "../db/queries.initialize.db.js";
 import { addUsersToVideosTable, addUsersToMp3sTable, addServerPathToVideos, addServerPathToMp3s, addServerPathToThumbnails, getAllVideos } from "../db/queries.general.js";
 import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
 import path from 'path'
@@ -47,6 +47,17 @@ export const initializeDb = async (req, res) => {
     );
   } catch (error) {
     if (error.code === "ER_NO_SUCH_TABLE") {
+      // Create the Maintenance table 
+      try {
+        const [results, fields] = await pool.query(createMaintenanceTable);
+        console.log("Maintenance table created.");
+      } catch (error) {
+        console.error(error);
+        res.status(400).json({
+          message:
+            "There was an error creating the maintenance table. Please check your database connection, mysql instance, or hard drive space."
+        });
+      }
       try {
         // Create the users table
         const [results, fields] = await pool.query(createUsersTable);
@@ -111,11 +122,36 @@ export const initializeDb = async (req, res) => {
         const [videoResults, videoFields] = await pool.query("SELECT * FROM `videos`");
         const [thumbnailResults, thumbnailFields] = await pool.query("SELECT * FROM `thumbnails`");
         const [mp3Results, mp3Fields] = await pool.query("SELECT * FROM `thumbnails`");
+        const [usersResults, usersFields] = await pool.query("SELECT * FROM `users`");
+        const [maintenanceResults, maintenanceFields] = await pool.query("SELECT * FROM `maintenance`");
 
-        res.status(200).json({ message: "Database already initialized!", videoResults, thumbnailResults, mp3Results });
+        res.status(200).json({ message: "Database already initialized!", videoResults, thumbnailResults, mp3Results, dbInitialized: true });
 
       } catch (error) {
         if (error && error.code === "ER_NO_SUCH_TABLE") {
+          // Create the Maintenance table 
+          try {
+            const [results, fields] = await pool.query(createMaintenanceTable);
+            console.log("Maintenance table created.");
+          } catch (error) {
+            console.error(error);
+            res.status(400).json({
+              message:
+                "There was an error creating the maintenance table. Please check your database connection, mysql instance, or hard drive space."
+            });
+          }
+
+          try {
+            const [results, fields] = await pool.query(createUsersTable);
+            console.log("Users table created.");
+          } catch (error) {
+            console.error(error);
+            res.status(400).json({
+              message:
+                "There was an error creating the users table. Please check your database connection, mysql instance, or hard drive space."
+            });
+          }
+
           try {
             // Create videos table
             const [results, fields] = await pool.query(createVideosTable);
@@ -150,18 +186,6 @@ export const initializeDb = async (req, res) => {
                 "There was an error creating the mp3s table. Please check your database connection, mysql instance, or hard drive space."
             });
           }
-
-          try {
-            const [results, fields] = await pool.query(createUsersTable);
-            console.log("Users table created.");
-          } catch (error) {
-            console.error(error);
-            res.status(400).json({
-              message:
-                "There was an error creating the users table. Please check your database connection, mysql instance, or hard drive space."
-            });
-          }
-
           res.status(200).json({ message: "Database successfully initialized."});
         }
       }
@@ -174,7 +198,7 @@ export const initializeFolders = async (req, res) => {
         await createFolders();
         res.status(200).json({ message: "Folders successfully created."})
     } catch (error) {
-        if (error.errno === -4075) res.status(200).json({ message: "Folders already created!"});
+        if (error.errno === -4075) res.status(200).json({ message: "Folders already created!", foldersInitialized: true});
         else {
             res.status(400).json({ message: "There was an error initializing the folders."});
             console.error(error);
@@ -184,7 +208,7 @@ export const initializeFolders = async (req, res) => {
 
 export const updateLegacyTables = async (req, res) => {
   try {
-    const [ uResults, uFields ] = await pool.query(createUsersTable);
+    // const [ uResults, uFields ] = await pool.query(createUsersTable);
     const [ uvResults, uvFields ] = await pool.query(addUsersToVideosTable);
     const [ umResults, umFields ] = await pool.query(addUsersToMp3sTable);
     const [ spvResults, spvFields ] = await pool.query(addServerPathToVideos);
@@ -217,4 +241,15 @@ export const updateVideoPaths = async (req, res) => {
     console.error(error);
     return res.status(400).json({ message: "There was an error!", error});
   }
+}
+
+export const checkForUsersTable = async (req, res) => {
+  try {
+    const [results, fields] = await pool.query('SHOW TABLES LIKE ?', ['users']);
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ message: "There was an error checking for the users table.", error: error.message })
+  }
+  
 }

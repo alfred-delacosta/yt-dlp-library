@@ -16,3 +16,5 @@ CREATE TABLE users (
   UNIQUE INDEX email_UNIQUE (email ASC) VISIBLE,
   UNIQUE INDEX resetPasswordToken_UNIQUE (resetPasswordToken ASC) VISIBLE)
 `;
+
+export const createMaintenanceTable =  'CREATE TABLE maintenance (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, applicationInitialzied CHAR, legacyAppUser CHAR, legacyAppUpdated CHAR)';

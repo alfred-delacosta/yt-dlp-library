@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 const Downloader = ({ api, loadLibrary }) => {
     const [videoUrl, setVideoUrl] = useState('');
-    const [downloadType, setDownloadType] = useState('regular');
+    const [downloadType, setDownloadType] = useState('mp4');
     const [serverMessages, setServerMessages] = useState('');
     const [downloaderLoading, setDownloaderLoading] = useState(false);
     const serverMessagesEndRef = useRef(null);
@@ -64,10 +64,10 @@ const Downloader = ({ api, loadLibrary }) => {
                     <div className="mb-3">
                         <label className="form-label" htmlFor="downloadType">DownloadType</label>
                         <select className="form-control" name="downloadType" id="downloadType" onChange={(e) => setDownloadType(e.target.value)}>
-                            <option value="regular">YouTube</option>
-                            <option value="x">X/Twitter</option>
-                            <option value="mp3">MP3</option>
                             <option value="mp4">Mp4</option>
+                            <option value="x">X/Twitter</option>
+                            <option value="regular">Best (Possible Non-MP4 file)</option>
+                            <option value="mp3">MP3</option>
                         </select>
                     </div>
                     <button className="btn btn-outline-primary" type="submit">Submit</button>
