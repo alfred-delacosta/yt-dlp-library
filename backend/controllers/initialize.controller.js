@@ -6,6 +6,7 @@ import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js
 import path from 'path'
 import { pool } from "../db/db.pool.js";
 import { sqlUpdateVideoPaths } from "../db/queries.videos.js";
+import { getAllMp3s, sqlUpdateMp3Paths } from "../db/queries.mp3s.js";
 
 export const initializeDb = async (req, res) => {
   try {
@@ -344,6 +345,26 @@ export const updateVideoPaths = async (req, res) => {
   }
 }
 
+export const updateMp3Paths = async (req, res) => {
+  try {
+    const mp3Results = await getAllMp3s();
+    for (const mp3 of mp3Results) {
+      const baseMp3Path = mp3.mp3Path.split('/mp3s/')[1];
+      if (baseMp3Path) {
+        const newMp3Path = path.join('media', 'mp3s', baseMp3Path);
+        const newServerPath = path.join(rootFolder, 'media', 'mp3s', mp3.name);
+        await sqlUpdateMp3Paths(newMp3Path, newServerPath, mp3.id);
+      }
+    }
+
+    const [newMp3Results, newVideoFields] = await getAllMp3s();
+    res.json(newMp3Results);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ message: "There was an error!", error});
+  }
+}
+
 export const checkForUsersTable = async (req, res) => {
   try {
     const [results, fields] = await pool.query('SHOW TABLES LIKE ?', ['users']);
@@ -384,8 +405,11 @@ export const checkForAppInitialization = async (req, res) => {
     res.json({ results, appInit: true });
   } catch (error) {
     if (error.code === 'ER_NO_SUCH_TABLE') {
-      res.json({ message: "Maintenance table has not been created.", appInit: false, results: [] });
-    } else {
+      return res.json({ message: "Maintenance table has not been created.", appInit: false, results: [] });
+    } else if (error.code === 'ER_BAD_DB_ERROR') {
+      return res.json({message: "DB has not been created.", appInit: false, results: []})
+    } 
+    else {
       console.error(error);
       res.status(400).json({message: "There was an error creating the entry in the maintenance table. Please check your database connection, mysql instance, or hard drive space."});
     }
