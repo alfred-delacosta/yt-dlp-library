@@ -66,23 +66,12 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
                 No videos found! Go get some!
             </div>
         )}
-        {/* <div className="col-12">
-            <h2>Library</h2>
-        </div>
-        <div className="col-12">
-            <h3>Videos</h3>
-        </div>
-        <div className="col-12">
-            <div className="row">
-
-            </div>
-        </div> */}
         <div className="col-12">
             <h3>MP3s</h3>
         </div>
         <div className="col-12">
             <div className="row">
-                {mp3Library.length > 0 && listMp3s()}
+                {mp3Library.length > 0 && <Pagination items={listMp3s()} itemsPerPage={numberOfItems} />}
                 {mp3Library.length < 1 && (
                     <div className="col-12">
                         No MP3's found! Go get some!

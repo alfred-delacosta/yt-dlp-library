@@ -13,8 +13,8 @@ const SearchBar = ({ videoLibrary, setVideoLibrary, mp3Library, setMp3Library, a
         try {
             const videoResponse = await api.post('/videos/search', {searchTerm: term});
             const mp3Response = await api.post('/mp3s/search', {searchTerm: term});
-            setVideoLibrary(videoResponse.data)
-            setMp3Library(mp3Response.data);
+            setVideoLibrary(videoResponse.data.reverse())
+            setMp3Library(mp3Response.data.reverse());
         } catch (error) {
             console.log("There was an error")
             console.error(error);

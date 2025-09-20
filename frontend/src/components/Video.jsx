@@ -31,6 +31,11 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api 
                         <a href={video.link} target='_blank' className='btn btn-warning'><SquareArrowOutUpRight /> Original Link</a>
                     </div>
                 </div>
+                <div className="row mt-3">
+                    <div className="col-12 text-center">
+                        <h6>Download Date: {new Date(video.downloadDate).toLocaleString()}</h6>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
