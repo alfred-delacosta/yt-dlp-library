@@ -14,6 +14,7 @@ import cookieParser from 'cookie-parser';
 //#region Initializations
 const app = express();
 const env = process.env;
+// Comement out below if you are only running locally.
 if (env.ENVIRONMENT === 'production') {
     app.use(helmet());
 }

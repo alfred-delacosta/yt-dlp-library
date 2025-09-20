@@ -9,7 +9,7 @@ export const generateRefreshTokenAndSetCookie = (res, userId) => {
 
     res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.ENVIRONMENT === 'production',
+        secure: process.env.ENVIRONMENT === 'production', // Comment this line if you only plan to use it locally.
         sameSite: "strict",
         maxAge: process.env.COOKIE_EXPIRATION_TIME_IN_HOURS * 3600000,
     })

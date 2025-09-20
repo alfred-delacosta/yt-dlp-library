@@ -333,7 +333,7 @@ export const updateVideoPaths = async (req, res) => {
         if (strMatchResults !== null && strMatchResults.length > 1) {
           const baseVideoPath = video.videoPath.match(/[\\\/]videos[\\\/](.+)/)[1];
           if (baseVideoPath) {
-            const newVideoPath = path.join('media', baseVideoPath);
+            const newVideoPath = path.join('media', 'videos', baseVideoPath);
             const newServerPath = path.join(rootFolder, 'media', 'videos', video.name);
             await sqlUpdateVideoPaths(newVideoPath, newServerPath, video.id);
           }
