@@ -16,3 +16,19 @@ CREATE TABLE users (
   UNIQUE INDEX email_UNIQUE (email ASC) VISIBLE,
   UNIQUE INDEX resetPasswordToken_UNIQUE (resetPasswordToken ASC) VISIBLE)
 `;
+
+export const createMaintenanceTable =  'CREATE TABLE maintenance (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, applicationInitialzied CHAR, legacyAppUser CHAR, legacyAppUpdated CHAR)';
+
+export const addMaintenanceTableEntry = `INSERT INTO maintenance (applicationInitialzied, legacyAppUser, legacyAppUpdated) VALUES (1, 0, 0);`
+
+export const getMaintenanceTableEntry = `SELECT * from maintenance WHERE id = 1;`
+
+export const setLegacyUserTrue = `UPDATE maintenance SET legacyAppUser = 1 WHERE id = 1`;
+
+export const setLegacyUserFalse = `UPDATE maintenance SET legacyAppUser = 1 WHERE id = 1`;
+
+export const getLegacyAppUser = `SELECT legacyAppUser FROM maintenance WHERE id = 1`;
+
+export const sqlSetLegacyAppUpdated = `UPDATE maintenance SET legacyAppUpdated = 1 WHERE id = 1`;
+
+export const getLegacyAppUpdated = `SELECT legacyAppUpdated FROM maintenance WHERE id = 1`;

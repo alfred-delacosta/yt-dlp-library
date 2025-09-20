@@ -4,12 +4,19 @@ import { useAuthStore } from "../lib/axios";
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [validated, setValidated] = useState(false);
 
   const { login, getNewAccessToken, isLoading, error, accessToken, signup } = useAuthStore();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await signup(email, password);
+    const form = e.currentTarget;
+    if (form.checkValidity() === false) {
+      e.stopPropagation();
+    } else {
+      setValidated(true);
+      await signup(email, password);
+    }    
   }
 
   async function checkAuth() {
@@ -26,16 +33,25 @@ const Signup = () => {
     }, [accessToken])
 
   return (
-    <div className="bg-slate-500 h-screen">
-      <h1>Signup Page</h1>
-      <form onSubmit={handleSubmit} className="my-10">
-        <label htmlFor="email" className="mx-5">Email</label>
-        <input type="text" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="true" />
-        <label htmlFor="passowrd" className="mx-5">Password</label>
-        <input type="password" name="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit">Submit</button>
-      </form>
-      <Link to="/">Home</Link>
+    <div className="h-100vh container">
+      <div className="row justify-content-center h-100">
+        <div className="col-12 text-center align-self-end">
+          <h1 className="mb-5">Sign Up</h1>
+        </div>
+        <div className="col-5 align-self-start">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label">Email</label>
+              <input type="text" className="form-control" name="email" id="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="true" />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="passowrd" className="form-label">Password</label>
+              <input type="password" className="form-control" name="password" id="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <button type="submit" className="btn btn-primary">Submit</button>
+          </form>
+        </div>
+      </div>
     </div>
   )
 }

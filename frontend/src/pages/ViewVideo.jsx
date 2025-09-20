@@ -1,24 +1,31 @@
-import { useParams, useLocation, Link } from "react-router"
+import { useParams, useLocation, useNavigate } from "react-router"
+import Video from "../components/Video";
+import toast from "react-hot-toast";
+import { api } from "../lib/axios";
 
 const ViewVideo = () => {
     const location = useLocation();
     const { video, serverUrl } = location.state;
     const { id } = useParams();
+    const navigate = useNavigate();
+
+    async function deleteVideoButtonClick(e) {
+        try {
+            const deleteResults = await api.delete(`/videos/${video.id}`);
+            toast.success('Video deleted')
+            navigate("/dashboard")
+        } catch (error) {
+            console.log(error);
+            toast.error("There was an error deleting the video")
+        }
+    }
+
   return (
-    <div>
-        <h1>View Video</h1>
-        <h4>{video.name}</h4>
-        <div>
-            <video className="w-2/6" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`}></video>
-        </div>
-        <div>
-            {/* <button type='button' onClick={deleteButtonClick} data-videoid={video.id}>Delete</button> */}
-            <button type="button" className='ml-3'>
-                <a href={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} download={""}>Download</a>
-            </button>
-        </div>
-        <div>
-            <Link to="/dashboard">Dashboard</Link>
+    <div className="container">
+        <div className="row justify-content-center">
+            <div className="col-12 col-sm-10">
+                <Video video={video} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} api={api} />
+            </div>
         </div>
     </div>
   )

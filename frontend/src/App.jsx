@@ -1,12 +1,17 @@
 import { Routes, Route, Navigate } from 'react-router'
+import { useEffect } from 'react'
 import Login from './pages/Login'
 import Home from './pages/Home'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Logout from './components/Logout'
 import ViewVideo from './pages/ViewVideo'
+import Navbar from './components/Navbar'
+import Legacy from './pages/Legacy'
 import { useAuthStore } from './lib/axios'
 import ViewMp3 from './pages/ViewMp3'
+import * as bootstrap from 'bootstrap'
+import { initializeThemeToggler } from './lib/boostrap.themeSwitcher'
 
 
 // protect routes that require authentication
@@ -36,14 +41,19 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { accessToken } = useAuthStore();
+  const { isAuthenticated, accessToken } = useAuthStore();
+
+  useEffect(() => {
+    initializeThemeToggler();
+  }, [])
 
   return (
-    <div className='h-screen'>
-      {accessToken ? <p>{accessToken}</p> : <p>No access token found</p>}
-      <Logout />
+    <div className='h-100'>
+      {/* {accessToken ? <p>{accessToken}</p> : <p>No access token found</p>} */}
+      <Navbar isAuthenticated={isAuthenticated} accessToken={accessToken} />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/legacy" element={<Legacy />} />
         <Route path="/login" element={
           <RedirectAuthenticatedUser>
             <Login />
