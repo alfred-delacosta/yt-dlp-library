@@ -29,6 +29,20 @@ const ProtectedRoute = ({ children }) => {
 	return children;
 };
 
+const RequiredSignUpRoute = ({ children }) => {
+	const { isAuthenticated, accessToken } = useAuthStore();
+
+	if (!isAuthenticated && !accessToken) {
+		return <Navigate to='/signup' replace />;
+	}
+
+	// if (!user.isVerified) {
+	// 	return <Navigate to='/verify-email' replace />;
+	// }
+
+	return children;
+};
+
 // redirect authenticated users to the home page
 const RedirectAuthenticatedUser = ({ children }) => {
 	const { isAuthenticated } = useAuthStore();
@@ -53,7 +67,11 @@ function App() {
       <Navbar isAuthenticated={isAuthenticated} accessToken={accessToken} />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/legacy" element={<Legacy />} />
+        <Route path="/legacy" element={
+          <RequiredSignUpRoute>
+            <Legacy />
+          </RequiredSignUpRoute>
+        } />
         <Route path="/login" element={
           <RedirectAuthenticatedUser>
             <Login />

@@ -1,8 +1,13 @@
 import { api, useAuthStore } from "../lib/axios";
 import { useState } from "react"
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+
 const Legacy = () => {
     const { accessToken } = useAuthStore();
+    const [updateLegacyTablesButtonDisabled, setUpdateLegacyTablesButtonDisabled] = useState(false);
+    const [updateVideosTableButtonDisabled, setUpdateVideosTableButtonDisabled] = useState(true);
+    const navigate = useNavigate();
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
     async function handleUpdateLegacyTablesClick(e) {
@@ -11,6 +16,8 @@ const Legacy = () => {
             const results = await api.get('/initialize/updateLegacyTables');
             toast.dismiss();
             toast.success("Tables updated!")
+            setUpdateLegacyTablesButtonDisabled(true);
+            setUpdateVideosTableButtonDisabled(false);
         } catch (error) {
             toast.dismiss();
             toast.error("Uh-oh! There was an error with the download. ☹")
@@ -25,6 +32,8 @@ const Legacy = () => {
             console.log(videoResults.data);
             toast.dismiss();
             toast.success("Tables updated!")
+            setUpdateLegacyTablesButtonDisabled(true);
+            navigate("/dashboard");
         } catch (error) {
             toast.dismiss();
             toast.error("Uh-oh! There was an error with the download. ☹")
@@ -41,10 +50,10 @@ const Legacy = () => {
             <div className="col-12 mt-3">
                 <div className="row justify-content-around">
                     <div className="col-12 col-sm">
-                        <button className="btn btn-primary" onClick={handleUpdateLegacyTablesClick}>Update Legacy Tables</button>
+                        <button className="btn btn-primary" onClick={handleUpdateLegacyTablesClick} disabled={updateLegacyTablesButtonDisabled}>Update Legacy Tables</button>
                     </div>
                     <div className="col-12 col-sm">
-                        <button className="btn btn-primary" onClick={handleUpdateVideosTable}>Update Videos Tables</button>
+                        <button className="btn btn-primary" onClick={handleUpdateVideosTable} disabled={updateVideosTableButtonDisabled}>Update Videos Tables</button>
                     </div>
                 </div>
             </div>

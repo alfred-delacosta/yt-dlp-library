@@ -1,7 +1,25 @@
 import { Link } from "react-router"
 import Logout from "./Logout"
 import { Moon } from "lucide-react"
+import { useState, useEffect } from "react"
+import { api } from "../lib/axios"
 const Navbar = ({ isAuthenticated, accessToken}) => {
+    const [legacyUser, setLegacyUser] = useState(false);
+    const [legacyAppUpdated, setlegacyAppUpdated] = useState(false);
+
+    // TODO Turn the function into a module to export
+    async function checkLegacyApp() {
+      const legacyAppUserRes = await api.get('/initialize/checkLegacyAppUser');
+      const legacyAppUpdatedRes = await api.get('/initialize/checkLegacyAppUpdated');
+
+      setLegacyUser(legacyAppUserRes.data[0].legacyAppUser == 1 ? true : false);
+      setlegacyAppUpdated(legacyAppUpdatedRes.data[0].legacyAppUpdated == 1 ? true : false);
+    }
+
+    useEffect(() => {
+        checkLegacyApp();
+    }, [])
+
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
             <div className="container-fluid">
@@ -14,9 +32,11 @@ const Navbar = ({ isAuthenticated, accessToken}) => {
                         <li className="nav-item">
                             <Link to="/" className="nav-link">Home</Link>
                         </li>
-                        <li className="nav-item">
-                            <Link to="/legacy" className="nav-link">Legacy Updates</Link>
-                        </li>
+                        {!legacyAppUpdated && (
+                            <li className="nav-item">
+                                <Link to="/legacy" className="nav-link">Legacy Updates</Link>
+                            </li>
+                        )}
                         { isAuthenticated && (
                             <li className="nav-item">
                                 <Link to="/dashboard" className="nav-link">Dashboard</Link>
