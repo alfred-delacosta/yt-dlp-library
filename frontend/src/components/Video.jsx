@@ -3,7 +3,6 @@ import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight } from 'luc
 import toast from "react-hot-toast";
 
 const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api }) => {
-    console.log(video);
   return (
     <div>
         <div className="card shadow">
