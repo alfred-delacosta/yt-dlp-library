@@ -8,7 +8,7 @@ const Legacy = () => {
     const [updateLegacyTablesButtonDisabled, setUpdateLegacyTablesButtonDisabled] = useState(false);
     const [updateVideosTableButtonDisabled, setUpdateVideosTableButtonDisabled] = useState(true);
     const navigate = useNavigate();
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    // api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
     async function handleUpdateLegacyTablesClick(e) {
         toast.loading("Tables are being updated.")

@@ -2,10 +2,7 @@ import { Link } from "react-router"
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore, api } from "../lib/axios"
 import toast from "react-hot-toast";
-import LegacyUserInstructions from "../components/LegacyUserInstruction";
 const Home = () => {
-  const [legacyUser, setLegacyUser] = useState(false);
-  const [legacyAppUpdated, setlegacyAppUpdated] = useState(false);
 
   async function intialize() {
     try {
@@ -32,10 +29,6 @@ const Home = () => {
           toast.dismiss();
         }
       }
-      const legacyAppUserRes = await api.get('/initialize/checkLegacyAppUser');
-      setLegacyUser(legacyAppUserRes.data[0].legacyAppUser == 1 ? true : false);
-      const legacyAppUpdatedRes = await api.get('/initialize/checkLegacyAppUpdated');
-      setlegacyAppUpdated(legacyAppUpdatedRes.data[0].legacyAppUpdated == 1 ? true : false);
     } catch (error) {
       console.error(error);
       toast.dismiss();
@@ -54,13 +47,6 @@ const Home = () => {
           <h1>Welcome to Yt-dlp Library</h1>
         </div>
       </div>
-      { !legacyAppUpdated && (
-        <div className="row justify-content-center">
-          <div className="col-6">
-            <LegacyUserInstructions setLegacyUser={setLegacyUser} />
-          </div>
-        </div>
-      )}
     </div>
   )
 }

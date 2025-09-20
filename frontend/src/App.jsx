@@ -53,11 +53,7 @@ function App() {
       <Navbar isAuthenticated={isAuthenticated} accessToken={accessToken} />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/legacy" element={
-          <ProtectedRoute>
-            <Legacy />
-          </ProtectedRoute>
-        } />
+        <Route path="/legacy" element={<Legacy />} />
         <Route path="/login" element={
           <RedirectAuthenticatedUser>
             <Login />

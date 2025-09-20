@@ -327,11 +327,17 @@ export const updateVideoPaths = async (req, res) => {
   try {
     const [videoResults, videoFields] = await pool.query(getAllVideos);
     for (const video of videoResults) {
-      const baseVideoPath = video.videoPath.split('/videos/')[1];
-      if (baseVideoPath) {
-        const newVideoPath = path.join('media', baseVideoPath);
-        const newServerPath = path.join(rootFolder, 'media', 'videos', video.name);
-        await sqlUpdateVideoPaths(newVideoPath, newServerPath, video.id);
+      // The first if statement is to account for dirty data.
+      if (video.name.length > 1) {
+        const strMatchResults = video.videoPath.match(/[\\\/]videos[\\\/](.+)/);
+        if (strMatchResults !== null && strMatchResults.length > 1) {
+          const baseVideoPath = video.videoPath.match(/[\\\/]videos[\\\/](.+)/)[1];
+          if (baseVideoPath) {
+            const newVideoPath = path.join('media', baseVideoPath);
+            const newServerPath = path.join(rootFolder, 'media', 'videos', video.name);
+            await sqlUpdateVideoPaths(newVideoPath, newServerPath, video.id);
+          }
+        }
       }
     }
 
@@ -349,11 +355,16 @@ export const updateMp3Paths = async (req, res) => {
   try {
     const mp3Results = await getAllMp3s();
     for (const mp3 of mp3Results) {
-      const baseMp3Path = mp3.mp3Path.split('/mp3s/')[1];
-      if (baseMp3Path) {
-        const newMp3Path = path.join('media', 'mp3s', baseMp3Path);
-        const newServerPath = path.join(rootFolder, 'media', 'mp3s', mp3.name);
-        await sqlUpdateMp3Paths(newMp3Path, newServerPath, mp3.id);
+      if (mp3.name.length > 1) {
+        const strMatchResults = mp3.mp3Path.match(/[\\\/]mp3s[\\\/](.+)/);
+        if (strMatchResults !== null && strMatchResults.length > 1) {
+          const baseMp3Path = mp3.mp3Path.match(/[\\\/]mp3s[\\\/](.+)/)[1];
+          if (baseMp3Path) {
+            const newMp3Path = path.join('media', 'mp3s', baseMp3Path);
+            const newServerPath = path.join(rootFolder, 'media', 'mp3s', mp3.name);
+            await sqlUpdateMp3Paths(newMp3Path, newServerPath, mp3.id);
+          }
+        }
       }
     }
 
