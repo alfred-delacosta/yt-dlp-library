@@ -18,3 +18,7 @@ CREATE TABLE users (
 `;
 
 export const createMaintenanceTable =  'CREATE TABLE maintenance (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, applicationInitialzied CHAR, legacyAppUser CHAR, legacyAppUpdated CHAR)';
+
+export const addMaintenanceTableEntry = `INSERT INTO maintenance (applicationInitialzied, legacyAppUser, legacyAppUpdated) VALUES (1, 0, 0);`
+
+export const getMaintenanceTableEntry = `SELECT * from maintenance WHERE id = 1;`
