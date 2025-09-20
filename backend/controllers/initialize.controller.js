@@ -7,6 +7,7 @@ import path from 'path'
 import { pool } from "../db/db.pool.js";
 import { sqlUpdateVideoPaths } from "../db/queries.videos.js";
 import { getAllMp3s, sqlUpdateMp3Paths } from "../db/queries.mp3s.js";
+import { getAllThumbnails } from "../db/queries.thumbnails.js";
 
 export const initializeDb = async (req, res) => {
   try {
@@ -370,6 +371,31 @@ export const updateMp3Paths = async (req, res) => {
 
     const [newMp3Results, newVideoFields] = await getAllMp3s();
     res.json(newMp3Results);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ message: "There was an error!", error});
+  }
+}
+
+export const updateThumbnailPaths = async (req, res) => {
+  try {
+    const queryResults = await getAllThumbnails();
+    for (const thumbnail of queryResults) {
+      if (thumbnail.name.length > 1) {
+        const strMatchResults = thumbnail.thumbnailPath.match(/[\\\/]thumbnails[\\\/](.+)/);
+        if (strMatchResults !== null && strMatchResults.length > 1) {
+          const baseThumbnailPath = thumbnail.thumbnailPath.match(/[\\\/]thumbnails[\\\/](.+)/)[1];
+          if (baseThumbnailPath) {
+            const newThumbnailPath = path.join('media', 'videos', 'thumbnails', baseThumbnailPath);
+            const newServerPath = path.join(rootFolder, 'media', 'videos', 'thumbnails', thumbnail.name);
+            await sqlUpdateMp3Paths(newThumbnailPath, newServerPath, thumbnail.id);
+          }
+        }
+      }
+    }
+
+    const newQueryResults = await getAllThumbnails();
+    res.json(newQueryResults);
   } catch (error) {
     console.error(error);
     return res.status(400).json({ message: "There was an error!", error});

@@ -5,3 +5,14 @@ export const addThumbnailToDb = async (file, videoId) => {
 
     return results;
 }
+
+export const getAllThumbnails = async () => {
+    const [ results, fields ] = await pool.execute('SELECT * FROM thumbnails;');
+    return results;
+}
+
+export const sqlUpdateThumbnailPaths = async (thumbnailPath, serverPath, thumbnailId) => {
+    const [ results, fields ] = await pool.execute(`UPDATE thumbnails SET thumbnailPath = ?, serverPath = ? WHERE id = ?;`, [thumbnailPath, serverPath, thumbnailId]);
+
+    return results;
+}
