@@ -34,6 +34,12 @@ const Dashboard = () => {
 
   return (
     <div className="container-fluid">
+      <div className="row">
+        <div className="col-12 col-sm-2">
+          <label htmlFor="items" className="form-label">Number of Items to Show Per Page</label>
+          <input type="number" name="items" id="items" className="form-control" value={numberOfItems} onChange={(e) => setNumberOfItems(e.target.value)} />
+        </div>
+      </div>
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
         <Downloader api={api} loadLibrary={loadLibrary}/>
         <SearchBar videoLibrary={videoLibrary} setVideoLibrary={setVideoLibrary} mp3Library={mp3Library} setMp3Library={setMp3Library} api={api} loadLibrary={loadLibrary}/>

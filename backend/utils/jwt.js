@@ -7,12 +7,20 @@ export const generateRefreshTokenAndSetCookie = (res, userId) => {
         expiresIn: `${process.env.JWT_NUMBER_OF_DAYS_EXPIRATION}d`
     })
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.ENVIRONMENT === 'production', // Comment this line if you only plan to use it locally.
-        sameSite: "strict",
-        maxAge: process.env.COOKIE_EXPIRATION_TIME_IN_HOURS * 3600000,
-    })
+    if (process.env.ENVIRONMENT === 'local') {
+        res.cookie("token", token, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: process.env.COOKIE_EXPIRATION_TIME_IN_HOURS * 3600000,
+        })
+    } else {
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.ENVIRONMENT === 'production', // Comment this line if you only plan to use it locally.
+            sameSite: "strict",
+            maxAge: process.env.COOKIE_EXPIRATION_TIME_IN_HOURS * 3600000,
+        })
+    }
 
     // Potential DEV cookie below, just want to save it here.
     // res.cookie("token", token, {

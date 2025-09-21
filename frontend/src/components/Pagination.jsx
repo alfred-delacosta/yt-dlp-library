@@ -35,6 +35,44 @@ const Pagination = ({ items, itemsPerPage }) => {
 
   return (
     <div className="pagination-container col-12">
+      <div className="col-12">
+      {totalPages > 1 && (
+        <nav aria-label="Page navigation" className="mt-3">
+          <ul className="pagination justify-content-center">
+            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+              <button
+                className="page-link"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+            </li>
+            
+            {getPageNumbers().map((page) => (
+              <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => goToPage(page)}
+                >
+                  {page}
+                </button>
+              </li>
+            ))}
+            
+            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+              <button
+                className="page-link"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </li>
+          </ul>
+        </nav>
+      )}
+      </div>
       <div className="items row">
         {currentItems.map((item, index) => (
             (item)
