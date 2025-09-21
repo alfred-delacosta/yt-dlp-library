@@ -35,7 +35,7 @@ const Pagination = ({ items, itemsPerPage }) => {
 
   return (
     <div className="pagination-container col-12">
-      <div className="col-12">
+      {/* <div className="col-12">
       {totalPages > 1 && (
         <nav aria-label="Page navigation" className="mt-3">
           <ul className="pagination justify-content-center">
@@ -72,7 +72,7 @@ const Pagination = ({ items, itemsPerPage }) => {
           </ul>
         </nav>
       )}
-      </div>
+      </div> */}
       <div className="items row">
         {currentItems.map((item, index) => (
             (item)
