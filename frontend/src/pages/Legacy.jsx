@@ -25,11 +25,12 @@ const Legacy = () => {
         }
     }
 
-    async function handleUpdateVideosAndMp3sTables(e) {
+    async function handleUpdateVideosMp3sAndThumbnailsClick(e) {
         toast.loading("Tables are being updated.")
         try {
             const videoResults = await api.get('/initialize/updateVideosTable');
             const mp3Results = await api.get('/initialize/updateMp3sTable');
+            const thumbnailsResults = await api.get('/initialize/updateThumbnailsTable')
             toast.dismiss();
             toast.success("Tables updated!")
             setUpdateLegacyTablesButtonDisabled(true);
@@ -53,7 +54,7 @@ const Legacy = () => {
                         <button className="btn btn-primary" onClick={handleUpdateLegacyTablesClick} disabled={updateLegacyTablesButtonDisabled}>Update Legacy Tables</button>
                     </div>
                     <div className="col-12 col-sm">
-                        <button className="btn btn-primary" onClick={handleUpdateVideosAndMp3sTables} disabled={updateVideosTableButtonDisabled}>Update Videos & MP3s Tables</button>
+                        <button className="btn btn-primary" onClick={handleUpdateVideosMp3sAndThumbnailsClick} disabled={updateVideosTableButtonDisabled}>Update Videos, MP3s, & Thumbnails Tables</button>
                     </div>
                 </div>
             </div>
