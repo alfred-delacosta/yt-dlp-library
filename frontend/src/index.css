@@ -10,6 +10,18 @@ html body {
     height: 100vh !important;
 }
 
+.h-75vh {
+    height: 75vh !important;
+}
+
+.h-50vh {
+    height: 50vh !important;
+}
+
+.h-25vh {
+    height: 25vh !important;
+}
+
 .whitespace-pre {
     white-space: pre;
 }
