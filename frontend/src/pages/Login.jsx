@@ -40,7 +40,7 @@ const Login = () => {
         <div className="col-12 text-center align-self-end">
           <h1 className="mb-5">Login</h1>
         </div>
-        <div className="col-5 align-self-start">
+        <div className="col-12 col-sm-5 align-self-start">
           <form onSubmit={handleLogin}>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email</label>
