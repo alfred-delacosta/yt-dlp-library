@@ -37,7 +37,7 @@ const Dashboard = () => {
       <div className="row">
         <div className="col-12 col-sm-2">
           <label htmlFor="items" className="form-label">Number of Items to Show Per Page</label>
-          <input type="number" name="items" id="items" className="form-control" value={numberOfItems} onChange={(e) => setNumberOfItems(e.target.value)} />
+          <input type="number" name="items" id="items" className="form-control" value={numberOfItems} onChange={(e) => { if(e.target.value > 0) setNumberOfItems(e.target.value)}} min={1} />
         </div>
       </div>
         <LibraryCounts videoCount={videoLibrary.length} mp3Count={mp3Library.length} />
