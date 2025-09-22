@@ -6,7 +6,12 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api 
   return (
     <div>
         <div className="card shadow">
-            <video className="w-100" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster={import.meta.env.PROD ? `/${video.thumbnailPath}` : `${serverUrl}/${video.thumbnailPath}`}></video>
+            {video.thumbnailPath && (
+                <video className="w-100" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster={import.meta.env.PROD ? `/${video.thumbnailPath}` : `${serverUrl}/${video.thumbnailPath}`}></video>
+            )}
+            {video.thumbnailPath === undefined && (
+                <video className="w-100" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster=""></video>
+            )}
             <div className="card-body">
                 <h5 className="card-title">{video.name}</h5>
                 <div className="d-grid">
