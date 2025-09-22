@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight } from 'lucide-react'
+import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight, Pencil } from 'lucide-react'
 import toast from "react-hot-toast";
 
 const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api }) => {
@@ -25,6 +25,9 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api 
                 <div className="row mt-3">
                     <div className="col-12 col-sm-6 d-grid mb-1">
                         <Link className='btn btn-primary' to={`/video/${video.id}`} state={{ video, serverUrl }}><MonitorUp /> View Video</Link>
+                    </div>
+                    <div className="col-12 col-sm-6 d-grid mb-1">
+                        <Link className='btn btn-info' to={`/edit/video/${video.id}`} state={{ video, serverUrl }}><Pencil /> Edit Video</Link>
                     </div>
                     <div className="col-12 col-sm-6 d-grid mb-1">
                         <a href={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} download={""} className='btn btn-success'><HardDriveDownload /> Download</a>

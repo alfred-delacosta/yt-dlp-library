@@ -10,6 +10,7 @@ import Navbar from './components/Navbar'
 import Legacy from './pages/Legacy'
 import { useAuthStore } from './lib/axios'
 import ViewMp3 from './pages/ViewMp3'
+import EditVideo from './pages/EditVideo'
 import * as bootstrap from 'bootstrap'
 import { initializeThemeToggler } from './lib/boostrap.themeSwitcher'
 
@@ -77,6 +78,11 @@ function App() {
         <Route path="/mp3/:id" element={
           <ProtectedRoute>
             <ViewMp3 />
+          </ProtectedRoute>
+        } />
+        <Route path="/edit/video/:id" element={
+          <ProtectedRoute>
+            <EditVideo />
           </ProtectedRoute>
         } />
       </Routes>
