@@ -7,7 +7,7 @@ import path from 'path'
 import { pool } from "../db/db.pool.js";
 import { sqlUpdateVideoPaths } from "../db/queries.videos.js";
 import { getAllMp3s, sqlUpdateMp3Paths } from "../db/queries.mp3s.js";
-import { getAllThumbnails } from "../db/queries.thumbnails.js";
+import { getAllThumbnails, sqlUpdateThumbnailPaths } from "../db/queries.thumbnails.js";
 
 export const initializeDb = async (req, res) => {
   try {
@@ -388,7 +388,7 @@ export const updateThumbnailPaths = async (req, res) => {
           if (baseThumbnailPath) {
             const newThumbnailPath = path.join('media', 'videos', 'thumbnails', baseThumbnailPath);
             const newServerPath = path.join(rootFolder, 'media', 'videos', 'thumbnails', thumbnail.name);
-            await sqlUpdateMp3Paths(newThumbnailPath, newServerPath, thumbnail.id);
+            await sqlUpdateThumbnailPaths(newThumbnailPath, newServerPath, thumbnail.id);
           }
         }
       }

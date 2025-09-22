@@ -45,7 +45,7 @@ const __dirname = path.dirname(__filename);
 app.use('/media', express.static(path.join(__dirname, 'media')));
 
 //#region Production Conditions
-if (process.env.ENVIRONMENT === "production") {
+if (process.env.ENVIRONMENT === "production" || process.env.ENVIRONMENT === "local") {
   // To make the node server serve the contents of the dist folder in the frontend/dist
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 

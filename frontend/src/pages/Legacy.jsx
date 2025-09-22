@@ -51,10 +51,10 @@ const Legacy = () => {
             <div className="col-12 mt-3">
                 <div className="row justify-content-around">
                     <div className="col-12 col-sm">
-                        <button className="btn btn-primary" onClick={handleUpdateLegacyTablesClick} disabled={updateLegacyTablesButtonDisabled}>Update Legacy Tables</button>
+                        <button className="btn btn-primary" onClick={handleUpdateLegacyTablesClick}>Update Legacy Tables</button>
                     </div>
                     <div className="col-12 col-sm">
-                        <button className="btn btn-primary" onClick={handleUpdateVideosMp3sAndThumbnailsClick} disabled={updateVideosTableButtonDisabled}>Update Videos, MP3s, & Thumbnails Tables</button>
+                        <button className="btn btn-primary" onClick={handleUpdateVideosMp3sAndThumbnailsClick}>Update Videos, MP3s, & Thumbnails Tables</button>
                     </div>
                 </div>
             </div>
