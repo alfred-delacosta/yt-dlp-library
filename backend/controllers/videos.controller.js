@@ -49,8 +49,8 @@ export const deleteVideoByIdAndUserId = async (req, res) => {
 export const searchVideos = async (req, res) => {
     try {
         const { searchTerm } = req.body;
-        const count = await sqlSearchVideos(searchTerm, req.userId);
-        res.json(count);
+        const results = await sqlSearchVideos(searchTerm, req.userId);
+        res.json(results);
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error searching for the video.' })
