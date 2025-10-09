@@ -1,3 +1,4 @@
+# ⚠️ THIS PROJECT IS IN ACTIVE DEVELOPMENT! EXPECT BUGS! 🐜⚠️
 # 🎥🔊 yt-dlp Library 🚀
 
 Welcome to the **ultimate** media downloading experience! 📥 This **Video & MP3 Library** app, powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp), lets users download videos and audio from the web and store them in their own **private libraries**! 🎉 Built with a modern tech stack, it’s fast, user-friendly, and secure.
