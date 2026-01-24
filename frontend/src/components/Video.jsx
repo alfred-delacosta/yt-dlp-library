@@ -1,8 +1,8 @@
 import { Link } from 'react-router';
-import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight, Pencil } from 'lucide-react'
+import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight, Pencil, Film } from 'lucide-react'
 import toast from "react-hot-toast";
 
-const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api }) => {
+const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, setVideoLibrary, api }) => {
   return (
     <div>
         <div className="card shadow">
@@ -40,6 +40,9 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api 
                     </div>
                     <div className="col-12 col-sm-6 d-grid mb-1">
                         <a href={video.link} target='_blank' className='btn btn-warning'><SquareArrowOutUpRight /> Original Link</a>
+                    </div>
+                    <div className="col-12 col-sm-6 d-grid mb-1">
+                        <button type='button' onClick={transferToJellyfinButtonClick} data-videoid={video.id} className='btn btn-info'><Film /> Transfer to Jellyfin</button>
                     </div>
                 </div>
                 <div className="row mt-3">

@@ -1,5 +1,9 @@
 import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo } from "../db/queries.videos.js"
 import { sqlSearchVideos } from "../db/queries.search.js";
+import path from 'path';
+import { copyFile } from "fs/promises";
+import "@dotenvx/dotenvx/config";
+const env = process.env;
 
 export const getVideos = async (req, res) => {
     try {
@@ -62,6 +66,21 @@ export const updateVideo = async (req, res) => {
         const video = req.body;
         const results = await sqlUpdateVideo(video);
         res.json(results)
+    } catch (error) {
+        console.error(error);
+        res.send(400).json({ message: 'There was an error updating the video.' })
+    }
+}
+
+export const moveVideoToJellyfin = async (req, res) => {
+    try {
+        const videoId = req.params.id;
+        const queryResults = await sqlGetVideo(req.userId, videoId);
+        const serverPath = queryResults[0].serverPath;
+        const jellyfinPath = env.JELLYFIN_FOLDER_PATH;
+
+        await copyFile(serverPath, path.join(__dirname, 'temp'));
+        return res.json({ message: "File successfully copied to Jellyfin. "})
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error updating the video.' })

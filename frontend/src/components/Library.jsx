@@ -4,9 +4,9 @@ import Video from './Video';
 import Mp3 from './Mp3';
 import Pagination from './Pagination';
 
-const VideoItem = ({ item: video, serverUrl, deleteVideoButtonClick, setVideoLibrary, api }) => (
+const VideoItem = ({ item: video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, setVideoLibrary, api }) => (
   <div className='col-12 col-sm-4 mb-3'>
-    <Video video={video} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} setVideoLibrary={setVideoLibrary} api={api} />
+    <Video video={video} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} transferToJellyfinButtonClick={transferToJellyfinButtonClick} setVideoLibrary={setVideoLibrary} api={api} />
   </div>
 );
 
@@ -30,6 +30,18 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
     }
   }
 
+  async function transferToJellyfinButtonClick(e) {
+    try {
+      const videoId = parseInt(e.target.dataset.videoid);
+      const transferResults = await api.post(`/videos/transfertojellyfin/${videoId}`);
+      console.log(transferResults)
+      toast.success('Video transfered')
+    } catch (error) {
+      console.log(error);
+      toast.error("There was an error transferring the video")
+    }
+  }
+
   async function deleteMp3ButtonClick(e) {
     try {
       const mp3Id = parseInt(e.target.dataset.mp3id);
@@ -48,7 +60,7 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
         <Pagination 
           items={videoLibrary} 
           itemsPerPage={numberOfItems} 
-          renderItem={(props) => <VideoItem {...props} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} setVideoLibrary={setVideoLibrary} api={api} />} 
+          renderItem={(props) => <VideoItem {...props} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} transferToJellyfinButtonClick={transferToJellyfinButtonClick} setVideoLibrary={setVideoLibrary} api={api} />} 
         />
       )}
       {videoLibrary.length < 1 && (
