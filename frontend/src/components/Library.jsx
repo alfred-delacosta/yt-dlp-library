@@ -33,9 +33,14 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
   async function transferToJellyfinButtonClick(e) {
     try {
       const videoId = parseInt(e.target.dataset.videoid);
-      const transferResults = await api.post(`/videos/transfertojellyfin/${videoId}`);
-      console.log(transferResults)
-      toast.success('Video transfered')
+      toast.promise(async () => {
+        const transferResults = await api.post(`/videos/transfertojellyfin/${videoId}`);
+        console.log(transferResults)
+      }, {
+        loading: "Moving video to Jellyfin folder location...",
+        success: 'Video transfered successfully!',
+        error: 'There was an error transferring the video',
+      });
     } catch (error) {
       console.log(error);
       toast.error("There was an error transferring the video")
