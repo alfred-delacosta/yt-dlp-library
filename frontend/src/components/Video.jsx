@@ -15,11 +15,12 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
           const videoId = parseInt(e.target.dataset.videoid);
           toast.promise(async () => {
             const response = await api.post(`/videos/generatesubtitles/${videoId}`, {}, {
-                headers: {
-                    'Accept': 'text/event-stream'
-                },
                 responseType: 'stream',
-                adapter: 'fetch'
+                adapter: 'fetch',
+                headers: {
+                    'Accept': 'text/event-stream',
+                    'Cache-Control': 'no-cache'
+                },
             });
 
             const stream = response.data;
@@ -33,8 +34,6 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
                 newMessages += `${value}`;
                 setServerMessages(newMessages);
             }
-
-            console.log(transferResults)
           }, {
             loading: "Generating subtitles...",
             success: (data) => {

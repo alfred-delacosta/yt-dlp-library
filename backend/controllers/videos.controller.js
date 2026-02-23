@@ -173,7 +173,7 @@ export const generateSubtitles = async (req, res) => {
                   res.write(`Subtitles generated successfully.`);
                   const subtitlesTxt = await readFile(path.join(tempDir, `${whisperXFilesNamePrefix}.txt`), 'utf-8');
                   const sqlResponse = await sqlAddSubtitlesToVideo(videoId, subtitlesTxt);
-                  res.write(`Subtitles saved to db successfully.`);
+                  res.write(`Subtitles saved to db successfully.\n\n`);
                   await rm(tempDir, { recursive: true, force: true});
                   res.write("data: Processing folder deleted.\n\n");
 
