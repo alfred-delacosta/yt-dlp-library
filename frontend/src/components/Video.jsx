@@ -47,6 +47,7 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
                     <div className="col-12 col-sm-6 d-grid mb-1">
                         <button type='button' onClick={generateSubtitlesButtonClick} data-videoid={video.id} className='btn btn-info'><ClosedCaption /> Generate Subtitles</button>
                     </div>
+
                 </div>
                 <div className="row mt-3">
                     <div className="col-12 text-center">

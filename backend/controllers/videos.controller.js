@@ -102,8 +102,8 @@ export const generateSubtitles = async (req, res) => {
         const queryResults = await sqlGetVideo(req.userId, videoId);
         const video = queryResults[0];
         const videoPath = video.serverPath;
-        const audioFileName = `${video.name}.mp3`;
-        const subtitleName = `${video.name}.srt`;
+        const audioFileName = `${video.id}-${video.name}-subtitle.mp3`;
+        const subtitleName = `${video.id}-${video.name}-subtitle.srt`;
 
         //#region FFMPEG Conversion
         setSSEHeaders(res);
@@ -145,9 +145,9 @@ export const generateSubtitles = async (req, res) => {
                 "whisper-faster",
                 [
                     '--language',
-                    'English',
-                    '--model',
-                    'medium',
+                    'en',
+                    '--compute_type',
+                    'float32',
                     audioFilePath,
                     '--output_dir',
                     tempDir
