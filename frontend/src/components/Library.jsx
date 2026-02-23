@@ -6,7 +6,7 @@ import Pagination from './Pagination';
 
 const VideoItem = ({ item: video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, generateSubtitlesButtonClick, setVideoLibrary, api }) => (
   <div className='col-12 col-sm-4 mb-3'>
-    <Video video={video} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} transferToJellyfinButtonClick={transferToJellyfinButtonClick} generateSubtitlesButtonClick={generateSubtitlesButtonClick} setVideoLibrary={setVideoLibrary} api={api} />
+    <Video video={video} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} transferToJellyfinButtonClick={transferToJellyfinButtonClick} setVideoLibrary={setVideoLibrary} api={api} />
   </div>
 );
 
@@ -47,22 +47,22 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
     }
   }
 
-  async function generateSubtitlesButtonClick(e) {
-    try {
-      const videoId = parseInt(e.target.dataset.videoid);
-      toast.promise(async () => {
-        const transferResults = await api.post(`/videos/generatesubtitles/${videoId}`);
-        console.log(transferResults)
-      }, {
-        loading: "Generating subtitles...",
-        success: 'Subtitles generated successfully!',
-        error: 'There was an error generating subtitles',
-      });
-    } catch (error) {
-      console.log(error);
-      toast.error("There was an error generating subtitles.")
-    }
-  }
+  // async function generateSubtitlesButtonClick(e) {
+  //   try {
+  //     const videoId = parseInt(e.target.dataset.videoid);
+  //     toast.promise(async () => {
+  //       const transferResults = await api.post(`/videos/generatesubtitles/${videoId}`);
+  //       console.log(transferResults)
+  //     }, {
+  //       loading: "Generating subtitles...",
+  //       success: 'Subtitles generated successfully!',
+  //       error: 'There was an error generating subtitles',
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("There was an error generating subtitles.")
+  //   }
+  // }
 
   async function convertToMp4(e) {
     try {
@@ -100,7 +100,7 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
         <Pagination 
           items={videoLibrary} 
           itemsPerPage={numberOfItems} 
-          renderItem={(props) => <VideoItem {...props} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} transferToJellyfinButtonClick={transferToJellyfinButtonClick} generateSubtitlesButtonClick={generateSubtitlesButtonClick} setVideoLibrary={setVideoLibrary} api={api} />} 
+          renderItem={(props) => <VideoItem {...props} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} transferToJellyfinButtonClick={transferToJellyfinButtonClick} setVideoLibrary={setVideoLibrary} api={api} />} 
         />
       )}
       {videoLibrary.length < 1 && (

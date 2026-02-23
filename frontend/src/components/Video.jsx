@@ -1,8 +1,55 @@
 import { Link } from 'react-router';
 import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight, Pencil, Film, ClosedCaption } from 'lucide-react'
 import toast from "react-hot-toast";
+import { useState, useRef, useEffect } from "react";
 
-const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, generateSubtitlesButtonClick, setVideoLibrary, api }) => {
+const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, setVideoLibrary, api }) => {
+    const [serverMessages, setServerMessages] = useState('');
+    const serverMessagesEndRef = useRef(null);
+    const scrollToBottomForServerMessages = () => {
+        serverMessagesEndRef.current.scrollTop = serverMessagesEndRef.current.scrollHeight;
+    }
+
+    async function generateSubtitlesButtonClick(e) {
+        try {
+          const videoId = parseInt(e.target.dataset.videoid);
+          toast.promise(async () => {
+            const response = await api.post(`/videos/generatesubtitles/${videoId}`, {}, {
+                headers: {
+                    'Accept': 'text/event-stream'
+                },
+                responseType: 'stream',
+                adapter: 'fetch'
+            });
+
+            const stream = response.data;
+
+            const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
+            let newMessages = '';
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                newMessages += `${value}`;
+                setServerMessages(newMessages);
+            }
+
+            console.log(transferResults)
+          }, {
+            loading: "Generating subtitles...",
+            success: 'Subtitles generated successfully!',
+            error: 'There was an error generating subtitles',
+          });
+        } catch (error) {
+          console.log(error);
+          toast.error("There was an error generating subtitles.")
+        }
+    }
+
+    useEffect(() => {
+        scrollToBottomForServerMessages();
+    }, [serverMessages])
+
   return (
     <div>
         <div className="card shadow">
@@ -46,6 +93,11 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
                     </div>
                     <div className="col-12 col-sm-6 d-grid mb-1">
                         <button type='button' onClick={generateSubtitlesButtonClick} data-videoid={video.id} className='btn btn-info'><ClosedCaption /> Generate Subtitles</button>
+                    </div>
+                    <div className="col-12 col-sm-6 d-grid mb-1">
+                        <div className="whitespace-break-spaces overflow-y-auto max-height-25vh" ref={serverMessagesEndRef}>
+                            {serverMessages}
+                        </div>
                     </div>
 
                 </div>
