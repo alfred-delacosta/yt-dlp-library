@@ -140,9 +140,8 @@ export const generateSubtitles = async (req, res) => {
         // Handle process completion
         ffmpegProcess.on("exit", async (code) => {
           try {           
-            //#region WhisperFaster
-            // Do something with the audio file here
-            const whisperFasterProcess = spawn(
+            //#region WhisperX
+            const whisperX = spawn(
                 "whisperx",
                 // Uncomment below for CUDA per 02-23-2026 documentation
                 // [
@@ -152,6 +151,7 @@ export const generateSubtitles = async (req, res) => {
                 //     'float32',
                 //     audioFilePath
                 // ],
+                // Uncomment below for CPU per 02-23-2026 documentation
                 [
                     '--language',
                     'en',
@@ -164,14 +164,16 @@ export const generateSubtitles = async (req, res) => {
                 { cwd: tempDir }
               );
             
-              sseProcessOutput(req, res, whisperFasterProcess);
+              sseProcessOutput(req, res, whisperX);
 
               // Handle process completion
-              whisperFasterProcess.on("exit", async (code) => {
+              whisperX.on("exit", async (code) => {
                 try {
                   res.write(`data: Process exited with code ${code}\n\n`);
+                  res.write(`Subtitles generated successfully.`);
                   const subtitlesTxt = await readFile(path.join(tempDir, `${whisperXFilesNamePrefix}.txt`), 'utf-8');
                   const sqlResponse = await sqlAddSubtitlesToVideo(videoId, subtitlesTxt);
+                  res.write(`Subtitles saved to db successfully.`);
                   await rm(tempDir, { recursive: true, force: true});
                   res.write("data: Processing folder deleted.\n\n");
 
