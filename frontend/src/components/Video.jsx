@@ -37,8 +37,14 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
             console.log(transferResults)
           }, {
             loading: "Generating subtitles...",
-            success: 'Subtitles generated successfully!',
-            error: 'There was an error generating subtitles',
+            success: (data) => {
+                console.log(data);
+                return 'Subtitles generated successfully!';
+            },
+            error: (data) => {
+                console.log(data);
+                return 'There was an error generating subtitles';
+            },
           });
         } catch (error) {
           console.log(error);
@@ -94,7 +100,7 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
                     <div className="col-12 col-sm-6 d-grid mb-1">
                         <button type='button' onClick={generateSubtitlesButtonClick} data-videoid={video.id} className='btn btn-info'><ClosedCaption /> Generate Subtitles</button>
                     </div>
-                    <div className="col-12 col-sm-6 d-grid mb-1">
+                    <div className="col-12 d-grid mb-1">
                         <div className="whitespace-break-spaces overflow-y-auto max-height-25vh" ref={serverMessagesEndRef}>
                             {serverMessages}
                         </div>

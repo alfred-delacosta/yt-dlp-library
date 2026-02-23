@@ -1,7 +1,7 @@
-import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo } from "../db/queries.videos.js"
+import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo } from "../db/queries.videos.js"
 import { sqlSearchVideos } from "../db/queries.search.js";
 import path from 'path';
-import { copyFile } from "fs/promises";
+import { copyFile, readFile, rm } from "fs/promises";
 import "@dotenvx/dotenvx/config";
 const env = process.env;
 import { fileURLToPath } from 'url';
@@ -103,6 +103,7 @@ export const generateSubtitles = async (req, res) => {
         const video = queryResults[0];
         const videoPath = video.serverPath;
         const audioFileName = `${video.id}-${video.name}-subtitle.mp3`;
+        const whisperXFilesNamePrefix = `${video.id}-${video.name}-subtitle`;
         const subtitleName = `${video.id}-${video.name}-subtitle.srt`;
 
         //#region FFMPEG Conversion
@@ -137,20 +138,28 @@ export const generateSubtitles = async (req, res) => {
         sseProcessOutput(req, res, ffmpegProcess);
     
         // Handle process completion
-        ffmpegProcess.on("close", async (code) => {
+        ffmpegProcess.on("exit", async (code) => {
           try {           
             //#region WhisperFaster
             // Do something with the audio file here
             const whisperFasterProcess = spawn(
-                "whisper-faster",
+                "whisperx",
+                // Uncomment below for CUDA per 02-23-2026 documentation
+                // [
+                //     '--language',
+                //     'en',
+                //     '--compute_type',
+                //     'float32',
+                //     audioFilePath
+                // ],
                 [
                     '--language',
                     'en',
                     '--compute_type',
-                    'float32',
-                    audioFilePath,
-                    '--output_dir',
-                    tempDir
+                    'int8',
+                    '--device',
+                    'cpu',
+                    audioFilePath
                 ],
                 { cwd: tempDir }
               );
@@ -158,12 +167,15 @@ export const generateSubtitles = async (req, res) => {
               sseProcessOutput(req, res, whisperFasterProcess);
 
               // Handle process completion
-              whisperFasterProcess.on("close", async (code) => {
+              whisperFasterProcess.on("exit", async (code) => {
                 try {
                   res.write(`data: Process exited with code ${code}\n\n`);
-          
-                  // TODO Do something with the srt file
-                  res.end();
+                  const subtitlesTxt = await readFile(path.join(tempDir, `${whisperXFilesNamePrefix}.txt`), 'utf-8');
+                  const sqlResponse = await sqlAddSubtitlesToVideo(videoId, subtitlesTxt);
+                  await rm(tempDir, { recursive: true, force: true});
+                  res.write("data: Processing folder deleted.\n\n");
+
+                  res.status(200).send();
                 } catch (error) {
                   console.error(error);
                   res.status(400).json({ message: 'There was an error!' })

@@ -45,3 +45,9 @@ export const sqlCheckVideoByLink = async (userId, videoId) => {
     );
     return results;
 }
+
+export const sqlAddSubtitlesToVideo = async (videoId, subtitles) => {
+    const [ results, fields ] = await pool.execute(`UPDATE videos SET subtitles = ? WHERE id = ?;`, [subtitles, videoId]);
+
+    return results;
+}
