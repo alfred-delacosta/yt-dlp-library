@@ -104,6 +104,11 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
                             {serverMessages}
                         </div>
                     </div>
+                    <div className="col-12 d-grid mb-1">
+                        <div className="whitespace-break-spaces overflow-y-auto max-height-25vh">
+                            {video.subtitles}
+                        </div>
+                    </div>
 
                 </div>
                 <div className="row mt-3">

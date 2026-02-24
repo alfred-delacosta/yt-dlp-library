@@ -1,7 +1,10 @@
 import { pool } from "./db.pool.js"
 
 export const sqlSearchVideos = async (searchTerm, userId) => {
-    const [ results, fields ] = await pool.execute(`SELECT videos.*, thumbnails.id as thumbnailId, thumbnails.videoId, thumbnails.thumbnailPath FROM videos left join thumbnails on videos.id = thumbnails.videoId WHERE videos.name LIKE CONCAT('%', ?, '%') OR videos.description LIKE CONCAT('%', ?, '%') AND userId = ?;`, [searchTerm, searchTerm, userId]);
+    // Below is the old search query. Keeping it here just in case.
+    // const [ results, fields ] = await pool.execute(`SELECT videos.*, thumbnails.id as thumbnailId, thumbnails.videoId, thumbnails.thumbnailPath FROM videos left join thumbnails on videos.id = thumbnails.videoId WHERE videos.name LIKE CONCAT('%', ?, '%') OR videos.description LIKE CONCAT('%', ?, '%') AND userId = ?;`, [searchTerm, searchTerm, userId]);
+
+    const [ results, fields ] = await pool.execute(`SELECT videos.*, thumbnails.id as thumbnailId, thumbnails.videoId, thumbnails.thumbnailPath FROM videos LEFT JOIN thumbnails ON videos.id = thumbnails.videoId WHERE (videos.name LIKE CONCAT('%', ?, '%') OR videos.description LIKE CONCAT('%', ?, '%') OR videos.subtitles LIKE CONCAT('%', ?, '%')) AND userId = ?;`, [searchTerm, searchTerm, searchTerm, userId]);
 
     return results;
 }
