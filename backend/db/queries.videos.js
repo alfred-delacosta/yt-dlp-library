@@ -37,3 +37,17 @@ export const sqlDeleteVideo = async (userId, videoId) => {
     const [ results, fields ] = await pool.execute('DELETE FROM videos WHERE userId = ? AND id = ?;', [userId, videoId]);
     return results;
 }
+
+export const sqlCheckVideoByLink = async (userId, videoId) => {
+    const [ results, fields ] = await pool.execute(
+        'SELECT * from videos where userId = ? AND link like ?;', 
+        [userId, videoLink]
+    );
+    return results;
+}
+
+export const sqlAddSubtitlesToVideo = async (videoId, subtitles) => {
+    const [ results, fields ] = await pool.execute(`UPDATE videos SET subtitles = ? WHERE id = ?;`, [subtitles, videoId]);
+
+    return results;
+}

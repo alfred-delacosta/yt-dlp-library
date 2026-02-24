@@ -4,7 +4,7 @@ import Video from './Video';
 import Mp3 from './Mp3';
 import Pagination from './Pagination';
 
-const VideoItem = ({ item: video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, setVideoLibrary, api }) => (
+const VideoItem = ({ item: video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, generateSubtitlesButtonClick, setVideoLibrary, api }) => (
   <div className='col-12 col-sm-4 mb-3'>
     <Video video={video} serverUrl={serverUrl} deleteVideoButtonClick={deleteVideoButtonClick} transferToJellyfinButtonClick={transferToJellyfinButtonClick} setVideoLibrary={setVideoLibrary} api={api} />
   </div>
@@ -44,6 +44,41 @@ const Library = ({ api, serverUrl, videoLibrary, setVideoLibrary, mp3Library, se
     } catch (error) {
       console.log(error);
       toast.error("There was an error transferring the video")
+    }
+  }
+
+  // async function generateSubtitlesButtonClick(e) {
+  //   try {
+  //     const videoId = parseInt(e.target.dataset.videoid);
+  //     toast.promise(async () => {
+  //       const transferResults = await api.post(`/videos/generatesubtitles/${videoId}`);
+  //       console.log(transferResults)
+  //     }, {
+  //       loading: "Generating subtitles...",
+  //       success: 'Subtitles generated successfully!',
+  //       error: 'There was an error generating subtitles',
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("There was an error generating subtitles.")
+  //   }
+  // }
+
+  async function convertToMp4(e) {
+    try {
+      const videoId = parseInt(e.target.dataset.videoid);
+      toast.promise(async () => {
+        const transferResults = await api.post(`/videos/transfertojellyfin/${videoId}`);
+        console.log(transferResults)
+      }, {
+        loading: "Moving video to Jellyfin folder location...",
+        success: 'Video transfered successfully!',
+        error: 'There was an error transferring the video',
+      });
+    } catch (error) {
+      console.log("Error in convertToMp4 function");
+      console.log(error)
+      toast.error("There was an error converting the video to MP4.")
     }
   }
 
