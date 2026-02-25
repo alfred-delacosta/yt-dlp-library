@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react";
 const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, setVideoLibrary, api }) => {
     const [serverMessages, setServerMessages] = useState('');
     const serverMessagesEndRef = useRef(null);
+    const subtitles = `/media/subtitles/${video.id}-${video.name}-subtitle.vtt`
+    console.log(subtitles);
     const scrollToBottomForServerMessages = () => {
         serverMessagesEndRef.current.scrollTop = serverMessagesEndRef.current.scrollHeight;
     }
@@ -59,13 +61,19 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
     <div>
         <div className="card shadow">
             {video.thumbnailPath && (
-                <video className="w-100 h-50vh" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster={import.meta.env.PROD ? `/${video.thumbnailPath}` : `${serverUrl}/${video.thumbnailPath}`}></video>
+                <video className="w-100 h-50vh" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster={import.meta.env.PROD ? `/${video.thumbnailPath}` : `${serverUrl}/${video.thumbnailPath}`}>
+                    <track src={subtitles} kind="subtitles" srclang="en" label="English" />
+                </video>
             )}
             {video.thumbnailPath === undefined && (
-                <video className="w-100 h-50vh" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster=""></video>
+                <video className="w-100 h-50vh" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster="">
+                    <track src={subtitles} kind="subtitles" srclang="en" label="English" />
+                </video>
             )}
             {video.thumbnailPath === null && (
-                <video className="w-100 h-50vh" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster=""></video>
+                <video className="w-100 h-50vh" loading="lazy" preload="meta" controls src={import.meta.env.PROD ? `/${video.videoPath}` : `${serverUrl}/${video.videoPath}`} poster="">
+                    <track src={subtitles} kind="subtitles" srclang="en" label="English" />
+                </video>
             )}
             <div className="card-body">
                 <h5 className="card-title">{video.name}</h5>
