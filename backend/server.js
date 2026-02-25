@@ -10,6 +10,7 @@ import ytdlpRoutes from './routes/yt-dlp.route.js';
 import videosRoutes from './routes/videos.route.js';
 import mp3Routes from './routes/mp3s.route.js';
 import cookieParser from 'cookie-parser';
+import sequelize from './db/sequelize.js';
 
 //#region Initializations
 const app = express();
@@ -54,5 +55,8 @@ if (process.env.ENVIRONMENT === "production" || process.env.ENVIRONMENT === "loc
   });
 }
 
-app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
+sequelize.sync().then(() => {
+  console.log('Database synced');
+  app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
+}).catch(err => console.error('Database sync failed:', err));
 //#endregion

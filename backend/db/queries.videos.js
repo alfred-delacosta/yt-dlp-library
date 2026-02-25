@@ -1,53 +1,64 @@
-import { pool } from "./db.pool.js"
+import { Video, Thumbnail } from './models.js';
 
 export const getAllVideosForUser = async (userId) => {
-    const [ results, fields ] = await pool.execute('SELECT videos.*, thumbnails.id as thumbnailId, thumbnails.videoId, thumbnails.thumbnailPath FROM videos left join thumbnails on videos.id = thumbnails.videoId WHERE videos.userId = ?;', [userId]);
-    return results;
-}
+  return await Video.findAll({
+    where: { userId },
+    include: Thumbnail,
+    order: [['id', 'DESC']],
+  });
+};
 
 export const getVideoCountForUser = async (userId) => {
-    const [ results, fields ] = await pool.execute('SELECT COUNT(*) FROM videos where userId = ?;', [userId]);
-    return results;
-}
+  return await Video.count({ where: { userId } });
+};
 
 export const sqlGetVideo = async (userId, videoId) => {
-    const [ results, fields ] = await pool.execute('SELECT videos.*, thumbnails.id as thumbnailId, thumbnails.videoId, thumbnails.thumbnailPath FROM videos left join thumbnails on videos.id = thumbnails.videoId WHERE videos.userId = ? AND videos.id = ?;', [userId, videoId]);
-    return results;
-}
+  return await Video.findAll({
+    where: { userId, id: videoId },
+    include: Thumbnail,
+  });
+};
 
-export const sqlAddVideo = async (file, description="No description", userId) => {
-    const [ results, fields ] = await pool.execute('INSERT INTO `videos` (`id`, `name`, `description`, `ext`, `downloadDate`, `link`, `type`, `videoPath`, `userId`, `serverPath`) VALUES (NULL, ?, ?, ?, NOW(), ?, ?, ?, ?, ?);', [file.basename, description, file.extension, file.link, 0, file.path, userId, file.serverPath]);
-
-    return results;
-}
+export const sqlAddVideo = async (file, description = "No description", userId) => {
+  return await Video.create({
+    name: file.basename,
+    description,
+    ext: file.extension,
+    link: file.link,
+    type: 0,
+    videoPath: file.path,
+    userId,
+    serverPath: file.serverPath,
+  });
+};
 
 export const sqlUpdateVideo = async (video) => {
-    const [ results, fields ] = await pool.execute(`UPDATE videos SET name = ?, description = ?, ext = ?, link = ?, type = ?, videoPath = ?, userId = ?, serverPath = ? WHERE id = ?;`, [video.name, video.description, video.ext, video.link, video.type, video.videoPath, video.userId, video.serverPath, video.id]);
-
-    return results;
-}
+  return await Video.update(video, { where: { id: video.id } });
+};
 
 export const sqlUpdateVideoPaths = async (videoPath, serverPath, videoId) => {
-    const [ results, fields ] = await pool.execute(`UPDATE videos SET videoPath = ?, serverPath = ?, userId = 1 WHERE id = ?;`, [videoPath, serverPath, videoId]);
-
-    return results;
-}
+  return await Video.update({ videoPath, serverPath }, { where: { id: videoId, userId: 1 } });
+};
 
 export const sqlDeleteVideo = async (userId, videoId) => {
-    const [ results, fields ] = await pool.execute('DELETE FROM videos WHERE userId = ? AND id = ?;', [userId, videoId]);
-    return results;
-}
+  return await Video.destroy({ where: { userId, id: videoId } });
+};
 
-export const sqlCheckVideoByLink = async (userId, videoId) => {
-    const [ results, fields ] = await pool.execute(
-        'SELECT * from videos where userId = ? AND link like ?;', 
-        [userId, videoLink]
-    );
-    return results;
-}
+export const sqlCheckVideoByLink = async (userId, videoLink) => {
+  return await Video.findAll({ where: { userId, link: videoLink } });
+};
 
 export const sqlAddSubtitlesToVideo = async (videoId, subtitles) => {
-    const [ results, fields ] = await pool.execute(`UPDATE videos SET subtitles = ? WHERE id = ?;`, [subtitles, videoId]);
+  return await Video.update({ subtitles }, { where: { id: videoId } });
+};
 
-    return results;
-}
+export const getVideosForUserPaginated = async (userId, limit, offset) => {
+  const { rows } = await Video.findAndCountAll({
+    where: { userId },
+    include: Thumbnail,
+    order: [['id', 'DESC']],
+    limit,
+    offset,
+  });
+  return rows;
+};

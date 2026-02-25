@@ -3,7 +3,7 @@ import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight, Pencil, Fi
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
 
-const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, setVideoLibrary, api }) => {
+const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinButtonClick, api }) => {
     const [serverMessages, setServerMessages] = useState('');
     const serverMessagesEndRef = useRef(null);
     const scrollToBottomForServerMessages = () => {

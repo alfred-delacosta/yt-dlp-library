@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight } from 'lucide-react'
 import toast from "react-hot-toast";
 
-const Mp3 = ({ mp3, serverUrl, deleteMp3ButtonClick, setMp3Library, api}) => {
+const Mp3 = ({ mp3, serverUrl, deleteMp3ButtonClick, api}) => {
   return (
     <div>
         <div className="card shadow">

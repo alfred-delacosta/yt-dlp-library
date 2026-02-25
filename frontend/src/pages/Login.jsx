@@ -1,4 +1,4 @@
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useEffect, useState, useRef } from "react"
 import { useAuthStore } from "../lib/axios"
 import toast from "react-hot-toast";
@@ -9,8 +9,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [validated, setValidated] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
+  const navigate = useNavigate();
 
   const { login, getNewAccessToken, isLoading, error, accessToken, isAuthenticated, checkRefreshToken } = useAuthStore();
 
@@ -19,13 +21,21 @@ const Login = () => {
       await checkRefreshToken();
       if (isAuthenticated) await getNewAccessToken();
     } catch (error) {
-      return;
+      // Ignore error
+    } finally {
+      setAuthChecked(true);
     }
   }
 
   useEffect(() => {
     checkAuth();
   }, [])
+
+  useEffect(() => {
+    if (authChecked && isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [authChecked, isAuthenticated, navigate])
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -54,6 +64,16 @@ const Login = () => {
         }
       }
     })
+  }
+
+  if (!authChecked) {
+    return (
+      <div className="h-100vh container d-flex justify-content-center align-items-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   return (

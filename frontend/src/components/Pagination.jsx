@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-const Pagination = ({ items, itemsPerPage, renderItem: RenderItem }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  
-  // Reset current page when itemsPerPage changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [itemsPerPage, items.length]);
-  
-  // Calculate total pages
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-  
-  // Get current page items
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = items.slice(startIndex, startIndex + itemsPerPage);
-  
+const Pagination = ({ currentItems, totalPages, currentPage, onPageChange, renderItem: RenderItem }) => {
+
   // Handle page navigation
   const goToPage = (page) => {
-    setCurrentPage(Math.min(Math.max(page, 1), totalPages));
+    const newPage = Math.min(Math.max(page, 1), totalPages);
+    onPageChange(newPage);
     // Scroll to top of page when navigating to a new page
     // window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
@@ -83,8 +71,8 @@ const Pagination = ({ items, itemsPerPage, renderItem: RenderItem }) => {
       {totalPages > 1 && <PaginationControls />}
       
       <div className="items mb-3 row">
-        {currentItems.map((item, index) => (
-          <RenderItem key={index} item={item} />
+        {currentItems.map((item) => (
+          <RenderItem key={item.id} item={item} />
         ))}
       </div>
       

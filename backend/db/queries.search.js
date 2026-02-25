@@ -1,16 +1,29 @@
-import { pool } from "./db.pool.js"
+import { Video, Mp3, Thumbnail } from './models.js';
+import { Op } from 'sequelize';
 
 export const sqlSearchVideos = async (searchTerm, userId) => {
-    // Below is the old search query. Keeping it here just in case.
-    // const [ results, fields ] = await pool.execute(`SELECT videos.*, thumbnails.id as thumbnailId, thumbnails.videoId, thumbnails.thumbnailPath FROM videos left join thumbnails on videos.id = thumbnails.videoId WHERE videos.name LIKE CONCAT('%', ?, '%') OR videos.description LIKE CONCAT('%', ?, '%') AND userId = ?;`, [searchTerm, searchTerm, userId]);
-
-    const [ results, fields ] = await pool.execute(`SELECT videos.*, thumbnails.id as thumbnailId, thumbnails.videoId, thumbnails.thumbnailPath FROM videos LEFT JOIN thumbnails ON videos.id = thumbnails.videoId WHERE (videos.name LIKE CONCAT('%', ?, '%') OR videos.description LIKE CONCAT('%', ?, '%') OR videos.subtitles LIKE CONCAT('%', ?, '%')) AND userId = ?;`, [searchTerm, searchTerm, searchTerm, userId]);
-
-    return results;
-}
+  return await Video.findAll({
+    where: {
+      userId,
+      [Op.or]: [
+        { name: { [Op.like]: `%${searchTerm}%` } },
+        { description: { [Op.like]: `%${searchTerm}%` } },
+        { subtitles: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+    include: Thumbnail,
+  });
+};
 
 export const sqlSearchMp3s = async (searchTerm, userId) => {
-    const [ results, fields ] = await pool.execute(`SELECT * FROM mp3s WHERE name LIKE CONCAT('%', ?, '%') OR description LIKE CONCAT('%', ?, '%') AND userId = ?;`, [searchTerm, searchTerm, userId]);
-
-    return results;
-}
+  return await Mp3.findAll({
+    where: {
+      userId,
+      [Op.or]: [
+        { name: { [Op.like]: `%${searchTerm}%` } },
+        { description: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+    include: Thumbnail,
+  });
+};

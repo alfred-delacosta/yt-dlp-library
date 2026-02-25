@@ -1,19 +1,21 @@
 import { useAuthStore, api, serverUrl } from "../lib/axios"
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Downloader from "../components/Downloader";
 import Library from "../components/Library";
 import LibraryCounts from "../components/LibraryCounts";
 import SearchBar from "../components/SearchBar";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 
 const Dashboard = () => {
-    const { accessToken, isAuthenticated, getNewAccessToken } = useAuthStore();
+    const { accessToken, isAuthenticated, getNewAccessToken, checkRefreshToken } = useAuthStore();
+    const navigate = useNavigate();
 
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
     const [videoLibrary, setVideoLibrary] = useState([]);
     const [mp3Library, setMp3Library] = useState([]);
     const [numberOfItems, setNumberOfItems] = useState(10);
+    const [authChecked, setAuthChecked] = useState(false);
 
     async function loadLibrary() {
       const videoApiResponse = await api.get('/videos');
@@ -24,13 +26,35 @@ const Dashboard = () => {
     }
 
     async function checkAuthentication() {
-      if (isAuthenticated && !accessToken) await getNewAccessToken();
-      await loadLibrary();
+      try {
+        if (!isAuthenticated) await checkRefreshToken();
+        if (isAuthenticated && !accessToken) await getNewAccessToken();
+      } catch (error) {
+        // Auth failed
+      } finally {
+        setAuthChecked(true);
+      }
+      if (isAuthenticated) {
+        await loadLibrary();
+      } else {
+        navigate('/login');
+        return;
+      }
     }
 
     useEffect(() => {
       checkAuthentication();
     }, [])
+
+  if (!authChecked) {
+    return (
+      <div className="container-fluid d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid">

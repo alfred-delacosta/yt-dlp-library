@@ -1,4 +1,4 @@
-import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo } from "../db/queries.videos.js"
+import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo, getVideosForUserPaginated } from "../db/queries.videos.js"
 import { sqlSearchVideos } from "../db/queries.search.js";
 import path from 'path';
 import { copyFile, readFile, rm } from "fs/promises";
@@ -22,6 +22,22 @@ export const getVideos = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+    }
+}
+
+export const getVideosPaginated = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * parseInt(limit);
+        const videos = await getVideosForUserPaginated(req.userId, parseInt(limit), offset);
+        const totalItemsResult = await getVideoCountForUser(req.userId);
+        const totalItems = totalItemsResult[0]['COUNT(*)'];
+        const totalPages = Math.ceil(totalItems / parseInt(limit));
+
+        res.json({ videos, totalPages, currentPage: parseInt(page), totalItems });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: 'There was an error getting the paginated videos for the user.' })
     }
 }
 
