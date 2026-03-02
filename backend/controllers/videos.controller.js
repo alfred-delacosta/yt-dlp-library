@@ -1,4 +1,4 @@
-import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo } from "../db/queries.videos.js"
+import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo, sqlAddSubtitlesFileToVideo } from "../db/queries.videos.js"
 import { sqlSearchVideos } from "../db/queries.search.js";
 import path from 'path';
 import { copyFile, readFile, rm } from "fs/promises";
@@ -104,7 +104,7 @@ export const generateSubtitles = async (req, res) => {
         const videoPath = video.serverPath;
         const audioFileName = `${video.id}-${video.name}-subtitle.mp3`;
         const whisperXFilesNamePrefix = `${video.id}-${video.name}-subtitle`;
-        const subtitleName = `${video.id}-${video.name}-subtitle.srt`;
+        const subtitleName = `${video.id}-${video.name}-subtitle.vtt`;
 
         //#region FFMPEG Conversion
         setSSEHeaders(res);
@@ -170,9 +170,13 @@ export const generateSubtitles = async (req, res) => {
               whisperX.on("exit", async (code) => {
                 try {
                   res.write(`data: Process exited with code ${code}\n\n`);
-                  res.write(`Subtitles generated successfully.`);
+                  res.write(`Subtitles generated successfully.\n\n`);
+                  const subtitlesFileLocation = path.join(__dirname,'..', 'media', 'subtitles', subtitleName);
                   const subtitlesTxt = await readFile(path.join(tempDir, `${whisperXFilesNamePrefix}.txt`), 'utf-8');
+                  await copyFile(path.join(tempDir, subtitleName), subtitlesFileLocation);
+                  res.write(`Subtitles moved to subtitle folder successfully.\n\n`);
                   const sqlResponse = await sqlAddSubtitlesToVideo(videoId, subtitlesTxt);
+                  const sqlResponse2 = await sqlAddSubtitlesFileToVideo(videoId, subtitlesFileLocation)
                   res.write(`Subtitles saved to db successfully.\n\n`);
                   await rm(tempDir, { recursive: true, force: true});
                   res.write("data: Processing folder deleted.\n\n");

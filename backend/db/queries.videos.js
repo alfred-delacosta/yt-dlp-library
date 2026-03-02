@@ -51,3 +51,9 @@ export const sqlAddSubtitlesToVideo = async (videoId, subtitles) => {
 
     return results;
 }
+
+export const sqlAddSubtitlesFileToVideo= async (videoId, subtitlesFilePath) => {
+    const [ results, fields ] = await pool.execute(`UPDATE videos SET subtitlesFile = ? WHERE id = ?;`, [subtitlesFilePath, videoId]);
+
+    return results;
+}

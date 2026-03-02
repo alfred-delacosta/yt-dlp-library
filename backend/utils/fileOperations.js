@@ -24,6 +24,7 @@ export const createFolders = async () => {
     await fs.mkdir(path.join(rootFolder, "media", "_processing"));
     await fs.mkdir(path.join(rootFolder, "media", "mp3s"));
     await fs.mkdir(path.join(rootFolder, "media", "videos"));
+    await fs.mkdir(path.join(rootFolder, "media", "subtitles"));
     await fs.mkdir(path.join(rootFolder, "media", "videos", "thumbnails"));
 
     return true;
