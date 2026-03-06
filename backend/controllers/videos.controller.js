@@ -1,6 +1,8 @@
 import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo, sqlAddSubtitlesFileToVideo } from "../db/queries.videos.js"
 import { sqlSearchVideos } from "../db/queries.search.js";
 import path from 'path';
+import fs from 'fs/promises';
+import fsSync from 'fs';
 import { copyFile, readFile, rm } from "fs/promises";
 import "@dotenvx/dotenvx/config";
 const env = process.env;
@@ -221,5 +223,33 @@ export const generateSubtitles = async (req, res) => {
 }
 
 export const whisperXAPIConvertVideoToMp4 = async (req, res) => {
+    try {
+        const videoId = req.params.id;
+        const queryResults = await sqlGetVideo(req.userId, videoId);
+        const video = queryResults[0];
+        const videoPath = video.serverPath;
+        const videoName = `${video.name}${video.ext}`
+        // const audioFileName = `${video.id}-${video.name}-subtitle.mp3`;
+        // const whisperXFilesNamePrefix = `${video.id}-${video.name}-subtitle`;
+        // const subtitleName = `${video.id}-${video.name}-subtitle.vtt`;
+        
+        // Read the file
+        const fileStream = fsSync.createReadStream(videoPath);
 
+        // Create the form
+        const form = new FormData();
+        form.append('video', fileStream, { filename: videoName })
+
+        const whisperXApiResponse = await fetch(`${env.WHISPER_X_API_URL}/convertVideo`, {
+            method: 'POST',
+            body: form,
+        })
+
+        console.log(whisperXApiResponse)
+
+        res.send(whisperXApiResponse);
+    } catch (error) {
+        console.error(error);
+        res.send(400).json({ message: 'There was an error with converting the video through the WhisperX API.' })
+    }
 }
