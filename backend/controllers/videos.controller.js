@@ -177,7 +177,7 @@ export const generateSubtitles = async (req, res) => {
                   const subtitlesTxt = await readFile(path.join(tempDir, `${whisperXFilesNamePrefix}.txt`), 'utf-8');
                   await copyFile(path.join(tempDir, subtitleName), subtitlesFileLocation);
                   res.write(`Subtitles moved to subtitle folder successfully.\n\n`);
-                //   const sqlResponse = await sqlAddSubtitlesToVideo(videoId, subtitlesTxt);
+                  const sqlResponse = await sqlAddSubtitlesToVideo(videoId, subtitlesTxt);
                   const sqlResponse2 = await sqlAddSubtitlesFileToVideo(videoId, subtitlesFileLocation)
                 //   res.write(`Subtitles saved to db successfully.\n\n`);
                   await rm(tempDir, { recursive: true, force: true});
@@ -218,4 +218,8 @@ export const generateSubtitles = async (req, res) => {
         console.error(error);
         res.send(400).json({ message: 'There was an error generating the subtitles.' })
     }
+}
+
+export const whisperXAPIConvertVideoToMp4 = async (req, res) => {
+
 }
