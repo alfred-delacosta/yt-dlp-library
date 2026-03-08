@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight, Pencil, Film, ClosedCaption } from 'lucide-react'
+import { Trash2, MonitorUp, HardDriveDownload, SquareArrowOutUpRight, Pencil, Film, ClosedCaption, Music, Book } from 'lucide-react'
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
 
@@ -7,7 +7,6 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
     const [serverMessages, setServerMessages] = useState('');
     const serverMessagesEndRef = useRef(null);
     const subtitles = `/media/subtitles/${video.id}-${video.name}-subtitle.vtt`
-    console.log(subtitles);
     const scrollToBottomForServerMessages = () => {
         serverMessagesEndRef.current.scrollTop = serverMessagesEndRef.current.scrollHeight;
     }
@@ -51,6 +50,52 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
           console.log(error);
           toast.error("There was an error generating subtitles.")
         }
+    }
+
+    async function whisperXApiConvertToMp3(e) {
+        try {
+            const videoId = parseInt(e.target.dataset.videoid);
+            toast.promise(async () => {
+              const response = await api.post(`/videos/whisperx/convertvideo/${videoId}`);
+              console.log(response);
+            }, {
+              loading: "Converting video...",
+              success: (data) => {
+                  console.log(data);
+                  return 'Video Converted successfully!';
+              },
+              error: (data) => {
+                  console.log(data);
+                  return 'There was an error converting the video.';
+              },
+            });
+          } catch (error) {
+            console.log(error);
+            toast.error("There was an error converting the video.")
+          }
+    }
+
+    async function whisperXApiGenerateSubtitles(e) {
+        try {
+            const videoId = parseInt(e.target.dataset.videoid);
+            toast.promise(async () => {
+              const response = await api.post(`/videos/whisperx/generateSubtitles/${videoId}`);
+              console.log(response);
+            }, {
+              loading: "Generating Subtitles from WhisperX API...",
+              success: (data) => {
+                  console.log(data);
+                  return 'Subtitles Generated successfully from WhisperX API!';
+              },
+              error: (data) => {
+                  console.log(data);
+                  return 'There was an error generating the subtitles from WhisperX API.';
+              },
+            });
+          } catch (error) {
+            console.log(error);
+            toast.error("There was an error with the WhisperX API")
+          }
     }
 
     useEffect(() => {
@@ -106,6 +151,12 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
                     </div>
                     <div className="col-12 col-sm-6 d-grid mb-1">
                         <button type='button' onClick={generateSubtitlesButtonClick} data-videoid={video.id} className='btn btn-info'><ClosedCaption /> Generate Subtitles</button>
+                    </div>
+                    <div className="col-12 col-sm-6 d-grid mb-1">
+                        <button type='button' onClick={whisperXApiConvertToMp3} data-videoid={video.id} className='btn btn-success'><Music /> WhisperX - Convert to MP3</button>
+                    </div>
+                    <div className="col-12 col-sm-6 d-grid mb-1">
+                        <button type='button' onClick={whisperXApiGenerateSubtitles} data-videoid={video.id} className='btn btn-success'><Book /> WhisperX - Generate Subtitles</button>
                     </div>
                     <div className="col-12 d-grid mb-1">
                         <div className="whitespace-break-spaces overflow-y-auto max-height-25vh" ref={serverMessagesEndRef}>
