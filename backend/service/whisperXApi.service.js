@@ -10,7 +10,7 @@ const env = process.env;
 
 export const whisperXApiConvertToMp3 = async (video) => {
     const videoPath = video.serverPath;
-    const videoName = `${video.name}${video.ext}`;
+    const videoName = `${video.id}-${video.name}${video.ext}`;
 
     // Read the file
     const fileBuffer = await fs.readFile(videoPath);
@@ -64,7 +64,7 @@ export const whisperXApiConvertToMp3 = async (video) => {
 
 export const whisperXApiTranscribe = async (mp3Path, video) => {
     const videoPath = video.serverPath;
-    const videoName = `${video.name}${video.ext}`;
+    const videoName = `${video.id}-${video.name}${video.ext}`;
 
     // Read the file
     const mp3FileBuffer = await fs.readFile(mp3Path);
@@ -113,4 +113,13 @@ export const whisperXApiTranscribe = async (mp3Path, video) => {
     });
 
     return mp3SavePath;
+}
+
+export const whisperXApiGetSubtitlesText = async (video) => {
+    const videoName = `${video.id}-${video.name}`;
+
+    const fetchRes = await fetch(`${env.WHISPER_X_API_URL}/subtitles/text/${videoName}`);
+    const data = await fetchRes.json();
+
+    return data.subtitles;
 }
