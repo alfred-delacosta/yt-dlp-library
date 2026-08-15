@@ -79,7 +79,8 @@ export const whisperXApiTranscribe = async (mp3Path, video) => {
 
     const whisperXApiTranscribeVideo = await fetch(`${env.WHISPER_X_API_URL}/whisperx/generateSubtitles`, {
         method: 'POST',
-        body: mp3Form
+        body: mp3Form,
+        signal: AbortSignal.timeout(180000),
     }, );
 
     // Extract filename from Content-Disposition header
@@ -120,7 +121,9 @@ export const whisperXApiTranscribe = async (mp3Path, video) => {
 export const whisperXApiGetSubtitlesText = async (video) => {
     const videoName = `${video.id}-${video.name}`;
 
-    const fetchRes = await fetch(`${env.WHISPER_X_API_URL}/subtitles/text/${videoName}`);
+    const fetchRes = await fetch(`${env.WHISPER_X_API_URL}/subtitles/text/${videoName}`, {
+        signal: AbortSignal.timeout(180000)
+    });
     const data = await fetchRes.json();
 
     return data.subtitles;
