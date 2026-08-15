@@ -8,6 +8,7 @@ import { __dirname, __filename } from "../utils/fileOperations.js";
 
 const env = process.env;
 
+
 export const whisperXApiConvertToMp3 = async (video) => {
     const videoPath = video.serverPath;
     const videoName = `${video.id}-${video.name}${video.ext}`;
@@ -24,7 +25,8 @@ export const whisperXApiConvertToMp3 = async (video) => {
 
     const whisperXApiResponse = await fetch(`${env.WHISPER_X_API_URL}/ffmpeg/convertVideoToMp3`, {
         method: 'POST',
-        body: form
+        body: form,
+        signal: AbortSignal.timeout(30000),
     });
 
     // Extract filename from Content-Disposition header
@@ -78,7 +80,7 @@ export const whisperXApiTranscribe = async (mp3Path, video) => {
     const whisperXApiTranscribeVideo = await fetch(`${env.WHISPER_X_API_URL}/whisperx/generateSubtitles`, {
         method: 'POST',
         body: mp3Form
-    });
+    }, );
 
     // Extract filename from Content-Disposition header
     const mp3ContentDisposition = whisperXApiTranscribeVideo.headers.get('Content-Disposition');
