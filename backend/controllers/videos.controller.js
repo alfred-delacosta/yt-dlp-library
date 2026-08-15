@@ -10,6 +10,13 @@ import "@dotenvx/dotenvx/config";
 const env = process.env;
 
 const WHISPER_X_API_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+const whisperAgent = new Agent({
+  headersTimeout: WHISPER_X_API_TIMEOUT_MS,
+  bodyTimeout: WHISPER_X_API_TIMEOUT_MS,
+  connectTimeout: 30000,
+});
+
 import { fileURLToPath } from 'url';
 import {
     createVideoProcessingFolder
@@ -17,6 +24,7 @@ import {
 import { setSSEHeaders, sseProcessOutput } from "../utils/ytdlpOperations.js";
 import { spawn } from "child_process";
 import { whisperXApiConvertToMp3, whisperXApiGetSubtitlesText, whisperXApiTranscribe } from "../service/whisperXApi.service.js";
+import { Agent } from "undici";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -229,6 +237,8 @@ export const generateSubtitles = async (req, res) => {
 
 export const whisperXAPIConvertVideoToMp3 = async (req, res) => {
     try {
+        req.setTimeout(30 * 60 * 1000);
+        res.setTimeout(30 * 60 * 1000);
         const videoId = req.params.id;
         const queryResults = await sqlGetVideo(req.userId, videoId);
         const video = queryResults[0];
@@ -249,6 +259,7 @@ export const whisperXAPIConvertVideoToMp3 = async (req, res) => {
             method: 'POST',
             body: form,
             signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS),
+            dispatcher: whisperAgent,
         });
 
         //#region Handling the file download from the response
@@ -309,6 +320,8 @@ export const whisperXAPIConvertVideoToMp3 = async (req, res) => {
 
 export const whisperXApiTranscribeVideo = async (req, res) => {
     try {
+        req.setTimeout(30 * 60 * 1000);
+        res.setTimeout(30 * 60 * 1000);
         const videoId = req.params.id;
         const queryResults = await sqlGetVideo(req.userId, videoId);
         const video = queryResults[0];

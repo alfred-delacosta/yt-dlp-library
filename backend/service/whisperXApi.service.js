@@ -5,11 +5,17 @@ import fsSync from 'fs';
 import { copyFile, readFile, rm } from "fs/promises";
 import "@dotenvx/dotenvx/config";
 import { __dirname, __filename } from "../utils/fileOperations.js";
+import { Agent } from "undici";
 
 const env = process.env;
 
 const WHISPER_X_API_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
+const whisperAgent = new Agent({
+  headersTimeout: WHISPER_X_API_TIMEOUT_MS,
+  bodyTimeout: WHISPER_X_API_TIMEOUT_MS,
+  connectTimeout: 30000,
+});
 
 export const whisperXApiConvertToMp3 = async (video) => {
     const videoPath = video.serverPath;
@@ -29,6 +35,7 @@ export const whisperXApiConvertToMp3 = async (video) => {
         method: 'POST',
         body: form,
         signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS),
+        dispatcher: whisperAgent,
     });
 
     // Extract filename from Content-Disposition header
@@ -83,6 +90,7 @@ export const whisperXApiTranscribe = async (mp3Path, video) => {
         method: 'POST',
         body: mp3Form,
         signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS),
+        dispatcher: whisperAgent,
     }, );
 
     // Extract filename from Content-Disposition header
@@ -124,7 +132,8 @@ export const whisperXApiGetSubtitlesText = async (video) => {
     const videoName = `${video.id}-${video.name}`;
 
     const fetchRes = await fetch(`${env.WHISPER_X_API_URL}/subtitles/text/${videoName}`, {
-        signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS)
+        signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS),
+        dispatcher: whisperAgent,
     });
     const data = await fetchRes.json();
 

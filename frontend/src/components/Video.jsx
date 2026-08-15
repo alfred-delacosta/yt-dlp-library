@@ -56,7 +56,7 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
         try {
             const videoId = parseInt(e.target.dataset.videoid);
             toast.promise(async () => {
-              const response = await api.post(`/videos/whisperx/convertvideo/${videoId}`);
+              const response = await api.post(`/videos/whisperx/convertvideo/${videoId}`, null, { timeout: 30 * 60 * 1000 });
               console.log(response);
             }, {
               loading: "Converting video...",
@@ -79,7 +79,7 @@ const Video = ({ video, serverUrl, deleteVideoButtonClick, transferToJellyfinBut
         try {
             const videoId = parseInt(e.target.dataset.videoid);
             toast.promise(async () => {
-              const response = await api.post(`/videos/whisperx/generateSubtitles/${videoId}`);
+              const response = await api.post(`/videos/whisperx/generateSubtitles/${videoId}`, null, { timeout: 30 * 60 * 1000 });
               console.log(response);
             }, {
               loading: "Generating Subtitles from WhisperX API...",
