@@ -54,5 +54,8 @@ if (process.env.ENVIRONMENT === "production" || process.env.ENVIRONMENT === "loc
   });
 }
 
-app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
+const server = app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
+server.setTimeout(30 * 60 * 1000);
+server.keepAliveTimeout = 30 * 60 * 1000 + 1000;
+server.headersTimeout = 30 * 60 * 1000 + 2000;
 //#endregion

@@ -1,4 +1,4 @@
-export const createVideosTable = 'CREATE TABLE videos (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500) NOT NULL, description TEXT, ext VARCHAR(10), downloadDate DATETIME, link VARCHAR(500), type INT, videoPath TEXT, serverPath TEXT, subtitles TEXT, subtitlesFile TEXT, userId INT, CONSTRAINT user_video_id FOREIGN KEY (userId) REFERENCES users (id) ON DELETE NO ACTION ON UPDATE NO ACTION);'
+export const createVideosTable = 'CREATE TABLE videos (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500) NOT NULL, description TEXT, ext VARCHAR(10), downloadDate DATETIME, link VARCHAR(500), type INT, videoPath TEXT, serverPath TEXT, subtitles MEDIUMTEXT, subtitlesFile TEXT, userId INT, CONSTRAINT user_video_id FOREIGN KEY (userId) REFERENCES users (id) ON DELETE NO ACTION ON UPDATE NO ACTION);'
 
 export const createThumbnailsTable = 'CREATE TABLE thumbnails (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, videoId INT, name VARCHAR(500) NOT NULL, thumbnailPath TEXT, serverPath TEXT, CONSTRAINT fk_videoId FOREIGN KEY (videoId) REFERENCES videos(id) ON DELETE CASCADE)';
 
@@ -17,7 +17,7 @@ CREATE TABLE users (
   UNIQUE INDEX resetPasswordToken_UNIQUE (resetPasswordToken ASC) VISIBLE)
 `;
 
-export const createMaintenanceTable =  'CREATE TABLE maintenance (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, applicationInitialzied CHAR, legacyAppUser CHAR, legacyAppUpdated CHAR)';
+export const createMaintenanceTable = 'CREATE TABLE maintenance (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, applicationInitialzied CHAR, legacyAppUser CHAR, legacyAppUpdated CHAR)';
 
 export const addMaintenanceTableEntry = `INSERT INTO maintenance (applicationInitialzied, legacyAppUser, legacyAppUpdated) VALUES (1, 0, 0);`
 
