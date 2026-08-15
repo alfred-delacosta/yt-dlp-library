@@ -26,7 +26,7 @@ export const whisperXApiConvertToMp3 = async (video) => {
     const whisperXApiResponse = await fetch(`${env.WHISPER_X_API_URL}/ffmpeg/convertVideoToMp3`, {
         method: 'POST',
         body: form,
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(180000),
     });
 
     // Extract filename from Content-Disposition header
