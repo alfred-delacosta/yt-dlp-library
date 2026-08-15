@@ -40,6 +40,8 @@ export const downloadRegular = async (req, res) => {
         "--embed-subs",
         "--cookies-from-browser",
         "firefox",
+        "--impersonate",
+        "chrome-99",
         videoUrl,
       ],
       { cwd: tempDir }
@@ -182,6 +184,8 @@ export const downloadMp4 = async (req, res) => {
         "--embed-subs",
         "--cookies-from-browser",
         "firefox",
+        "--impersonate",
+        "chrome-99",
         "-t",
         "mp4",
         videoUrl,
