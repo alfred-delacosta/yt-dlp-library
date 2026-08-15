@@ -1,3 +1,4 @@
+import '@dotenvx/dotenvx/config';
 import { spawn } from "child_process";
 import { promisify } from "util";
 import {
