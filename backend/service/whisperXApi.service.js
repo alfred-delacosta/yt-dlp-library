@@ -136,7 +136,6 @@ export const whisperXApiGetSubtitlesText = async (video) => {
         dispatcher: whisperAgent,
     });
     const data = await fetchRes.json();
-    console.log(data);
 
     return data.subtitles;
 }
