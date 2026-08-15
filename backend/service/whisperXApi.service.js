@@ -8,6 +8,8 @@ import { __dirname, __filename } from "../utils/fileOperations.js";
 
 const env = process.env;
 
+const WHISPER_X_API_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
 
 export const whisperXApiConvertToMp3 = async (video) => {
     const videoPath = video.serverPath;
@@ -26,7 +28,7 @@ export const whisperXApiConvertToMp3 = async (video) => {
     const whisperXApiResponse = await fetch(`${env.WHISPER_X_API_URL}/ffmpeg/convertVideoToMp3`, {
         method: 'POST',
         body: form,
-        signal: AbortSignal.timeout(180000),
+        signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS),
     });
 
     // Extract filename from Content-Disposition header
@@ -80,7 +82,7 @@ export const whisperXApiTranscribe = async (mp3Path, video) => {
     const whisperXApiTranscribeVideo = await fetch(`${env.WHISPER_X_API_URL}/whisperx/generateSubtitles`, {
         method: 'POST',
         body: mp3Form,
-        signal: AbortSignal.timeout(180000),
+        signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS),
     }, );
 
     // Extract filename from Content-Disposition header
@@ -122,7 +124,7 @@ export const whisperXApiGetSubtitlesText = async (video) => {
     const videoName = `${video.id}-${video.name}`;
 
     const fetchRes = await fetch(`${env.WHISPER_X_API_URL}/subtitles/text/${videoName}`, {
-        signal: AbortSignal.timeout(180000)
+        signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS)
     });
     const data = await fetchRes.json();
 

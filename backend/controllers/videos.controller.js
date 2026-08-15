@@ -8,6 +8,8 @@ import FormDataGrok from '../utils/form-data-grok.js';
 import { copyFile, readFile, rm } from "fs/promises";
 import "@dotenvx/dotenvx/config";
 const env = process.env;
+
+const WHISPER_X_API_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 import { fileURLToPath } from 'url';
 import {
     createVideoProcessingFolder
@@ -246,7 +248,7 @@ export const whisperXAPIConvertVideoToMp3 = async (req, res) => {
         const whisperXApiResponse = await fetch(`${env.WHISPER_X_API_URL}/ffmpeg/convertVideoToMp3`, {
             method: 'POST',
             body: form,
-            signal: AbortSignal.timeout(180000),
+            signal: AbortSignal.timeout(WHISPER_X_API_TIMEOUT_MS),
         });
 
         //#region Handling the file download from the response
