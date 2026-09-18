@@ -4,6 +4,7 @@ import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersT
 import { addUsersToVideosTable, addUsersToMp3sTable, addServerPathToVideos, addServerPathToMp3s, addServerPathToThumbnails, getAllVideos } from "../db/queries.general.js";
 import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
 import path from 'path'
+import fs from 'fs';
 import { pool } from "../db/db.pool.js";
 import { sqlUpdateVideoPaths } from "../db/queries.videos.js";
 import { getAllMp3s, sqlUpdateMp3Paths } from "../db/queries.mp3s.js";
@@ -581,5 +582,54 @@ export const backupDatabase = async (req, res) => {
   } catch (error) {
     console.error(error);
     if (!res.headersSent) res.status(500).json({ message: "Backup failed" });
+  }
+}
+
+export const restoreDatabase = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No backup file provided" });
+  }
+  const filePath = req.file.path;
+  try {
+    const host = process.env.DB_HOST || "localhost";
+    const user = process.env.DB_USER;
+    const pass = process.env.DB_PASS;
+    const port = process.env.DB_PORT || "3306";
+    if (!user || !pass) {
+      try { fs.unlinkSync(filePath); } catch (e) {}
+      return res.status(400).json({ message: "Missing DB credentials" });
+    }
+    const dumpEnv = { ...process.env, MYSQL_PWD: pass };
+    const args = [
+      `--host=${host}`,
+      `--port=${port}`,
+      `--user=${user}`
+    ];
+    const restoreProc = spawn("mysql", args, { env: dumpEnv });
+    const inputStream = fs.createReadStream(filePath);
+    inputStream.pipe(restoreProc.stdin);
+    let stderr = "";
+    restoreProc.stderr.on("data", (data) => {
+      stderr += data.toString();
+      console.error(`mysql restore stderr: ${data}`);
+    });
+    restoreProc.on("error", (err) => {
+      console.error("mysql restore error:", err);
+      try { fs.unlinkSync(filePath); } catch (e) {}
+      if (!res.headersSent) res.status(500).json({ message: "Restore failed", error: err.message });
+    });
+    restoreProc.on("close", (code) => {
+      try { fs.unlinkSync(filePath); } catch (e) {}
+      if (code === 0) {
+        res.json({ message: "Database restored successfully. Refresh the page or re-login if needed." });
+      } else {
+        console.error("mysql restore exited with code", code, stderr);
+        if (!res.headersSent) res.status(500).json({ message: "Restore failed", code, details: stderr.substring(0, 500) });
+      }
+    });
+  } catch (error) {
+    try { fs.unlinkSync(filePath); } catch (e) {}
+    console.error(error);
+    if (!res.headersSent) res.status(500).json({ message: "Restore failed" });
   }
 }
