@@ -1,6 +1,7 @@
-import { createElement } from 'react';
+import { createElement, useState, useEffect } from 'react';
 import { NavLink } from 'react-router';
-import { Download, Music, Tags, User, Video } from 'lucide-react';
+import { Download, Music, Settings, Tags, User, Video } from 'lucide-react';
+import { api } from '../../lib/axios';
 import styles from './BottomNav.module.scss';
 
 const ITEMS = [
@@ -12,7 +13,15 @@ const ITEMS = [
 ];
 
 export default function NavLinks({ variant = 'bottom' }) {
-  return ITEMS.map((item) => (
+  const [navItems, setNavItems] = useState(ITEMS);
+  useEffect(() => {
+    api.get('/initialize/checkLegacyUpdateEnabled').then((r) => {
+      if (r.data.enabled) {
+        setNavItems([...ITEMS, { to: '/legacy', label: 'Legacy', icon: Settings }]);
+      }
+    }).catch(() => {});
+  }, []);
+  return navItems.map((item) => (
     <NavLink
       key={item.to}
       to={item.to}

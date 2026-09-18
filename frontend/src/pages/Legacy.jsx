@@ -9,6 +9,7 @@ export default function Legacy() {
   const [updateVideosTableButtonDisabled, setUpdateVideosTableButtonDisabled] = useState(false);
   const [legacyEnabled, setLegacyEnabled] = useState(false);
   const [backupDisabled, setBackupDisabled] = useState(false);
+  const [optionsRevealed, setOptionsRevealed] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,19 +78,24 @@ export default function Legacy() {
   return (
     <div className={styles.stack}>
       <h1 className={styles.title}>Legacy application functions</h1>
-      <div className={styles.actions}>
-        {legacyEnabled && (
+      {legacyEnabled && !optionsRevealed && (
+        <button className="btn btn-primary" type="button" onClick={() => setOptionsRevealed(true)}>
+          Reveal legacy options
+        </button>
+      )}
+      {legacyEnabled && optionsRevealed && (
+        <div className={styles.actions}>
           <button className="btn btn-primary" type="button" disabled={updateLegacyTablesButtonDisabled} onClick={handleUpdateLegacyTablesClick}>
             Update legacy tables
           </button>
-        )}
-        <button className="btn btn-ghost" type="button" disabled={updateVideosTableButtonDisabled} onClick={handleUpdateVideosMp3sAndThumbnailsClick}>
-          Update videos, MP3s, and thumbnails
-        </button>
-        <button className="btn btn-primary" type="button" disabled={backupDisabled} onClick={handleBackupClick}>
-          Backup database
-        </button>
-      </div>
+          <button className="btn btn-ghost" type="button" disabled={updateVideosTableButtonDisabled} onClick={handleUpdateVideosMp3sAndThumbnailsClick}>
+            Update videos, MP3s, and thumbnails
+          </button>
+          <button className="btn btn-primary" type="button" disabled={backupDisabled} onClick={handleBackupClick}>
+            Backup database
+          </button>
+        </div>
+      )}
     </div>
   );
 }
