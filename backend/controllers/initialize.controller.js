@@ -564,6 +564,7 @@ export const backupDatabase = async (req, res) => {
       `${pass}`,
       db
     ];
+    console.log(args);
     const dump = spawn("mysqldump", args);
     dump.stdout.pipe(res);
     dump.stderr.on("data", (data) => {
