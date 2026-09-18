@@ -1,95 +1,72 @@
-import { Link } from "react-router"
-import { useEffect, useState, useRef } from "react"
-import { useAuthStore } from "../lib/axios"
-import toast from "react-hot-toast";
-// import { Container, Row, Col, Button, Form } from "react-bootstrap"
+import { useState } from 'react';
+import { Link } from 'react-router';
+import { Eye, EyeOff, Moon, Sun } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../lib/axios';
+import { useTheme } from '../hooks/useTheme';
+import styles from './pages.module.scss';
 
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [validated, setValidated] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const usernameRef = useRef(null);
-  const passwordRef = useRef(null);
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [invalid, setInvalid] = useState(false);
+  const login = useAuthStore((s) => s.login);
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const { theme, toggle } = useTheme();
 
-  const { login, getNewAccessToken, isLoading, error, accessToken, isAuthenticated, checkRefreshToken } = useAuthStore();
-
-  async function checkAuth() {
+  async function handleLogin(e) {
+    e.preventDefault();
+    setInvalid(false);
     try {
-      await checkRefreshToken();
-      if (isAuthenticated) await getNewAccessToken();
-    } catch (error) {
-      return;
+      await toast.promise(login(email, password), {
+        loading: 'Logging in…',
+        success: 'Logged in',
+        error: 'Invalid email or password',
+      });
+    } catch {
+      setInvalid(true);
     }
   }
 
-  useEffect(() => {
-    checkAuth();
-  }, [])
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setValidated(true);
-    setSubmitting(true);
-
-    toast.promise(async () => {
-        const form = e.currentTarget;
-        usernameRef.current.classList.toggle('is-invalid');
-        passwordRef.current.classList.toggle('is-invalid');
-        if (form.checkValidity() === false) {
-          e.stopPropagation();
-        } else {
-          setValidated(true);
-          await login(email, password);
-        }
-    }, {
-      loading: "Logging in...",
-      success: "Logged in!",
-      error: (err) => {
-        if  (err.status == 400) {
-          usernameRef.current.classList.add('is-invalid');
-          passwordRef.current.classList.add('is-invalid');
-          setValidated(false);
-          setSubmitting(false);
-        }
-      }
-    })
-  }
-
   return (
-    <div className="h-100vh container">
-      <div className="row justify-content-center h-100">
-        <div className="col-12 text-center align-self-end">
-          <h1 className="mb-5">Login</h1>
-        </div>
-        <div className="col-12 col-sm-5 align-self-start">
-          { !validated && (
-            <div className="row">
-              <div className="col-12">
-                <div className="alert alert-danger" role="alert">Invalid email and password. Please try again</div>
-              </div>
+    <div className={styles.auth}>
+      <button type="button" className={styles.themeCorner} onClick={toggle} aria-label="Toggle theme">
+        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
+      <div className={styles.authCard}>
+        <h1 className={styles.authTitle}>Log in</h1>
+        {invalid && <div className={styles.error}>Invalid email and password. Please try again.</div>}
+        <form className={styles.authForm} onSubmit={handleLogin}>
+          <div>
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div>
+            <label htmlFor="password">Password</label>
+            <div className={styles.passwordWrap}>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button type="button" className={styles.eye} onClick={() => setShowPassword((v) => !v)} aria-label="Toggle password visibility">
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
-          )}
-          <form onSubmit={handleLogin}>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input type="text" className="form-control" name="email" id="email" required value={email} onChange={(e) => setEmail(e.target.value)} ref={usernameRef} disabled={submitting} />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="passowrd" className="form-label">Password</label>
-              <input type="password" className="form-control" name="password" id="password" required value={password} onChange={(e) => setPassword(e.target.value)} ref={passwordRef} disabled={submitting} />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              { submitting ? (
-                <div className="spinner-border text-white" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              ) : 'Submit'}
-            </button>
-          </form>
-        </div>
+          </div>
+          <button className="btn btn-primary btn-block" type="submit" disabled={isLoading}>
+            {isLoading ? 'Please wait…' : 'Log in'}
+          </button>
+        </form>
+        <p className={styles.mutedLink}>
+          No account? <Link to="/signup">Sign up</Link>
+        </p>
       </div>
     </div>
-  )
+  );
 }
-export default Login

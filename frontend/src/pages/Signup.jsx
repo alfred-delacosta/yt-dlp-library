@@ -1,58 +1,65 @@
-import { Link } from "react-router"
-import { useState, useEffect } from "react"
-import { useAuthStore } from "../lib/axios";
-const Signup = () => {
+import { useState } from 'react';
+import { Link } from 'react-router';
+import { Eye, EyeOff, Moon, Sun } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../lib/axios';
+import { useTheme } from '../hooks/useTheme';
+import styles from './pages.module.scss';
+
+export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [validated, setValidated] = useState(false);
-
-  const { login, getNewAccessToken, isLoading, error, accessToken, signup } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
+  const signup = useAuthStore((s) => s.signup);
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const { theme, toggle } = useTheme();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const form = e.currentTarget;
-    if (form.checkValidity() === false) {
-      e.stopPropagation();
-    } else {
-      setValidated(true);
-      await signup(email, password);
-    }    
+    await toast.promise(signup(email, password), {
+      loading: 'Creating account…',
+      success: 'Account created',
+      error: 'Could not sign up',
+    });
   }
-
-  async function checkAuth() {
-    try {
-      await checkRefreshToken();
-      if (isAuthenticated) await getNewAccessToken(); 
-    } catch (error) {
-      return;
-    }
-  }
-
-    useEffect(() => {
-      checkAuth();
-    }, [accessToken])
 
   return (
-    <div className="h-100vh container">
-      <div className="row justify-content-center h-100">
-        <div className="col-12 text-center align-self-end">
-          <h1 className="mb-5">Sign Up</h1>
-        </div>
-        <div className="col-5 align-self-start">
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input type="text" className="form-control" name="email" id="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="true" />
+    <div className={styles.auth}>
+      <button type="button" className={styles.themeCorner} onClick={toggle} aria-label="Toggle theme">
+        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
+      <div className={styles.authCard}>
+        <h1 className={styles.authTitle}>Sign up</h1>
+        <form className={styles.authForm} onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div>
+            <label htmlFor="password">Password</label>
+            <div className={styles.passwordWrap}>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button type="button" className={styles.eye} onClick={() => setShowPassword((v) => !v)} aria-label="Toggle password visibility">
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
-            <div className="mb-3">
-              <label htmlFor="passowrd" className="form-label">Password</label>
-              <input type="password" className="form-control" name="password" id="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-            </div>
-            <button type="submit" className="btn btn-primary">Submit</button>
-          </form>
-        </div>
+          </div>
+          <button className="btn btn-primary btn-block" type="submit" disabled={isLoading}>
+            {isLoading ? 'Please wait…' : 'Create account'}
+          </button>
+        </form>
+        <p className={styles.mutedLink}>
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
       </div>
     </div>
-  )
+  );
 }
-export default Signup

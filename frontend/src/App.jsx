@@ -1,92 +1,109 @@
-import { Routes, Route, Navigate } from 'react-router'
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router'
+import { api, useAuthStore } from './lib/axios'
+import { initializeApp } from './lib/initialize'
+import AppShell from './components/layout/AppShell'
+import MediaSkeleton from './components/library/MediaSkeleton'
 import Login from './pages/Login'
-import Home from './pages/Home'
 import Signup from './pages/Signup'
-import Dashboard from './pages/Dashboard'
-import Logout from './components/Logout'
-import ViewVideo from './pages/ViewVideo'
-import Navbar from './components/Navbar'
-import Legacy from './pages/Legacy'
-import { useAuthStore } from './lib/axios'
-import ViewMp3 from './pages/ViewMp3'
-import EditVideo from './pages/EditVideo'
-import * as bootstrap from 'bootstrap'
-import { initializeThemeToggler } from './lib/boostrap.themeSwitcher'
 
+const Library = lazy(() => import('./pages/Library'))
+const Download = lazy(() => import('./pages/Download'))
+const Tags = lazy(() => import('./pages/Tags'))
+const Account = lazy(() => import('./pages/Account'))
+const ViewMedia = lazy(() => import('./pages/ViewMedia'))
+const EditVideo = lazy(() => import('./pages/EditVideo'))
+const Legacy = lazy(() => import('./pages/Legacy'))
 
-// protect routes that require authentication
-const ProtectedRoute = ({ children }) => {
-	const { isAuthenticated, accessToken } = useAuthStore();
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, accessToken } = useAuthStore()
+  if (!isAuthenticated && !accessToken) {
+    return <Navigate to="/login" replace />
+  }
+  return children
+}
 
-	if (!isAuthenticated && !accessToken) {
-		return <Navigate to='/login' replace />;
-	}
-
-	// if (!user.isVerified) {
-	// 	return <Navigate to='/verify-email' replace />;
-	// }
-
-	return children;
-};
-
-// redirect authenticated users to the home page
-const RedirectAuthenticatedUser = ({ children }) => {
-	const { isAuthenticated } = useAuthStore();
-
-	if (isAuthenticated) {
-		return <Navigate to='/dashboard' replace />;
-	}
-
-	return children;
-};
+function RedirectAuthenticatedUser({ children }) {
+  const { isAuthenticated, accessToken } = useAuthStore()
+  if (isAuthenticated || accessToken) {
+    return <Navigate to="/" replace />
+  }
+  return children
+}
 
 function App() {
-  const { isAuthenticated, accessToken } = useAuthStore();
+  const { accessToken, getNewAccessToken } = useAuthStore()
+  const [booting, setBooting] = useState(true)
 
   useEffect(() => {
-    initializeThemeToggler();
-  }, [])
+    (async () => {
+      try {
+        await getNewAccessToken()
+        const token = useAuthStore.getState().accessToken
+        if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`
+      } catch {
+        /* not signed in */
+      }
+      await initializeApp()
+      setBooting(false)
+    })()
+  }, [getNewAccessToken])
+
+  useEffect(() => {
+    if (accessToken) {
+      api.defaults.headers.common.Authorization = `Bearer ${accessToken}`
+    } else {
+      delete api.defaults.headers.common.Authorization
+    }
+  }, [accessToken])
+
+  if (booting) {
+    return (
+      <div style={{ padding: '1.5rem' }}>
+        <MediaSkeleton />
+      </div>
+    )
+  }
 
   return (
-    <div className='h-100'>
-      {/* {accessToken ? <p>{accessToken}</p> : <p>No access token found</p>} */}
-      <Navbar isAuthenticated={isAuthenticated} accessToken={accessToken} />
+    <Suspense fallback={<MediaSkeleton />}>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/legacy" element={<Legacy />} />
-        <Route path="/login" element={
-          <RedirectAuthenticatedUser>
-            <Login />
-          </RedirectAuthenticatedUser>
-          }/>
-        <Route path="/signup" element={
-          <RedirectAuthenticatedUser>
-            <Signup />
-          </RedirectAuthenticatedUser>
-        }/>
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }/>
-        <Route path="/video/:id" element={
-          <ProtectedRoute>
-            <ViewVideo />
-          </ProtectedRoute>
-        } />
-        <Route path="/mp3/:id" element={
-          <ProtectedRoute>
-            <ViewMp3 />
-          </ProtectedRoute>
-        } />
-        <Route path="/edit/video/:id" element={
-          <ProtectedRoute>
-            <EditVideo />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/login"
+          element={(
+            <RedirectAuthenticatedUser>
+              <Login />
+            </RedirectAuthenticatedUser>
+          )}
+        />
+        <Route
+          path="/signup"
+          element={(
+            <RedirectAuthenticatedUser>
+              <Signup />
+            </RedirectAuthenticatedUser>
+          )}
+        />
+        <Route
+          element={(
+            <ProtectedRoute>
+              <AppShell />
+            </ProtectedRoute>
+          )}
+        >
+          <Route path="/" element={<Library />} />
+          <Route path="/download" element={<Download />} />
+          <Route path="/tags" element={<Tags />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/video/:id" element={<ViewMedia type="video" />} />
+          <Route path="/mp3/:id" element={<ViewMedia type="mp3" />} />
+          <Route path="/edit/video/:id" element={<EditVideo />} />
+          <Route path="/legacy" element={<Legacy />} />
+        </Route>
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </div>
+    </Suspense>
   )
 }
 

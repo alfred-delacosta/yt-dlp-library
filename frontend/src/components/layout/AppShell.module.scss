@@ -1,0 +1,17 @@
+.shell {
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.main {
+  padding: calc(var(--topbar-h) + var(--safe-top) + var(--space-4)) var(--space-4) calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-4));
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fade-in var(--duration-fast) var(--ease);
+}
+
+@media (min-width: 900px) {
+  .main {
+    padding: calc(var(--topbar-h) + var(--safe-top) + var(--space-6)) var(--space-6) var(--space-8) calc(var(--rail-w) + var(--space-6));
+  }
+}
