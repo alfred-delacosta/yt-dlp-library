@@ -545,18 +545,26 @@ export const backupDatabase = async (req, res) => {
     const filename = `backup-${new Date().toISOString().slice(0,10)}.sql`;
     res.setHeader("Content-Type", "application/sql");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    const dumpEnv = { ...process.env, MYSQL_PWD: pass };
     const args = [
       `--host=${host}`,
       `--port=${port}`,
       `--user=${user}`,
-      `--password=${pass}`,
       "--single-transaction",
       "--routines",
       "--triggers",
+      "--events",
+      "--add-drop-database",
+      "--add-drop-table",
+      "--create-options",
+      "--extended-insert",
+      "--hex-blob",
+      "--column-statistics=0",
+      "--default-character-set=utf8mb4",
       "--databases",
       db
     ];
-    const dump = spawn("mysqldump", args);
+    const dump = spawn("mysqldump", args, { env: dumpEnv });
     dump.stdout.pipe(res);
     dump.stderr.on("data", (data) => {
       console.error(`mysqldump stderr: ${data}`);
