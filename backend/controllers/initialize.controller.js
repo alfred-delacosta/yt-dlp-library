@@ -558,8 +558,10 @@ export const backupDatabase = async (req, res) => {
     // ];
     // mysqldump.exe -u aj -p yt-dlp-library > C:\Users\AJ\Desktop\yt-dlp-library-backup_09-18-2026.sql
     const args = [
-      `-u ${user}`,
-      `-p ${pass}`,
+      '-u',
+      `${user}`,
+      '-p',
+      `${pass}`,
       db
     ];
     const dump = spawn("mysqldump", args);
