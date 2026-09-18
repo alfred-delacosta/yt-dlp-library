@@ -545,26 +545,17 @@ export const backupDatabase = async (req, res) => {
     const filename = `backup-${new Date().toISOString().slice(0,10)}.sql`;
     res.setHeader("Content-Type", "application/sql");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    // const args = [
-    //   `--host=${host}`,
-    //   `--port=${port}`,
-    //   `--user=${user}`,
-    //   `--password=${pass}`,
-    //   "--single-transaction",
-    //   "--routines",
-    //   "--triggers",
-    //   "--databases",
-    //   db
-    // ];
-    // mysqldump.exe -u aj -p yt-dlp-library > C:\Users\AJ\Desktop\yt-dlp-library-backup_09-18-2026.sql
     const args = [
-      '-u',
-      `${user}`,
-      '-p',
-      `${pass}`,
+      `--host=${host}`,
+      `--port=${port}`,
+      `--user=${user}`,
+      `--password=${pass}`,
+      "--single-transaction",
+      "--routines",
+      "--triggers",
+      "--databases",
       db
     ];
-    console.log(args);
     const dump = spawn("mysqldump", args);
     dump.stdout.pipe(res);
     dump.stderr.on("data", (data) => {
