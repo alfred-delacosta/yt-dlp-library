@@ -8,6 +8,8 @@ import styles from './Downloader.module.scss';
 
 export default function Downloader() {
   const loadLibrary = useLibraryStore((s) => s.loadLibrary);
+  const invalidateMp3s = useLibraryStore((s) => s.invalidateMp3s);
+  const invalidateVideos = useLibraryStore((s) => s.invalidateVideos);
   const [videoUrl, setVideoUrl] = useState('');
   const [downloadType, setDownloadType] = useState('mp4');
   const [log, setLog] = useState('');
@@ -43,7 +45,11 @@ export default function Downloader() {
       toast.dismiss();
       toast.success('Download completed');
       setVideoUrl('');
-      loadLibrary();
+      const downloaded = downloadType === 'mp3' ? 'mp3' : 'video';
+      if (downloaded === 'mp3') invalidateMp3s();
+      else invalidateVideos();
+      const current = useLibraryStore.getState().type;
+      if (downloaded === current) await loadLibrary(current, { force: true });
     } catch (error) {
       console.error(error);
       toast.dismiss();

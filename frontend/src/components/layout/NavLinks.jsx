@@ -1,10 +1,11 @@
 import { createElement } from 'react';
 import { NavLink } from 'react-router';
-import { Download, Library, Tags, User } from 'lucide-react';
+import { Download, Music, Tags, User, Video } from 'lucide-react';
 import styles from './BottomNav.module.scss';
 
 const ITEMS = [
-  { to: '/', label: 'Library', icon: Library, end: true },
+  { to: '/', label: 'Videos', icon: Video, end: true },
+  { to: '/audio', label: 'Audio', icon: Music },
   { to: '/download', label: 'Download', icon: Download },
   { to: '/tags', label: 'Tags', icon: Tags },
   { to: '/account', label: 'Account', icon: User },

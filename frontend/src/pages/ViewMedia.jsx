@@ -105,7 +105,7 @@ export default function ViewMedia({ type }) {
             onClick={async () => {
               if (!window.confirm(`Delete “${item.name}”?`)) return;
               await actions.remove(item);
-              navigate('/');
+              navigate(type === 'mp3' ? '/audio' : '/');
             }}
           >
             <Trash2 size={16} /> Delete

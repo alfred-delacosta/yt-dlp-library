@@ -1,9 +1,12 @@
 .shell {
   min-height: 100dvh;
   background: var(--bg);
+  overflow-x: hidden;
 }
 
 .main {
+  width: 100%;
+  min-width: 0;
   padding: calc(var(--topbar-h) + var(--safe-top) + var(--space-4)) var(--space-4) calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-4));
   max-width: 1400px;
   margin: 0 auto;

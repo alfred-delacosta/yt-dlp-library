@@ -16,7 +16,7 @@ export function useMediaActions() {
   const navigate = useNavigate();
   const removeVideo = useLibraryStore((s) => s.removeVideo);
   const removeMp3 = useLibraryStore((s) => s.removeMp3);
-  const loadLibrary = useLibraryStore((s) => s.loadLibrary);
+  const invalidateMp3s = useLibraryStore((s) => s.invalidateMp3s);
   const [log, setLog] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -74,7 +74,7 @@ export function useMediaActions() {
       success: 'Converted to MP3',
       error: 'WhisperX conversion failed',
     });
-    loadLibrary();
+    invalidateMp3s();
   }
 
   async function remove(item) {

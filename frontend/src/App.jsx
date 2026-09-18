@@ -92,6 +92,7 @@ function App() {
           )}
         >
           <Route path="/" element={<Library />} />
+          <Route path="/audio" element={<Library />} />
           <Route path="/download" element={<Download />} />
           <Route path="/tags" element={<Tags />} />
           <Route path="/account" element={<Account />} />

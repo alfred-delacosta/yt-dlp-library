@@ -13,8 +13,13 @@ export default function SearchField() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  function goToLibrary() {
+    const path = useLibraryStore.getState().type === 'mp3' ? '/audio' : '/';
+    if (location.pathname !== '/' && location.pathname !== '/audio') navigate(path);
+  }
+
   function handleChange(e) {
-    if (location.pathname !== '/') navigate('/');
+    goToLibrary();
     setQuery(e.target.value);
   }
 
@@ -26,7 +31,7 @@ export default function SearchField() {
   function pick(term) {
     setQuery(term);
     setOpen(false);
-    if (location.pathname !== '/') navigate('/');
+    goToLibrary();
   }
 
   return (

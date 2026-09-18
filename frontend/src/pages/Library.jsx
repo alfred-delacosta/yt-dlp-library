@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import {
   Book,
   ClosedCaption,
@@ -11,7 +11,6 @@ import {
   Tags,
   Trash2,
 } from 'lucide-react';
-import FilterPills from '../components/library/FilterPills';
 import MediaGrid from '../components/library/MediaGrid';
 import MediaSkeleton from '../components/library/MediaSkeleton';
 import ActionSheet from '../components/library/ActionSheet';
@@ -22,16 +21,16 @@ import { useLibraryStore } from '../stores/libraryStore';
 import styles from './pages.module.scss';
 
 export default function Library() {
+  const location = useLocation();
+  const viewType = location.pathname === '/audio' ? 'mp3' : 'video';
   const videos = useLibraryStore((s) => s.videos);
   const mp3s = useLibraryStore((s) => s.mp3s);
-  const type = useLibraryStore((s) => s.type);
   const query = useLibraryStore((s) => s.query);
   const loading = useLibraryStore((s) => s.loading);
   const searching = useLibraryStore((s) => s.searching);
   const error = useLibraryStore((s) => s.error);
   const visibleCount = useLibraryStore((s) => s.visibleCount);
   const loadLibrary = useLibraryStore((s) => s.loadLibrary);
-  const hydrated = useLibraryStore((s) => s.hydrated);
   const setType = useLibraryStore((s) => s.setType);
   const loadMore = useLibraryStore((s) => s.loadMore);
   const [menuItem, setMenuItem] = useState(null);
@@ -41,15 +40,16 @@ export default function Library() {
   useDebouncedSearch();
 
   useEffect(() => {
-    if (!hydrated) loadLibrary();
-  }, [hydrated, loadLibrary]);
+    setType(viewType);
+    loadLibrary(viewType);
+  }, [viewType, setType, loadLibrary]);
 
   const items = useMemo(() => {
-    const videoItems = videos.map((v) => ({ ...v, mediaType: 'video' }));
-    const audioItems = mp3s.map((v) => ({ ...v, mediaType: 'mp3' }));
-    const merged = type === 'video' ? videoItems : type === 'mp3' ? audioItems : [...videoItems, ...audioItems];
-    return merged.sort((a, b) => new Date(b.downloadDate) - new Date(a.downloadDate));
-  }, [videos, mp3s, type]);
+    const source = viewType === 'mp3' ? mp3s : videos;
+    return source
+      .map((item) => ({ ...item, mediaType: viewType }))
+      .sort((a, b) => new Date(b.downloadDate) - new Date(a.downloadDate));
+  }, [videos, mp3s, viewType]);
 
   const visible = items.slice(0, visibleCount);
   const hasMore = visible.length < items.length;
@@ -117,10 +117,9 @@ export default function Library() {
   return (
     <div>
       <div className={styles.header}>
-        <h1 className={styles.title}>Library</h1>
+        <h1 className={styles.title}>{viewType === 'mp3' ? 'Audio' : 'Videos'}</h1>
         <span className={styles.count}>{items.length} items</span>
       </div>
-      <FilterPills value={type} onChange={setType} />
       {error && <p className={styles.emptyState}>{error}</p>}
       {(loading || searching) && items.length === 0 ? (
         <MediaSkeleton />

@@ -3,6 +3,7 @@ import { useLibraryStore } from '../stores/libraryStore';
 
 export function useDebouncedSearch(delay = 200) {
   const query = useLibraryStore((s) => s.query);
+  const type = useLibraryStore((s) => s.type);
   const search = useLibraryStore((s) => s.search);
   const controllerRef = useRef(null);
   const timerRef = useRef(null);
@@ -18,5 +19,5 @@ export function useDebouncedSearch(delay = 200) {
       clearTimeout(timerRef.current);
       controllerRef.current?.abort();
     };
-  }, [query, delay, search]);
+  }, [query, type, delay, search]);
 }
