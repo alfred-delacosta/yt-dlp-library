@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 import "@dotenvx/dotenvx/config";
-import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable, createMaintenanceTable, addMaintenanceTableEntry, getMaintenanceTableEntry, setLegacyUserFalse, setLegacyUserTrue, getLegacyAppUser, getLegacyAppUpdated, sqlSetLegacyAppUpdated } from "../db/queries.initialize.db.js";
+import { createVideosTable, createThumbnailsTable, createMP3sTable, createUsersTable, createMaintenanceTable, addMaintenanceTableEntry, getMaintenanceTableEntry, setLegacyUserFalse, setLegacyUserTrue, getLegacyAppUser, getLegacyAppUpdated, sqlSetLegacyAppUpdated, upgradeVideosSubtitlesToLongtext } from "../db/queries.initialize.db.js";
 import { addUsersToVideosTable, addUsersToMp3sTable, addServerPathToVideos, addServerPathToMp3s, addServerPathToThumbnails, getAllVideos } from "../db/queries.general.js";
 import { __dirname, rootFolder, createFolders } from "../utils/fileOperations.js";
 import path from 'path'
@@ -8,6 +8,7 @@ import { pool } from "../db/db.pool.js";
 import { sqlUpdateVideoPaths } from "../db/queries.videos.js";
 import { getAllMp3s, sqlUpdateMp3Paths } from "../db/queries.mp3s.js";
 import { getAllThumbnails, sqlUpdateThumbnailPaths } from "../db/queries.thumbnails.js";
+import { spawn } from "child_process";
 
 export const initializeDb = async (req, res) => {
   try {
@@ -316,11 +317,22 @@ export const updateLegacyTables = async (req, res) => {
     const [ spvResults, spvFields ] = await pool.query(addServerPathToVideos);
     const [ spmResults, spmFields ] = await pool.query(addServerPathToMp3s);
     const [ sptResults, sptFields ] = await pool.query(addServerPathToThumbnails);
+    try { await pool.query(upgradeVideosSubtitlesToLongtext); } catch(e){}
 
     res.status(200).json({ message: "Tables updated successfully!"})
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: 'There was an error updating the Legacy Tables.' })
+  }
+}
+
+export const updateSubtitlesColumn = async (req, res) => {
+  try {
+    await pool.query(upgradeVideosSubtitlesToLongtext);
+    res.status(200).json({ message: "Subtitles column updated to LONGTEXT successfully."})
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: 'There was an error updating the subtitles column.' })
   }
 }
 
@@ -512,5 +524,54 @@ export const setLegacyAppUpdated = async (req, res) => {
       console.error(error);
       res.status(400).json({message: "There was an error creating the entry in the maintenance table. Please check your database connection, mysql instance, or hard drive space."});
     }
+  }
+}
+
+export const checkLegacyUpdateEnabled = async (req, res) => {
+  const enabled = process.env.ENABLE_LEGACY_UPDATE === "true" || process.env.ENABLE_LEGACY_UPDATE === "1";
+  res.json({ enabled });
+}
+
+export const backupDatabase = async (req, res) => {
+  try {
+    const host = process.env.DB_HOST || "localhost";
+    const user = process.env.DB_USER;
+    const pass = process.env.DB_PASS;
+    const db = process.env.DB_NAME;
+    const port = process.env.DB_PORT || "3306";
+    if (!user || !pass || !db) {
+      return res.status(400).json({ message: "Missing DB credentials" });
+    }
+    const filename = `backup-${new Date().toISOString().slice(0,10)}.sql`;
+    res.setHeader("Content-Type", "application/sql");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    const args = [
+      `--host=${host}`,
+      `--port=${port}`,
+      `--user=${user}`,
+      `--password=${pass}`,
+      "--single-transaction",
+      "--routines",
+      "--triggers",
+      "--databases",
+      db
+    ];
+    const dump = spawn("mysqldump", args);
+    dump.stdout.pipe(res);
+    dump.stderr.on("data", (data) => {
+      console.error(`mysqldump stderr: ${data}`);
+    });
+    dump.on("error", (err) => {
+      console.error("mysqldump error:", err);
+      if (!res.headersSent) res.status(500).end("Backup failed");
+    });
+    dump.on("close", (code) => {
+      if (code !== 0) {
+        console.error("mysqldump exited with code", code);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    if (!res.headersSent) res.status(500).json({ message: "Backup failed" });
   }
 }

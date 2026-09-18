@@ -1,4 +1,4 @@
-export const createVideosTable = 'CREATE TABLE videos (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500) NOT NULL, description TEXT, ext VARCHAR(10), downloadDate DATETIME, link VARCHAR(500), type INT, videoPath TEXT, serverPath TEXT, subtitles MEDIUMTEXT, subtitlesFile TEXT, userId INT, CONSTRAINT user_video_id FOREIGN KEY (userId) REFERENCES users (id) ON DELETE NO ACTION ON UPDATE NO ACTION);'
+export const createVideosTable = 'CREATE TABLE videos (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(500) NOT NULL, description TEXT, ext VARCHAR(10), downloadDate DATETIME, link VARCHAR(500), type INT, videoPath TEXT, serverPath TEXT, subtitles LONGTEXT, subtitlesFile TEXT, userId INT, CONSTRAINT user_video_id FOREIGN KEY (userId) REFERENCES users (id) ON DELETE NO ACTION ON UPDATE NO ACTION);'
 
 export const createThumbnailsTable = 'CREATE TABLE thumbnails (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, videoId INT, name VARCHAR(500) NOT NULL, thumbnailPath TEXT, serverPath TEXT, CONSTRAINT fk_videoId FOREIGN KEY (videoId) REFERENCES videos(id) ON DELETE CASCADE)';
 
@@ -32,3 +32,5 @@ export const getLegacyAppUser = `SELECT legacyAppUser FROM maintenance WHERE id 
 export const sqlSetLegacyAppUpdated = `UPDATE maintenance SET legacyAppUpdated = 1 WHERE id = 1`;
 
 export const getLegacyAppUpdated = `SELECT legacyAppUpdated FROM maintenance WHERE id = 1`;
+
+export const upgradeVideosSubtitlesToLongtext = `ALTER TABLE videos MODIFY COLUMN subtitles LONGTEXT;`;
