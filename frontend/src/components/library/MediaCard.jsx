@@ -1,5 +1,5 @@
 import { MoreVertical, Music } from 'lucide-react';
-import { highlightText, mediaUrl } from '../../lib/media';
+import { highlightText, mediaUrl, formatDuration } from '../../lib/media';
 import styles from './MediaCard.module.scss';
 
 export default function MediaCard({ item, query, onOpen, onMenu }) {
@@ -19,15 +19,18 @@ export default function MediaCard({ item, query, onOpen, onMenu }) {
             </div>
           )}
         </button>
-        <button
-          type="button"
-          className={styles.more}
-          onClick={() => onMenu(item)}
-          aria-label="More actions"
-        >
-          <MoreVertical size={16} />
-        </button>
-      </div>
+          <button
+            type="button"
+            className={styles.more}
+            onClick={() => onMenu(item)}
+            aria-label="More actions"
+          >
+            <MoreVertical size={16} />
+          </button>
+          {item.duration && (
+            <span className={styles.duration}>{formatDuration(item.duration)}</span>
+          )}
+        </div>
       <button type="button" className={styles.meta} onClick={() => onOpen(item)}>
         <div className={styles.title}>
           {typeof highlighted === 'string' ? highlighted : (

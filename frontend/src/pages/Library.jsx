@@ -33,6 +33,8 @@ export default function Library() {
   const loadLibrary = useLibraryStore((s) => s.loadLibrary);
   const setType = useLibraryStore((s) => s.setType);
   const loadMore = useLibraryStore((s) => s.loadMore);
+  const sortDirection = useLibraryStore((s) => s.sortDirection);
+  const setSortDirection = useLibraryStore((s) => s.setSortDirection);
   const [menuItem, setMenuItem] = useState(null);
   const actions = useMediaActions();
   const navigate = useNavigate();
@@ -46,10 +48,14 @@ export default function Library() {
 
   const items = useMemo(() => {
     const source = viewType === 'mp3' ? mp3s : videos;
-    return source
-      .map((item) => ({ ...item, mediaType: viewType }))
-      .sort((a, b) => new Date(b.downloadDate) - new Date(a.downloadDate));
-  }, [videos, mp3s, viewType]);
+    const sorted = [...source].map((item) => ({ ...item, mediaType: viewType }));
+    sorted.sort((a, b) => {
+      const da = new Date(a.downloadDate || 0).getTime();
+      const db = new Date(b.downloadDate || 0).getTime();
+      return sortDirection === 'desc' ? db - da : da - db;
+    });
+    return sorted;
+  }, [videos, mp3s, viewType, sortDirection]);
 
   const visible = items.slice(0, visibleCount);
   const hasMore = visible.length < items.length;
@@ -119,6 +125,23 @@ export default function Library() {
       <div className={styles.header}>
         <h1 className={styles.title}>{viewType === 'mp3' ? 'Audio' : 'Videos'}</h1>
         <span className={styles.count}>{items.length} items</span>
+      </div>
+      <div className={styles.sortControls}>
+        <span className={styles.sortLabel}>Sort by date</span>
+        <button
+          type="button"
+          className={`${styles.sortBtn} ${sortDirection === 'desc' ? styles.sortActive : ''}`}
+          onClick={() => setSortDirection('desc')}
+        >
+          Newest first
+        </button>
+        <button
+          type="button"
+          className={`${styles.sortBtn} ${sortDirection === 'asc' ? styles.sortActive : ''}`}
+          onClick={() => setSortDirection('asc')}
+        >
+          Oldest first
+        </button>
       </div>
       {error && <p className={styles.emptyState}>{error}</p>}
       {(loading || searching) && items.length === 0 ? (

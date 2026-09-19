@@ -60,6 +60,19 @@
   background: rgba(0, 0, 0, 0.75);
 }
 
+.duration {
+  position: absolute;
+  bottom: 0.35rem;
+  right: 0.35rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  line-height: 1;
+}
+
 .meta {
   padding: 0 var(--space-1);
 }
