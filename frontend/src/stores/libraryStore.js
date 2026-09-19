@@ -36,11 +36,11 @@ export const useLibraryStore = create((set, get) => ({
 
     if (!force) {
       if (audio && get().mp3sHydrated) {
-        set({ visibleCount: PAGE_SIZE, loading: false });
+        set({ loading: false });
         return;
       }
       if (!audio && get().videosHydrated) {
-        set({ visibleCount: PAGE_SIZE, loading: false });
+        set({ loading: false });
         return;
       }
     }
@@ -126,7 +126,7 @@ export const useLibraryStore = create((set, get) => ({
     }
   },
 
-  setType: (type) => set({ type, visibleCount: PAGE_SIZE }),
+  setType: (type) => set({ type }),
   setSortDirection: (sortDirection) => set({ sortDirection, visibleCount: PAGE_SIZE }),
   setScrollPosition: (scrollPosition) => set({ scrollPosition }),
   loadMore: () => set((s) => ({ visibleCount: s.visibleCount + PAGE_SIZE })),

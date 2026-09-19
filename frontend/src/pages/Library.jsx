@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   Book,
@@ -50,19 +50,27 @@ export default function Library() {
 
   const hasRestoredRef = useRef(false);
 
-  // Restore scroll position when returning from a video/audio detail page
-  useLayoutEffect(() => {
-    if (!hasRestoredRef.current && scrollPosition > 0) {
-      hasRestoredRef.current = true;
-      // Use rAF to ensure DOM is painted (especially with infinite grid)
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollPosition, behavior: 'auto' });
-      });
+  // Restore scroll position when returning from a video/audio detail page.
+  // Timeout gives time for the (previously loaded) grid items + images to lay out.
+  useEffect(() => {
+    if (hasRestoredRef.current || scrollPosition <= 0) {
+      return;
     }
+
+    hasRestoredRef.current = true;
+
+    const timeout = setTimeout(() => {
+      window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+    }, 100);
+
+    return () => clearTimeout(timeout);
   }, [scrollPosition]);
 
   // Continuously save current scroll while on the library page
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
     const handleScroll = () => {
       setScrollPosition(window.scrollY || 0);
     };
