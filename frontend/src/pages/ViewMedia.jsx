@@ -50,6 +50,14 @@ export default function ViewMedia({ type }) {
 
   return (
     <div className={styles.stack}>
+      <button
+        type="button"
+        className="btn btn-ghost"
+        onClick={() => navigate(-1)}
+        style={{ alignSelf: 'flex-start' }}
+      >
+        ← Back to library
+      </button>
       <MediaPlayer item={item} />
       <div className={styles.playerMeta}>
         <h1 className={styles.title}>{item.name}</h1>

@@ -21,11 +21,15 @@ export function useMediaActions() {
   const [busy, setBusy] = useState(false);
 
   function openItem(item) {
+    const { setScrollPosition } = useLibraryStore.getState();
+    setScrollPosition(window.scrollY || 0);
     navigate(item.mediaType === 'mp3' ? `/mp3/${item.id}` : `/video/${item.id}`);
   }
 
   function editItem(item) {
     if (item.mediaType === 'mp3') return;
+    const { setScrollPosition } = useLibraryStore.getState();
+    setScrollPosition(window.scrollY || 0);
     navigate(`/edit/video/${item.id}`);
   }
 

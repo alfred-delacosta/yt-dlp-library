@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   Book,
@@ -35,6 +35,8 @@ export default function Library() {
   const loadMore = useLibraryStore((s) => s.loadMore);
   const sortDirection = useLibraryStore((s) => s.sortDirection);
   const setSortDirection = useLibraryStore((s) => s.setSortDirection);
+  const scrollPosition = useLibraryStore((s) => s.scrollPosition);
+  const setScrollPosition = useLibraryStore((s) => s.setScrollPosition);
   const [menuItem, setMenuItem] = useState(null);
   const actions = useMediaActions();
   const navigate = useNavigate();
@@ -45,6 +47,28 @@ export default function Library() {
     setType(viewType);
     loadLibrary(viewType);
   }, [viewType, setType, loadLibrary]);
+
+  const hasRestoredRef = useRef(false);
+
+  // Restore scroll position when returning from a video/audio detail page
+  useLayoutEffect(() => {
+    if (!hasRestoredRef.current && scrollPosition > 0) {
+      hasRestoredRef.current = true;
+      // Use rAF to ensure DOM is painted (especially with infinite grid)
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+      });
+    }
+  }, [scrollPosition]);
+
+  // Continuously save current scroll while on the library page
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY || 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [setScrollPosition]);
 
   const items = useMemo(() => {
     const source = viewType === 'mp3' ? mp3s : videos;

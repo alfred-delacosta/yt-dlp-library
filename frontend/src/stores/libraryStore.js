@@ -21,6 +21,7 @@ export const useLibraryStore = create((set, get) => ({
   mp3sHydrated: false,
   visibleCount: PAGE_SIZE,
   sortDirection: 'desc',
+  scrollPosition: 0,
   error: null,
 
   loadLibrary: async (type, { force = false } = {}) => {
@@ -127,6 +128,7 @@ export const useLibraryStore = create((set, get) => ({
 
   setType: (type) => set({ type, visibleCount: PAGE_SIZE }),
   setSortDirection: (sortDirection) => set({ sortDirection, visibleCount: PAGE_SIZE }),
+  setScrollPosition: (scrollPosition) => set({ scrollPosition }),
   loadMore: () => set((s) => ({ visibleCount: s.visibleCount + PAGE_SIZE })),
   invalidateMp3s: () => set({ mp3sHydrated: false }),
   invalidateVideos: () => set({ videosHydrated: false }),
