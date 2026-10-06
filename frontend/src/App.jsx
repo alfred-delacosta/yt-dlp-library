@@ -32,22 +32,20 @@ function RedirectAuthenticatedUser({ children }) {
 }
 
 function App() {
-  const { accessToken, getNewAccessToken } = useAuthStore()
+  const { accessToken, refreshSession } = useAuthStore()
   const [booting, setBooting] = useState(true)
 
   useEffect(() => {
     (async () => {
       try {
-        await getNewAccessToken()
-        const token = useAuthStore.getState().accessToken
-        if (token) api.defaults.headers.common.Authorization = `Bearer ${token}`
+        await refreshSession()
       } catch {
         /* not signed in */
       }
       await initializeApp()
       setBooting(false)
     })()
-  }, [getNewAccessToken])
+  }, [refreshSession])
 
   useEffect(() => {
     if (accessToken) {

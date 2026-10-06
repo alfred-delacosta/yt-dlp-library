@@ -14,16 +14,34 @@ export default function Account() {
   const [adminEnabled, setAdminEnabled] = useState(false);
   const [backupDisabled, setBackupDisabled] = useState(false);
   const [restoreDisabled, setRestoreDisabled] = useState(false);
+  const [sessions, setSessions] = useState([]);
+  const [sessionsBusy, setSessionsBusy] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     api.get('/initialize/checkLegacyUpdateEnabled').then((r) => setAdminEnabled(!!r.data.enabled)).catch(() => setAdminEnabled(false));
+    api.get('/auth/sessions').then((r) => setSessions(r.data.sessions || [])).catch(() => setSessions([]));
   }, []);
 
   async function handleLogout() {
     await logout();
     toast.success('Logged out');
     navigate('/login');
+  }
+
+  async function handleLogoutOthers() {
+    if (!window.confirm('Sign out every device except this one?')) return;
+    setSessionsBusy(true);
+    try {
+      await api.post('/auth/logout-others');
+      const response = await api.get('/auth/sessions');
+      setSessions(response.data.sessions || []);
+      toast.success('Other devices were signed out');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Could not sign out other devices.');
+    } finally {
+      setSessionsBusy(false);
+    }
   }
 
   async function handleBackupClick() {
@@ -100,6 +118,30 @@ export default function Account() {
         </button>
         <button type="button" className="btn btn-danger" onClick={handleLogout}>
           Log out
+        </button>
+      </div>
+      <div className={styles.accountCard}>
+        <div>
+          <div className={styles.count}>Sessions</div>
+          <strong>Devices signed in</strong>
+        </div>
+        <ul className={styles.sessionList}>
+          {sessions.map((session) => (
+            <li key={session.id} className={styles.sessionItem}>
+              <span>{session.current ? 'This device' : 'Other device'}</span>
+              <span className={styles.count}>{session.userAgent || 'Unknown browser'}</span>
+              <span className={styles.count}>{session.createdAt ? new Date(session.createdAt).toLocaleString() : ''}</span>
+            </li>
+          ))}
+          {sessions.length === 0 && <li className={styles.count}>No active sessions.</li>}
+        </ul>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          disabled={sessionsBusy || sessions.filter((session) => !session.current).length === 0}
+          onClick={handleLogoutOthers}
+        >
+          Log out other devices
         </button>
       </div>
       {adminEnabled && (

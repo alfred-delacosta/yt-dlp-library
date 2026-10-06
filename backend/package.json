@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "run": "node server.js"
+    "run": "node server.js",
+    "test": "node --test test/*.test.js"
   },
   "author": "Alfred De La Costa",
   "license": "MIT",

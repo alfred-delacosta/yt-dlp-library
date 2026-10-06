@@ -10,22 +10,22 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [invalid, setInvalid] = useState(false);
+  const [formError, setFormError] = useState('');
   const login = useAuthStore((s) => s.login);
   const isLoading = useAuthStore((s) => s.isLoading);
   const { theme, toggle } = useTheme();
 
   async function handleLogin(e) {
     e.preventDefault();
-    setInvalid(false);
+    setFormError('');
     try {
       await toast.promise(login(email, password), {
         loading: 'Logging in…',
         success: 'Logged in',
-        error: 'Invalid email or password',
+        error: (err) => err?.response?.data?.message || 'Invalid email or password',
       });
-    } catch {
-      setInvalid(true);
+    } catch (err) {
+      setFormError(err?.response?.data?.message || 'Invalid email and password. Please try again.');
     }
   }
 
@@ -36,7 +36,7 @@ export default function Login() {
       </button>
       <div className={styles.authCard}>
         <h1 className={styles.authTitle}>Log in</h1>
-        {invalid && <div className={styles.error}>Invalid email and password. Please try again.</div>}
+        {formError && <div className={styles.error}>{formError}</div>}
         <form className={styles.authForm} onSubmit={handleLogin}>
           <div>
             <label htmlFor="email">Email</label>

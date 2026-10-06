@@ -19,7 +19,7 @@ export default function Signup() {
     await toast.promise(signup(email, password), {
       loading: 'Creating account…',
       success: 'Account created',
-      error: 'Could not sign up',
+      error: (err) => err?.response?.data?.message || 'Could not sign up',
     });
   }
 
@@ -44,6 +44,7 @@ export default function Signup() {
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 required
+                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />

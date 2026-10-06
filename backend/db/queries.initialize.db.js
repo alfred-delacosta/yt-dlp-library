@@ -10,7 +10,7 @@ CREATE TABLE users (
   email VARCHAR(100) NOT NULL,
   password TEXT NOT NULL,
   lastLoginDate DATETIME NULL,
-  resetPasswordToken VARCHAR(45) NULL,
+  resetPasswordToken VARCHAR(64) NULL,
   resetPasswordTokenExpiresAt DATETIME NULL,
   PRIMARY KEY (id),
   UNIQUE INDEX email_UNIQUE (email ASC) VISIBLE,
