@@ -1,0 +1,87 @@
+.dialog {
+  width: min(32rem, 100%);
+  max-width: 100%;
+  margin: auto auto 0;
+  background: transparent;
+}
+
+.dialog::backdrop {
+  background: var(--overlay);
+  animation: sheet-fade var(--duration) var(--ease);
+}
+
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--space-3) var(--space-4) calc(var(--space-6) + var(--safe-bottom));
+  box-shadow: var(--shadow);
+  animation: sheet-up var(--duration) var(--ease);
+}
+
+@keyframes sheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.handle {
+  width: 2.5rem;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: var(--border);
+  margin: 0 auto var(--space-4);
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+  padding-right: 2rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.7rem 0.2rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  text-align: left;
+  transition: background var(--duration-fast) var(--ease);
+}
+
+.item:hover {
+  background: var(--surface-2);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.confirm {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+@media (min-width: 700px) {
+  .dialog {
+    margin: auto;
+  }
+
+  .panel {
+    border-radius: var(--radius-lg);
+    padding-bottom: var(--space-6);
+  }
+}

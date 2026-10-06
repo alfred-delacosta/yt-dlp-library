@@ -1,0 +1,33 @@
+.row {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-4);
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.pill {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease), transform var(--duration-fast) var(--ease);
+}
+
+.pill:active {
+  transform: scale(0.98);
+}
+
+.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}

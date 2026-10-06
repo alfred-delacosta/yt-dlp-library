@@ -1,0 +1,17 @@
+.grid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-5) var(--space-4);
+}
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+.sentinel {
+  height: 1px;
+}

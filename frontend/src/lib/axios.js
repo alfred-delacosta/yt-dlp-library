@@ -16,55 +16,82 @@ if (import.meta.env.PROD) {
   API_URL = "/api";
 }
 
-// TODO Remove below when confirmed working.
-// in production, there's no localhost so we have to make this dynamic
-// const API_URL =
-//   import.meta.env.MODE === "development" ? "http://192.168.1.21:3010/api" : "/api";
-
 axios.defaults.withCredentials = true;
 
 export const api = axios.create({
-  baseURL: API_URL
+  baseURL: API_URL,
+  withCredentials: true,
 });
 
 export const serverUrl = API_URL.split('/api')[0];
 
-export const useAuthStore = create((set) => ({
-  userId: null,
+let refreshTask = null;
+
+async function performRefresh() {
+  const response = await axios.post(`${API_URL}/auth/refresh`, null, { withCredentials: true });
+  return response.data;
+}
+
+export function requestRefresh() {
+  if (!refreshTask) {
+    const clear = () => {
+      refreshTask = null;
+    };
+    if (globalThis.navigator?.locks?.request) {
+      refreshTask = navigator.locks.request("yt-dlp-auth-refresh", performRefresh).finally(clear);
+    } else {
+      refreshTask = performRefresh().finally(clear);
+    }
+  }
+  return refreshTask;
+}
+
+function applyAccessToken(accessToken) {
+  if (accessToken) {
+    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+  } else {
+    delete api.defaults.headers.common.Authorization;
+  }
+}
+
+function authPath(url = "") {
+  const path = url.split("?")[0];
+  return ["/auth/login", "/auth/signup", "/auth/refresh", "/auth/logout"].some((suffix) => path.endsWith(suffix));
+}
+
+export const useAuthStore = create((set, get) => ({
+  user: null,
   accessToken: null,
   isAuthenticated: false,
   error: null,
   isLoading: false,
-  isCheckingAuth: true,
   message: null,
 
   signup: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/auth/signup`, {
-        email,
-        password,
-      });
+      const response = await axios.post(`${API_URL}/auth/signup`, { email, password }, { withCredentials: true });
+      applyAccessToken(response.data.accessToken);
       set({
         accessToken: response.data.accessToken,
+        user: response.data.user,
         isAuthenticated: true,
         isLoading: false,
       });
     } catch (error) {
       set({
-        error: error.response.data.message || "Error signing up",
+        error: error.response?.data?.message || "Error signing up",
         isLoading: false,
       });
       throw error;
     }
   },
+
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password }, { withCredentials: true });
+      applyAccessToken(response.data.accessToken);
       set({
         isAuthenticated: true,
         user: response.data.user,
@@ -80,10 +107,12 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
+
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
-      await axios.post(`${API_URL}/auth/logout`);
+      await axios.post(`${API_URL}/auth/logout`, null, { withCredentials: true });
+      applyAccessToken(null);
       set({
         user: null,
         accessToken: null,
@@ -96,62 +125,50 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
-  getNewAccessToken: async () => {
-    set({ isLoading: true, error: null });
+
+  refreshSession: async () => {
     try {
-      const response = await axios.get(`${API_URL}/auth/getNewAccessToken`);
+      const data = await requestRefresh();
+      applyAccessToken(data.accessToken);
       set({
         isAuthenticated: true,
-        accessToken: response.data.accessToken,
+        accessToken: data.accessToken,
+        user: data.user ?? get().user,
         error: null,
-        isLoading: false,
       });
+      return data.accessToken;
     } catch (error) {
-      set({
-        error: error.response?.data?.message || "Error logging in",
-        isLoading: false,
-      });
+      if (error.response?.status === 401) {
+        applyAccessToken(null);
+        set({ accessToken: null, isAuthenticated: false, user: null });
+      }
       throw error;
     }
   },
-  setAccessToken: (accessToken) => {
-    set({ accessToken, isAuthenticated: true})
-  },
-  checkAuth: async (accessToken) => {
-    set({ isLoading: true, error: null });
-    try {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-      const response = await axios.get(`${API_URL}/auth/checkAuth`);
-      console.log(response.data);
-      set({
-        isAuthenticated: response.data.isAuthorized,
-        error: null,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || "Error checking auth.",
-        isLoading: false,
-      });
-      throw error;
+}));
+
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().accessToken;
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+    if (error.response?.status !== 401 || !original || original._retry || authPath(original.url)) {
+      return Promise.reject(error);
     }
-  },
-  checkRefreshToken: async () => {
-    set({ isLoading: true, error: null });
+    original._retry = true;
     try {
-      const response = await axios.get(`${API_URL}/auth/checkRefreshToken`);
-      set({
-        isAuthenticated: response.data.isAuthorized,
-        error: null,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || "Error checking auth.",
-        isLoading: false,
-      });
-      throw error;
+      await useAuthStore.getState().refreshSession();
+      return api(original);
+    } catch (refreshError) {
+      return Promise.reject(refreshError);
     }
   }
-
-}));
+);

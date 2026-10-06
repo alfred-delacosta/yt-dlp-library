@@ -1,80 +1,60 @@
-import { useParams, useLocation, useNavigate } from "react-router"
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { api, useAuthStore } from "../lib/axios";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import toast from 'react-hot-toast';
+import { api } from '../lib/axios';
+import { fetchVideoById } from '../lib/mediaActions';
+import { useLibraryStore } from '../stores/libraryStore';
+import styles from './pages.module.scss';
 
-const EditVideo = () => {
-    const { accessToken } = useAuthStore();
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+export default function EditVideo() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const loadLibrary = useLibraryStore((s) => s.loadLibrary);
+  const [video, setVideo] = useState(null);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [link, setLink] = useState('');
 
-    const location = useLocation();
-    const { video, serverUrl } = location.state;
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [link, setLink] = useState('');
+  useEffect(() => {
+    (async () => {
+      const record = await fetchVideoById(id);
+      setVideo(record);
+      setName(record?.name || '');
+      setDescription(record?.description || '');
+      setLink(record?.link || '');
+    })();
+  }, [id]);
 
-    useEffect(() => {
-        setName(video.name);
-        setDescription(video.description);
-        setLink(video.link);
-    }, [])
+  async function handleUpdateClick(e) {
+    e.preventDefault();
+    const data = { ...video, name, description, link };
+    await toast.promise(api.post('/videos/update', data), {
+      loading: 'Updating video',
+      success: 'Video updated',
+      error: 'There was an error updating the video',
+    });
+    await loadLibrary();
+    navigate(`/video/${id}`);
+  }
 
-    async function handleUpdateClick(e) {
-        e.preventDefault();
-        const data = {
-            ...video,
-            name,
-            description,
-            link
-        }
-        toast.promise(async () => {
-            try {
-                await api.post('/videos/update', data);
-                navigate('/dashboard')
-            } catch (error) {
-                console.error(error);
-            }
-        }, {
-            loading: "Updating video",
-            success: "Video updated! ✅",
-            error: "There was an error updating the video"
-        })
-    }
-
+  if (!video) return <p className={styles.count}>Loading…</p>;
 
   return (
-    <div className="container">
-        <div className="row justify-content-center">
-            <div className="col-12 col-sm-10">
-                <form>
-                    <div className="mb-3">
-                        <label htmlFor="name">Video Name</label>
-                        <input type="text" className="form-control" name="name" id="name" value={name} onChange={e => setName(e.target.value)} />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="description">Description</label>
-                        <textarea name="description" id="description" className="form-control" value={description} onChange={e => setDescription(e.target.value)} rows={8}></textarea>
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="link">Original Link</label>
-                        <input type="url" className="form-control" name="link" id="link" value={link} onChange={e => setLink(e.target.value)} />
-                    </div>
-                    <input type="hidden" name="id" value={video.id} />
-                    <input type="hidden" name="downloadDate" value={video.downloadDate} />
-                    <input type="hidden" name="ext" value={video.ext} />
-                    <input type="hidden" name="type" value={video.type} />
-                    <input type="hidden" name="videoPath" value={video.videoPath} />
-                    <input type="hidden" name="serverPath" value={video.serverPath} />
-                    <input type="hidden" name="userId" value={video.userId} />
-                    <div className="d-grid">
-                        <button className="btn btn-primary" type="submit" onClick={handleUpdateClick}>Update</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-  )
+    <form className={styles.stack} onSubmit={handleUpdateClick}>
+      <h1 className={styles.title}>Edit video</h1>
+      <div>
+        <label htmlFor="name">Video name</label>
+        <input id="name" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
+      <div>
+        <label htmlFor="description">Description</label>
+        <textarea id="description" name="description" rows={8} value={description} onChange={(e) => setDescription(e.target.value)} />
+      </div>
+      <div>
+        <label htmlFor="link">Original link</label>
+        <input id="link" name="link" type="url" value={link} onChange={(e) => setLink(e.target.value)} />
+      </div>
+      <button className="btn btn-primary" type="submit">Update</button>
+    </form>
+  );
 }
-export default EditVideo

@@ -1,0 +1,55 @@
+.wrap {
+  position: relative;
+}
+
+.input {
+  padding-left: 2.4rem;
+  background: var(--surface);
+}
+
+.icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.recent {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: var(--z-sheet);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space-2);
+  animation: recent-in var(--duration-fast) var(--ease);
+}
+
+@keyframes recent-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.recentBtn {
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+
+.recentBtn:hover {
+  background: var(--surface-2);
+}
+
+.empty {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  padding: 0.55rem 0.7rem;
+}

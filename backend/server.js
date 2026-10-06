@@ -10,6 +10,8 @@ import ytdlpRoutes from './routes/yt-dlp.route.js';
 import videosRoutes from './routes/videos.route.js';
 import mp3Routes from './routes/mp3s.route.js';
 import cookieParser from 'cookie-parser';
+import { requireMediaAccess } from './middleware/media.middleware.js';
+import { ensureAuthSchema } from './db/refreshTokenStore.js';
 
 //#region Initializations
 const app = express();
@@ -42,7 +44,7 @@ app.use("/api/mp3s", mp3Routes);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use('/media', express.static(path.join(__dirname, 'media')));
+app.use('/media', requireMediaAccess, express.static(path.join(__dirname, 'media')));
 
 //#region Production Conditions
 if (process.env.ENVIRONMENT === "production" || process.env.ENVIRONMENT === "local") {
@@ -54,8 +56,22 @@ if (process.env.ENVIRONMENT === "production" || process.env.ENVIRONMENT === "loc
   });
 }
 
-const server = app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
-server.setTimeout(30 * 60 * 1000);
-server.keepAliveTimeout = 30 * 60 * 1000 + 1000;
-server.headersTimeout = 30 * 60 * 1000 + 2000;
+export { app };
+
+export async function startServer() {
+  await ensureAuthSchema();
+  const server = app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
+  server.setTimeout(30 * 60 * 1000);
+  server.keepAliveTimeout = 30 * 60 * 1000 + 1000;
+  server.headersTimeout = 30 * 60 * 1000 + 2000;
+  return server;
+}
+
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+if (isDirectRun) {
+  startServer().catch((error) => {
+    console.error("Failed to start server", error);
+    process.exit(1);
+  });
+}
 //#endregion

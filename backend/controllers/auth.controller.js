@@ -1,226 +1,221 @@
-import argon2 from 'argon2'
 import crypto from "node:crypto";
-import { createAccessToken, generateRefreshTokenAndSetCookie, verifyAccessToken } from '../utils/jwt.js';
-import { checkForUserByEmail, createNewUser, updateUserLastLoginDate, getUser } from '../db/queries.users.js';
+import {
+  applyMediaCookie,
+  applyRefreshCookie,
+  clearAuthCookies,
+  hashOpaqueToken,
+  refreshCookieName,
+  signAccessToken,
+  signMediaToken,
+} from "../utils/authTokens.js";
+import { hashPassword, verifyPassword } from "../utils/password.js";
+import {
+  checkForUserByEmail,
+  createNewUser,
+  findUserByResetTokenHash,
+  getPublicUser,
+  setPasswordReset,
+  updatePasswordAndClearReset,
+  updateUserLastLoginDate,
+} from "../db/queries.users.js";
+import {
+  issueSession,
+  listSessions as listUserSessions,
+  revokeOtherSessions,
+  revokeSession,
+  revokeUserSessions,
+  rotateSession,
+} from "../service/sessions.js";
+import { ensureAuthSchema } from "../db/refreshTokenStore.js";
+
+const GENERIC_SIGNUP = "Unable to create an account.";
+const GENERIC_LOGIN = "Invalid credentials";
+const GENERIC_RESET = "If an account exists for that email, reset instructions have been recorded.";
+
+function normalizeEmail(email) {
+  if (typeof email !== "string") return "";
+  return email.trim().toLowerCase();
+}
+
+function passwordError(password, { requiredLength }) {
+  if (typeof password !== "string" || password.length < 1) {
+    return requiredLength ? "Password must be at least 8 characters." : GENERIC_LOGIN;
+  }
+  if (password.length > 200) return requiredLength ? "Password is too long." : GENERIC_LOGIN;
+  if (requiredLength && password.length < 8) return "Password must be at least 8 characters.";
+  return null;
+}
+
+function emailError(email) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Enter a valid email.";
+  return null;
+}
+
+async function startSession(res, userId, userAgent) {
+  const session = await issueSession(userId, userAgent);
+  applyRefreshCookie(res, session.raw);
+  applyMediaCookie(res, signMediaToken(userId, session.familyId));
+  return signAccessToken(userId);
+}
 
 export const signUp = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      throw new Error("All fields are required.");
-    }
+    const email = normalizeEmail(req.body?.email);
+    const password = req.body?.password;
+    const invalidEmail = emailError(email);
+    if (invalidEmail) return res.status(400).json({ message: invalidEmail });
+    const invalidPassword = passwordError(password, { requiredLength: true });
+    if (invalidPassword) return res.status(400).json({ message: invalidPassword });
 
-    // Confirm the user from the db exists
-    const userAlreadyExists = await checkForUserByEmail(email);
+    const existing = await checkForUserByEmail(email);
+    if (existing.length > 0) return res.status(400).json({ message: GENERIC_SIGNUP });
 
-    // If the user exists then return an error.
-    if (userAlreadyExists.length > 0) {
-      return res.status(400).json({ message: "User already exists." });
-    }
-
-    const secret = Buffer.from(process.env.ARGON2_SECRET);
-    const hashedPassword = await argon2.hash(password, { secret });
-
-    // TODO Implement email verification
-    // const verificationToken = Math.floor(randomInt(100000, 900000)).toString();
-
-    // Create the new user in the DB and save.
+    const hashedPassword = await hashPassword(password);
     const dbResults = await createNewUser(email, hashedPassword);
-    const userId = dbResults.insertId;
-
-    // Generate the JWT
-    generateRefreshTokenAndSetCookie(res, userId);
-
-    // Generate the access token
-    const accessToken = createAccessToken(userId);
-
-    res.status(200).json({ message: "User created successfully!", accessToken});
-
+    const userId = Number(dbResults.insertId);
+    const accessToken = await startSession(res, userId, req.get("user-agent"));
+    const user = await getPublicUser(userId);
+    return res.status(201).json({ message: "User created successfully!", accessToken, user });
   } catch (error) {
     console.error("Error in signup function: ", error);
-    return res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: GENERIC_SIGNUP });
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // Confirm the user from the db exists
-    const userAlreadyExists = await checkForUserByEmail(email);
-
-    // If the user does not exists then return an error.
-    if (userAlreadyExists.length < 1) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    const email = normalizeEmail(req.body?.email);
+    const password = req.body?.password;
+    if (!email || passwordError(password, { requiredLength: false })) {
+      return res.status(400).json({ message: GENERIC_LOGIN });
     }
 
-    const [ user ] = userAlreadyExists;
-    const secret = Buffer.from(process.env.ARGON2_SECRET);
+    const [user] = await checkForUserByEmail(email);
+    const passwordOk = await verifyPassword(user?.password, password);
+    if (!user || !passwordOk) return res.status(400).json({ message: GENERIC_LOGIN });
 
-    // Get the password from the user in the db and verify it
-    const isPasswordValid = await argon2.verify(user.password, password, { secret });
-
-    // If the passwords do not match, return an error.
-    if (!isPasswordValid)
-      return res.status(400).json({ message: "Invalid credentials." });
-
-    // Generate the JWT
-    generateRefreshTokenAndSetCookie(res, user.id);
-
-    // Generate the access token
-    const accessToken = createAccessToken(user.id);
-
-    // Update the users lastLoginDate
     await updateUserLastLoginDate(user.id);
-    const [ updatedUser ] = await getUser(user.id);
-
-
-    // Return the user and a Logged in successfully message
-    res.status(200).json({
+    const accessToken = await startSession(res, user.id, req.get("user-agent"));
+    const publicUser = await getPublicUser(user.id);
+    return res.status(200).json({
       message: "Logged in successfully.",
-      user: {
-        ...updatedUser,
-        password: undefined,
-      },
-      accessToken
+      user: publicUser,
+      accessToken,
     });
   } catch (error) {
     console.error("Error in login function: ", error);
-    return res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: GENERIC_LOGIN });
   }
 };
 
 export const logOut = async (req, res) => {
-  res.clearCookie("token");
-  res.status(200).json({ message: "Logged out successfully." });
+  try {
+    await revokeSession(req.cookies?.[refreshCookieName()]);
+  } catch (error) {
+    console.error("Error in logout function: ", error);
+  }
+  clearAuthCookies(res);
+  return res.status(200).json({ message: "Logged out successfully." });
 };
 
-export const verifyEmail = async (req, res) => {
-  const { code } = req.body;
-
+export const refreshSession = async (req, res) => {
   try {
-    // TODO Get the user from the DB and set the verificationToken along with the expiresAt date
-    // const user = await User.findOne({
-    //   verificationToken: code,
-    //   verificationTokenExpiresAt: { $gt: Date.now() }, // $gt is greater than
-    // });
+    const result = await rotateSession(req.cookies?.[refreshCookieName()], req.get("user-agent"));
+    if (!result.ok) {
+      clearAuthCookies(res);
+      const code = result.reason === "reused" ? "refresh_reused" : "refresh_failed";
+      return res.status(401).json({ message: "Unauthorized", code });
+    }
 
-    // TODO If the user cannot be found send an error response.
-    // if (!user) return res.status(400).json({ message: "Invalid or expired verification code" });
+    const user = await getPublicUser(result.userId);
+    if (!user) {
+      clearAuthCookies(res);
+      return res.status(401).json({ message: "Unauthorized", code: "refresh_failed" });
+    }
 
-    // TODO Update the user object and save to the DB
-    // user.isVerified = true;
-    // user.verificationToken = undefined;
-    // user.verificationTokenExpiresAt = undefined;
-    // await user.save();
-
-    // TODO Send a 200 response along with the user object.
-    // res.status(200).json({
-    //   message: "Email verified successfully.",
-    //   user: {
-    //     ...user._doc,
-    //     password: undefined,
-    //   },
-    // });
+    applyRefreshCookie(res, result.refreshToken);
+    applyMediaCookie(res, signMediaToken(result.userId, result.familyId));
+    return res.status(200).json({
+      accessToken: signAccessToken(result.userId),
+      user,
+    });
   } catch (error) {
-    console.error("There was an error: ", error);
+    console.error("Error refreshing session: ", error);
+    return res.status(401).json({ message: "Unauthorized", code: "refresh_failed" });
   }
 };
 
-export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-
+export const listSessions = async (req, res) => {
   try {
-    // TODO Get the user from the DB via email.
-    // const user = await User.findOne({ email });
-    // TODO If the user cannot be found, return an error response.
-    // if (!user) return res.status(400).json({ message: "User not found" });
-
-    // Generate reset token
-    const resetToken = crypto.randomBytes(20).toString("hex");
-    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
-
-    // TODO Set the reset tokens on the user and save the user.
-    // user.resetPasswordToken = resetToken;
-    // user.resetPasswordExpiresAt = resetTokenExpiresAt;
-    // await user.save();
-
-    res.status(200).json({ message: "Password reset email sent successfully." });
+    const sessions = await listUserSessions(req.userId, req.cookies?.[refreshCookieName()]);
+    return res.status(200).json({ sessions });
   } catch (error) {
-    console.error("There was an error: ", error);
+    console.error("Error listing sessions: ", error);
+    return res.status(400).json({ message: "Unable to list sessions." });
+  }
+};
+
+export const logoutOthers = async (req, res) => {
+  try {
+    const result = await revokeOtherSessions(req.userId, req.cookies?.[refreshCookieName()]);
+    if (!result.ok) return res.status(401).json({ message: "Unauthorized" });
+    return res.status(200).json({ message: "Other sessions were signed out." });
+  } catch (error) {
+    console.error("Error signing out other sessions: ", error);
+    return res.status(400).json({ message: "Unable to sign out other sessions." });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  return res.status(501).json({ message: "Email verification is not available." });
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    await ensureAuthSchema();
+    const email = normalizeEmail(req.body?.email);
+    if (!emailError(email)) {
+      const [user] = await checkForUserByEmail(email);
+      if (user) {
+        const rawToken = crypto.randomBytes(32).toString("base64url");
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+        await setPasswordReset(user.id, hashOpaqueToken(rawToken), expiresAt);
+      }
+    }
+    return res.status(200).json({ message: GENERIC_RESET });
+  } catch (error) {
+    console.error("Error in forgotPassword: ", error);
+    return res.status(400).json({ message: "Unable to start a password reset." });
   }
 };
 
 export const resetPassword = async (req, res) => {
-  const { token } = req.params;
-  const { newPassword } = req.body;
   try {
-    // TODO Find the user from the DB via the resetPasswordToken. If no user is found, return an error response.
-    // const user = await User.findOne({ resetPasswordToken: token });
-    // if (!user) return res.status(400).json({ message: "Invalid token" });
+    await ensureAuthSchema();
+    const rawToken = req.params?.token;
+    const password = req.body?.newPassword;
+    const invalidPassword = passwordError(password, { requiredLength: true });
+    if (typeof rawToken !== "string" || rawToken.length < 20 || rawToken.length > 200) {
+      return res.status(400).json({ message: "Invalid or expired reset token." });
+    }
+    if (invalidPassword) return res.status(400).json({ message: invalidPassword });
 
-    // Reset password
-    const hashedPassword = await argon2.hash(newPassword);
-    // TODO Set the new password on the user object.
-    // user.password = hashedPassword;
+    const user = await findUserByResetTokenHash(hashOpaqueToken(rawToken));
+    const expiresAt = user ? new Date(user.expiresAt).getTime() : 0;
+    if (!user || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired reset token." });
+    }
 
-    // TODO Set the resetToken information on the user to be undefined or empty
-    // user.resetPasswordToken = undefined;
-    // user.resetPasswordExpiresAt = undefined;
-
-    // TODO Save the user back to the DB.
-    // await user.save();
-
-    // TODO Send the 200 response
-    // res.status(200).json({
-    //   message: "Password reset successful",
-    //   user: {
-    //     ...user._doc,
-    //     password: undefined,
-    //   },
-    // });
+    await updatePasswordAndClearReset(user.id, await hashPassword(password));
+    await revokeUserSessions(user.id);
+    clearAuthCookies(res);
+    return res.status(200).json({ message: "Password reset successful." });
   } catch (error) {
-    console.error("There was an error: ", error);
+    console.error("Error in resetPassword: ", error);
+    return res.status(400).json({ message: "Unable to reset password." });
   }
 };
 
-export const getNewAccessToken = async (req, res) => {
-  try {
-    const accessToken = createAccessToken(req.userId);
-    res.status(200).json({ accessToken }); 
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: 'There was an error refreshing the access token.' })
-  }
-}
-
 export const isAuthorized = async (req, res) => {
-  return res.status(200).json({ message: "Tokens are valid!", isAuthorized: true});
-}
-
-export const checkRefreshToken = async (req, res) => {
-  return res.status(200).json({ message: "Refresh token is valid!", isAuthorized: true});
-}
-
-// TODO Consider removing this and replacing it with refreshTokens.
-// export const checkAuth = async (req, res) => {
-//   try {
-//     // Confirm AccessToken is still valid
-//     const accessToken = req.get('Authorization');
-//     const valid = verifyAccessToken(accessToken);
-//     // TODO Find the user from the DB. If no user is found return an error.
-//     // const user = await User.findById(req.userId);
-//     // if (!user) return res.status(400).json({ message: "User not found. " });
-
-//     // TODO Return a 200 response
-//     // res.status(200).json({
-//     //   user: {
-//     //     ...user._doc,
-//     //     password: undefined,
-//     //   },
-//     // });
-//   } catch (error) {
-//     console.log("Error in checkAuth: ", error);
-//     res.status(400).json({ message: error.message })
-//   }
-// };
+  return res.status(200).json({ message: "Tokens are valid!", isAuthorized: true });
+};

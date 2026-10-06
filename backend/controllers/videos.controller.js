@@ -192,7 +192,7 @@ export const generateSubtitles = async (req, res) => {
                         const subtitlesTxt = await readFile(path.join(tempDir, `${whisperXFilesNamePrefix}.txt`), 'utf-8');
                         await copyFile(path.join(tempDir, subtitleName), subtitlesFileLocation);
                         res.write(`Subtitles moved to subtitle folder successfully.\n\n`);
-                        const sqlResponse = await sqlAddSubtitlesToVideo(videoId, subtitlesTxt);
+                        try { await sqlAddSubtitlesToVideo(videoId, subtitlesTxt); } catch(e){ console.error(e); }
                         const sqlResponse2 = await sqlAddSubtitlesFileToVideo(videoId, subtitlesFileLocation)
                         //   res.write(`Subtitles saved to db successfully.\n\n`);
                         await rm(tempDir, { recursive: true, force: true });
@@ -335,11 +335,9 @@ export const whisperXApiTranscribeVideo = async (req, res) => {
         await sqlAddSubtitlesFileToVideo(video.id, newSubtitlesFileName);
         await fs.rm(mp3Path);
 
-        // Get the subtitles text and add it to the db
         const subtitlesText = await whisperXApiGetSubtitlesText(video);
-        await sqlAddSubtitlesToVideo(video.id, subtitlesText);
+        try { await sqlAddSubtitlesToVideo(video.id, subtitlesText); } catch(e){ console.error(e); }
 
-        // Respond to client with success and file info
         res.json({ message: "Video transcribed successfully!", video });
     } catch (error) {
         console.error(error);
