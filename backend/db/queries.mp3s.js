@@ -28,8 +28,8 @@ export const sqlUpdateMp3Paths = async (mp3Path, serverPath, mp3Id) => {
 
 
 export const sqlDeleteMp3 = async (userId, mp3Id) => {
-    const [ results, fields ] = await pool.execute('DELETE FROM mp3s WHERE userId = ? AND id = ?;', [userId, mp3Id]);
-    return results;
+    const [ results ] = await pool.execute('DELETE FROM mp3s WHERE userId = ? AND id = ?;', [userId, mp3Id]);
+    return results.affectedRows === 1;
 }
 
 export const addMp3ToDb = async (file, description="", userId) => {

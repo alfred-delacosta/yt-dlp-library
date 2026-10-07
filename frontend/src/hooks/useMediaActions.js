@@ -82,20 +82,26 @@ export function useMediaActions() {
   }
 
   async function remove(item) {
-    if (item.mediaType === 'mp3') {
-      await toast.promise(deleteMp3(item.id), {
+    const id = Number(item?.id);
+    const audio = item?.mediaType === 'mp3';
+    if (!Number.isInteger(id) || id < 1) {
+      toast.error(audio ? 'Could not delete MP3' : 'Could not delete video');
+      throw new Error('Invalid media id');
+    }
+    if (audio) {
+      await toast.promise(deleteMp3(id), {
         loading: 'Deleting…',
         success: 'MP3 deleted',
-        error: 'Could not delete MP3',
+        error: (err) => err?.response?.data?.message || 'Could not delete MP3',
       });
-      removeMp3(item.id);
+      removeMp3(id);
     } else {
-      await toast.promise(deleteVideo(item.id), {
+      await toast.promise(deleteVideo(id), {
         loading: 'Deleting…',
         success: 'Video deleted',
-        error: 'Could not delete video',
+        error: (err) => err?.response?.data?.message || 'Could not delete video',
       });
-      removeVideo(item.id);
+      removeVideo(id);
     }
   }
 

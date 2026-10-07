@@ -1,4 +1,6 @@
 import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo, sqlAddSubtitlesFileToVideo } from "../db/queries.videos.js"
+import { sqlGetThumbnailsForVideo } from "../db/queries.thumbnails.js";
+import { removeMediaFiles } from "../utils/mediaFiles.js";
 import { sqlSearchVideos } from "../db/queries.search.js";
 import { Readable } from "stream";
 import path from 'path';
@@ -63,14 +65,40 @@ export const getUserVideoCount = async (req, res) => {
 }
 
 export const deleteVideoByIdAndUserId = async (req, res) => {
-    const videoId = req.params.id;
+    const videoId = Number(req.params.id);
+    if (!Number.isInteger(videoId) || videoId < 1) {
+        return res.status(400).json({ message: "Video id is invalid." });
+    }
 
     try {
-        const deleteResults = await sqlDeleteVideo(req.userId, videoId);
-        res.json(deleteResults);
+        const videos = await sqlGetVideo(req.userId, videoId);
+        if (videos.length < 1) {
+            return res.status(404).json({ message: "Video not found." });
+        }
+
+        const thumbnails = await sqlGetThumbnailsForVideo(videoId);
+        const deleted = await sqlDeleteVideo(req.userId, videoId);
+        if (!deleted) {
+            return res.status(404).json({ message: "Video not found." });
+        }
+
+        const paths = [];
+        for (const video of videos) {
+            paths.push(video.serverPath, video.videoPath, video.subtitlesFile);
+        }
+        for (const thumbnail of thumbnails) {
+            paths.push(thumbnail.serverPath, thumbnail.thumbnailPath);
+        }
+        try {
+            await removeMediaFiles(paths);
+        } catch (fileError) {
+            console.error(fileError);
+        }
+
+        return res.json({ message: "Video deleted." });
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error getting the deleting the video for the user.' })
+        return res.status(500).json({ message: "There was an error deleting the video." });
     }
 }
 
