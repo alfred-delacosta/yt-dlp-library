@@ -14,6 +14,7 @@ const Account = lazy(() => import('./pages/Account'))
 const ViewMedia = lazy(() => import('./pages/ViewMedia'))
 const EditVideo = lazy(() => import('./pages/EditVideo'))
 const Legacy = lazy(() => import('./pages/Legacy'))
+const Duplicates = lazy(() => import('./pages/Duplicates'))
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, accessToken } = useAuthStore()
@@ -94,6 +95,7 @@ function App() {
           <Route path="/download" element={<Download />} />
           <Route path="/tags" element={<Tags />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/duplicates" element={<Duplicates />} />
           <Route path="/video/:id" element={<ViewMedia type="video" />} />
           <Route path="/mp3/:id" element={<ViewMedia type="mp3" />} />
           <Route path="/edit/video/:id" element={<EditVideo />} />

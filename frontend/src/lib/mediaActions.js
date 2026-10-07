@@ -31,6 +31,16 @@ export async function transferToJellyfin(videoId) {
   return api.post(`/videos/transfertojellyfin/${videoId}`);
 }
 
+export async function fetchDuplicateVideos() {
+  const { data } = await api.get('/videos/duplicates');
+  return data;
+}
+
+export async function removeDuplicateVideoRows(ids) {
+  const { data } = await api.post('/videos/duplicates/remove', { ids });
+  return data;
+}
+
 export async function deleteVideo(videoId) {
   return api.delete(`/videos/${videoId}`);
 }

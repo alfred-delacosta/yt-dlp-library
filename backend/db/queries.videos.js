@@ -33,6 +33,57 @@ export const sqlUpdateVideoPaths = async (videoPath, serverPath, videoId) => {
     return results;
 }
 
+export const sqlListVideosForDuplicateScan = async (userId) => {
+    const [results] = await pool.execute(
+        `SELECT videos.id, videos.name, videos.link, videos.ext, videos.downloadDate, videos.videoPath, videos.serverPath,
+                thumbnails.id AS thumbnailId, thumbnails.thumbnailPath
+         FROM videos
+         LEFT JOIN thumbnails ON videos.id = thumbnails.videoId
+         WHERE videos.userId = ?`,
+        [userId]
+    );
+    return results;
+}
+
+export const sqlDeleteVideoRowsOnly = async (userId, ids) => {
+    const connection = await pool.getConnection();
+    const placeholders = ids.map(() => "?").join(", ");
+    try {
+        await connection.beginTransaction();
+        const [owned] = await connection.execute(
+            `SELECT id FROM videos WHERE userId = ? AND id IN (${placeholders})`,
+            [userId, ...ids]
+        );
+        if (owned.length !== ids.length) {
+            await connection.rollback();
+            return false;
+        }
+        await connection.execute(
+            `DELETE FROM thumbnails WHERE videoId IN (${placeholders})`,
+            ids
+        );
+        const [deleted] = await connection.execute(
+            `DELETE FROM videos WHERE userId = ? AND id IN (${placeholders})`,
+            [userId, ...ids]
+        );
+        if (deleted.affectedRows !== ids.length) {
+            await connection.rollback();
+            return false;
+        }
+        await connection.commit();
+        return true;
+    } catch (error) {
+        try {
+            await connection.rollback();
+        } catch (rollbackError) {
+            console.error(rollbackError);
+        }
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
 export const sqlDeleteVideo = async (userId, videoId) => {
     const connection = await pool.getConnection();
     try {

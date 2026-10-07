@@ -1,4 +1,5 @@
-import { sqlDeleteVideo, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo, sqlAddSubtitlesFileToVideo } from "../db/queries.videos.js"
+import { sqlDeleteVideo, sqlDeleteVideoRowsOnly, sqlListVideosForDuplicateScan, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo, sqlAddSubtitlesFileToVideo } from "../db/queries.videos.js"
+import { groupDuplicateVideos } from "../utils/duplicateVideos.js"
 import { sqlGetThumbnailsForVideo } from "../db/queries.thumbnails.js";
 import { removeMediaFiles } from "../utils/mediaFiles.js";
 import { sqlSearchVideos } from "../db/queries.search.js";
@@ -62,6 +63,45 @@ export const getUserVideoCount = async (req, res) => {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the videos for the user.' })
     }
+}
+
+export const listDuplicateVideos = async (req, res) => {
+    try {
+        const rows = await sqlListVideosForDuplicateScan(req.userId);
+        return res.json(groupDuplicateVideos(rows));
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "There was an error finding duplicate videos." });
+    }
+}
+
+export const removeDuplicateVideos = async (req, res) => {
+    const ids = duplicateIds(req.body?.ids);
+    if (!ids) return res.status(400).json({ message: "Video ids are invalid." });
+
+    try {
+        const deleted = await sqlDeleteVideoRowsOnly(req.userId, ids);
+        if (!deleted) return res.status(400).json({ message: "One or more videos could not be removed." });
+        return res.json({ deletedIds: ids });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "There was an error removing the videos." });
+    }
+}
+
+function duplicateIds(value) {
+    if (!Array.isArray(value) || value.length === 0 || value.length > 1000) return null;
+    const ids = [];
+    const seen = new Set();
+    for (const item of value) {
+        const id = Number(item);
+        if (!Number.isInteger(id) || id < 1) return null;
+        if (seen.has(id)) continue;
+        seen.add(id);
+        ids.push(id);
+    }
+    if (ids.length === 0 || ids.length > 1000) return null;
+    return ids;
 }
 
 export const deleteVideoByIdAndUserId = async (req, res) => {
