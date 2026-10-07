@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { Moon, Sun } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
@@ -119,6 +119,13 @@ export default function Account() {
         <button type="button" className="btn btn-danger" onClick={handleLogout}>
           Log out
         </button>
+      </div>
+      <div className={styles.accountCard}>
+        <div>
+          <div className={styles.count}>Library</div>
+          <strong>Duplicate videos</strong>
+        </div>
+        <Link to="/duplicates" className="btn btn-ghost">Review duplicate videos</Link>
       </div>
       <div className={styles.accountCard}>
         <div>
