@@ -4,13 +4,17 @@ import styles from './ActionSheet.module.scss';
 export default function ActionSheet({ open, title, actions = [], onClose, confirm }) {
   const ref = useRef(null);
   const [confirming, setConfirming] = useState(false);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
     if (open && !dialog.open) dialog.showModal();
     if (!open && dialog.open) dialog.close();
-    if (!open) setConfirming(false);
+    if (!open) {
+      setConfirming(false);
+      setPending(false);
+    }
   }, [open]);
 
   function handleClick(action) {
@@ -51,18 +55,26 @@ export default function ActionSheet({ open, title, actions = [], onClose, confir
         )}
         {confirming && (
           <div className={styles.confirm}>
-            <button type="button" className="btn btn-ghost" onClick={() => setConfirming(false)}>
+            <button type="button" className="btn btn-ghost" disabled={pending} onClick={() => setConfirming(false)}>
               Cancel
             </button>
             <button
               type="button"
               className="btn btn-danger"
-              onClick={() => {
-                confirm?.onConfirm?.();
-                onClose?.();
+              disabled={pending}
+              onClick={async () => {
+                if (pending) return;
+                setPending(true);
+                try {
+                  await confirm?.onConfirm?.();
+                  onClose?.();
+                } catch {
+                  // The action reports its own error. Keep the confirmation open.
+                  setPending(false);
+                }
               }}
             >
-              {confirm?.label || 'Delete'}
+              {pending ? 'Deleting…' : (confirm?.label || 'Delete')}
             </button>
           </div>
         )}

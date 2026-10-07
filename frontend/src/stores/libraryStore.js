@@ -133,11 +133,11 @@ export const useLibraryStore = create((set, get) => ({
   invalidateMp3s: () => set({ mp3sHydrated: false }),
   invalidateVideos: () => set({ videosHydrated: false }),
   removeVideo: (id) => set((s) => ({
-    videos: s.videos.filter((v) => v.id !== id),
-    browseVideos: s.browseVideos.filter((v) => v.id !== id),
+    videos: s.videos.filter((v) => String(v.id) !== String(id)),
+    browseVideos: s.browseVideos.filter((v) => String(v.id) !== String(id)),
   })),
   removeMp3: (id) => set((s) => ({
-    mp3s: s.mp3s.filter((v) => v.id !== id),
-    browseMp3s: s.browseMp3s.filter((v) => v.id !== id),
+    mp3s: s.mp3s.filter((v) => String(v.id) !== String(id)),
+    browseMp3s: s.browseMp3s.filter((v) => String(v.id) !== String(id)),
   })),
 }));

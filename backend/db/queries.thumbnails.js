@@ -6,6 +6,14 @@ export const addThumbnailToDb = async (file, videoId) => {
     return results;
 }
 
+export const sqlGetThumbnailsForVideo = async (videoId) => {
+    const [ results ] = await pool.execute(
+        "SELECT thumbnailPath, serverPath FROM thumbnails WHERE videoId = ?;",
+        [videoId]
+    );
+    return results;
+}
+
 export const getAllThumbnails = async () => {
     const [ results, fields ] = await pool.execute('SELECT * FROM thumbnails;');
     return results;

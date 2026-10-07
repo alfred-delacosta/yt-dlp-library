@@ -112,8 +112,12 @@ export default function ViewMedia({ type }) {
             className="btn btn-danger"
             onClick={async () => {
               if (!window.confirm(`Delete “${item.name}”?`)) return;
-              await actions.remove(item);
-              navigate(type === 'mp3' ? '/audio' : '/');
+              try {
+                await actions.remove(item);
+                navigate(type === 'mp3' ? '/audio' : '/');
+              } catch {
+                /* The delete action already shows the error toast. */
+              }
             }}
           >
             <Trash2 size={16} /> Delete

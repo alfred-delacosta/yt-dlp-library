@@ -34,8 +34,30 @@ export const sqlUpdateVideoPaths = async (videoPath, serverPath, videoId) => {
 }
 
 export const sqlDeleteVideo = async (userId, videoId) => {
-    const [ results, fields ] = await pool.execute('DELETE FROM videos WHERE userId = ? AND id = ?;', [userId, videoId]);
-    return results;
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+        await connection.execute("DELETE FROM thumbnails WHERE videoId = ?;", [videoId]);
+        const [results] = await connection.execute(
+            "DELETE FROM videos WHERE userId = ? AND id = ?;",
+            [userId, videoId]
+        );
+        if (results.affectedRows !== 1) {
+            await connection.rollback();
+            return false;
+        }
+        await connection.commit();
+        return true;
+    } catch (error) {
+        try {
+            await connection.rollback();
+        } catch (rollbackError) {
+            console.error(rollbackError);
+        }
+        throw error;
+    } finally {
+        connection.release();
+    }
 }
 
 export const sqlCheckVideoByLink = async (userId, videoId) => {
