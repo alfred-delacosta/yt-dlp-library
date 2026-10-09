@@ -151,21 +151,23 @@ export default function Account() {
           Log out other devices
         </button>
       </div>
-      {adminEnabled && (
-        <div className={styles.accountCard}>
-          <div>
-            <div className={styles.count}>Administration</div>
-            <strong>Database tools</strong>
-          </div>
-          <button type="button" className="btn btn-ghost" disabled={backupDisabled} onClick={handleBackupClick}>
-            Backup database
-          </button>
-          <button type="button" className="btn btn-danger" disabled={restoreDisabled} onClick={triggerRestore}>
-            Restore database
-          </button>
-          <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".sql,application/sql,text/plain" onChange={handleRestoreFile} />
+      <div className={styles.accountCard}>
+        <div>
+          <div className={styles.count}>Database</div>
+          <strong>Download a backup</strong>
         </div>
-      )}
+        <button type="button" className="btn btn-ghost" disabled={backupDisabled} onClick={handleBackupClick}>
+          Backup database
+        </button>
+        {adminEnabled && (
+          <>
+            <button type="button" className="btn btn-danger" disabled={restoreDisabled} onClick={triggerRestore}>
+              Restore database
+            </button>
+            <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".sql,application/sql,text/plain" onChange={handleRestoreFile} />
+          </>
+        )}
+      </div>
     </div>
   );
 }
