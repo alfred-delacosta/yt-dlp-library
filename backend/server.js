@@ -49,7 +49,14 @@ app.use('/media', requireMediaAccess, express.static(path.join(__dirname, 'media
 //#region Production Conditions
 if (process.env.ENVIRONMENT === "production" || process.env.ENVIRONMENT === "local") {
   // To make the node server serve the contents of the dist folder in the frontend/dist
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  // Icons and the PWA manifest are plain static files, served before any auth so the install prompt works.
+  app.use(express.static(path.join(__dirname, "../frontend/dist"), {
+    setHeaders: (res, filePath) => {
+      if (path.basename(filePath) === "manifest.json") {
+        res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+      }
+    },
+  }));
 
   app.all("/*splat/", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
