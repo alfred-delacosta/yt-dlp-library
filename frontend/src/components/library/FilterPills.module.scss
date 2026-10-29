@@ -19,7 +19,11 @@
   border: 1px solid var(--border);
   font-size: var(--text-sm);
   font-weight: 600;
-  transition: background var(--duration) var(--ease), color var(--duration) var(--ease), transform var(--duration-fast) var(--ease);
+  transition:
+    background var(--duration) var(--ease),
+    color var(--duration) var(--ease),
+    transform var(--duration-fast) var(--ease),
+    border-color var(--duration) var(--ease);
 }
 
 .pill:active {

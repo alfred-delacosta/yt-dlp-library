@@ -3,9 +3,50 @@
   to { opacity: 1; }
 }
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes slide-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+@keyframes pop-rotate {
+  from {
+    opacity: 0;
+    transform: rotate(-50deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
 }
 
 @keyframes shimmer {
@@ -13,8 +54,24 @@
   100% { background-position: -200% 0; }
 }
 
-.route-fade {
-  animation: fade-in var(--duration-fast) var(--ease);
+.route-fade,
+.page-enter {
+  animation: fade-up var(--duration-slow) var(--ease) both;
+}
+
+.rise-in {
+  animation: rise var(--duration-slow) var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+.shake-in {
+  animation: shake 420ms var(--ease);
+}
+
+.icon-pop {
+  display: grid;
+  place-items: center;
+  animation: pop-rotate var(--duration-slow) var(--ease);
 }
 
 @media (prefers-reduced-motion: reduce) {

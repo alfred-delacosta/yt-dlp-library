@@ -2,7 +2,7 @@ import styles from './pages.module.scss';
 
 export default function Tags() {
   return (
-    <div className={styles.stack}>
+    <div className={`${styles.stack} page-enter`}>
       <div className={styles.header}>
         <h1 className={styles.title}>Tags</h1>
       </div>

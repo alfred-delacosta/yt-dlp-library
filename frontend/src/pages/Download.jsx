@@ -3,7 +3,7 @@ import styles from './pages.module.scss';
 
 export default function Download() {
   return (
-    <div className={styles.stack}>
+    <div className={`${styles.stack} page-enter`}>
       <div className={styles.header}>
         <h1 className={styles.title}>Download</h1>
       </div>

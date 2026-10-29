@@ -58,7 +58,7 @@ function App() {
 
   if (booting) {
     return (
-      <div style={{ padding: '1.5rem' }}>
+      <div className="page-enter" style={{ padding: '1.5rem' }}>
         <MediaSkeleton />
       </div>
     )

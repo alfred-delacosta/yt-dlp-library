@@ -1,18 +1,29 @@
+import { useState } from 'react';
 import { MoreVertical, Music } from 'lucide-react';
 import { highlightText, mediaUrl, formatDuration } from '../../lib/media';
 import styles from './MediaCard.module.scss';
 
-export default function MediaCard({ item, query, onOpen, onMenu }) {
+export default function MediaCard({ item, query, onOpen, onMenu, index = 0, animateEnter = true }) {
   const isVideo = item.mediaType === 'video';
   const thumb = isVideo ? mediaUrl(item.thumbnailPath) : '';
   const highlighted = highlightText(item.name, query);
+  const [loaded, setLoaded] = useState(false);
 
   return (
-    <article className={styles.card}>
+    <article
+      className={`${styles.card} ${animateEnter ? 'rise-in' : ''}`}
+      style={{ '--i': index < 12 ? index : 0 }}
+    >
       <div className={styles.thumbWrap}>
         <button type="button" className={styles.thumbButton} onClick={() => onOpen(item)} aria-label={item.name}>
           {thumb ? (
-            <img className={styles.thumb} src={thumb} alt="" loading="lazy" />
+            <img
+              className={`${styles.thumb} ${loaded ? styles.thumbLoaded : ''}`}
+              src={thumb}
+              alt=""
+              loading="lazy"
+              onLoad={() => setLoaded(true)}
+            />
           ) : (
             <div className={styles.placeholder}>
               <Music size={32} />

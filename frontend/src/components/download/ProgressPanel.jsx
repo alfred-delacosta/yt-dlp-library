@@ -6,6 +6,7 @@ export default function ProgressPanel({ log, active }) {
   const [open, setOpen] = useState(false);
   const logRef = useRef(null);
   const percent = parseProgressPercent(log);
+  const indeterminate = active && percent == null;
 
   useEffect(() => {
     if (open && logRef.current) {
@@ -18,16 +19,26 @@ export default function ProgressPanel({ log, active }) {
   return (
     <div className={styles.panel}>
       <div className={styles.bar} aria-hidden="true">
-        <div className={styles.fill} style={{ width: `${percent ?? (active ? 8 : 100)}%` }} />
+        <div
+          className={`${styles.fill} ${indeterminate ? styles.fillIndeterminate : ''}`}
+          style={indeterminate ? undefined : { width: `${percent ?? (active ? 8 : 100)}%` }}
+        />
       </div>
-      <button type="button" className={styles.toggle} onClick={() => setOpen((v) => !v)}>
+      <button
+        type="button"
+        className={styles.toggle}
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
         {open ? 'Hide log' : 'Show log'}
       </button>
-      {open && (
-        <div className={styles.log} ref={logRef}>
-          {log || 'Waiting…'}
+      <div className={`${styles.logWrap} ${open ? styles.logOpen : ''}`}>
+        <div className={styles.logClip}>
+          <div className={styles.log} ref={logRef}>
+            {log || 'Waiting…'}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

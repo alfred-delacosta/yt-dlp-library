@@ -103,11 +103,11 @@ export default function Account() {
   }
 
   return (
-    <div className={styles.stack}>
+    <div className={`${styles.stack} page-enter`}>
       <div className={styles.header}>
         <h1 className={styles.title}>Account</h1>
       </div>
-      <div className={styles.accountCard}>
+      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 0 }}>
         <div>
           <div className={styles.count}>Signed in</div>
           <strong>{user?.email || 'Library user'}</strong>
@@ -120,14 +120,14 @@ export default function Account() {
           Log out
         </button>
       </div>
-      <div className={styles.accountCard}>
+      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 1 }}>
         <div>
           <div className={styles.count}>Library</div>
           <strong>Duplicate videos</strong>
         </div>
         <Link to="/duplicates" className="btn btn-ghost">Review duplicate videos</Link>
       </div>
-      <div className={styles.accountCard}>
+      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 2 }}>
         <div>
           <div className={styles.count}>Sessions</div>
           <strong>Devices signed in</strong>
@@ -151,7 +151,7 @@ export default function Account() {
           Log out other devices
         </button>
       </div>
-      <div className={styles.accountCard}>
+      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 3 }}>
         <div>
           <div className={styles.count}>Database</div>
           <strong>Download a backup</strong>

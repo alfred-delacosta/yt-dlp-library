@@ -14,6 +14,11 @@
   transform: translateY(-50%);
   color: var(--muted);
   pointer-events: none;
+  transition: color var(--duration) var(--ease);
+}
+
+.wrap:focus-within .icon {
+  color: var(--accent);
 }
 
 .recent {
@@ -42,10 +47,15 @@
   border-radius: var(--radius-sm);
   color: var(--text);
   font-size: var(--text-sm);
+  transition: background var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
 }
 
 .recentBtn:hover {
   background: var(--surface-2);
+}
+
+.recentBtn:active {
+  transform: scale(0.99);
 }
 
 .empty {

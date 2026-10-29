@@ -135,6 +135,20 @@
   place-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
+  transition: transform var(--duration-fast) var(--ease), background var(--duration) var(--ease);
+}
+
+.themeCorner:hover {
+  background: var(--surface-2);
+}
+
+.themeCorner:active {
+  transform: scale(0.96);
+}
+
+.themeIcon {
+  display: grid;
+  place-items: center;
 }
 
 .emptyState {
@@ -154,6 +168,14 @@
   flex-direction: column;
   gap: var(--space-4);
   max-width: 28rem;
+  transition: transform var(--duration-fast) var(--ease), box-shadow var(--duration) var(--ease);
+}
+
+@media (hover: hover) {
+  .accountCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
 }
 
 .sessionList {
@@ -193,7 +215,15 @@
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
-  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+  transition:
+    background var(--duration) var(--ease),
+    color var(--duration) var(--ease),
+    transform var(--duration-fast) var(--ease),
+    border-color var(--duration) var(--ease);
+}
+
+.sortBtn:active {
+  transform: scale(0.97);
 }
 
 .sortBtn:hover {

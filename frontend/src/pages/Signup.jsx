@@ -26,9 +26,11 @@ export default function Signup() {
   return (
     <div className={styles.auth}>
       <button type="button" className={styles.themeCorner} onClick={toggle} aria-label="Toggle theme">
-        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        <span className={`${styles.themeIcon} icon-pop`} key={theme}>
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </span>
       </button>
-      <div className={styles.authCard}>
+      <div className={`${styles.authCard} page-enter`}>
         <h1 className={styles.authTitle}>Sign up</h1>
         <form className={styles.authForm} onSubmit={handleSubmit}>
           <div>

@@ -42,7 +42,11 @@ label {
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: var(--text-md);
-  transition: transform var(--duration-fast) var(--ease), background var(--duration) var(--ease), opacity var(--duration) var(--ease);
+  transition:
+    transform var(--duration-fast) var(--ease),
+    background var(--duration) var(--ease),
+    opacity var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease);
 }
 
 .btn:active {
@@ -62,6 +66,11 @@ label {
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-hover);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface);
 }
 
 .btn-ghost {
