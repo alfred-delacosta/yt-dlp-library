@@ -187,6 +187,7 @@ export default function Library() {
           loading={loading || searching}
           onOpen={actions.openItem}
           onMenu={setMenuItem}
+          animateEnter={scrollPosition <= 0}
         />
       )}
       {(actions.busy || actions.log) && (

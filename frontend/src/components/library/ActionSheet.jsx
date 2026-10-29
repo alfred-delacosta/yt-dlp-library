@@ -1,16 +1,48 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './ActionSheet.module.scss';
 
+const CLOSE_MS = 200;
+
+function motionMs() {
+  if (typeof window === 'undefined') return 0;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : CLOSE_MS;
+}
+
 export default function ActionSheet({ open, title, actions = [], onClose, confirm }) {
   const ref = useRef(null);
+  const cachedTitle = useRef(title);
+  const cachedActions = useRef(actions);
   const [confirming, setConfirming] = useState(false);
   const [pending, setPending] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  if (open) {
+    cachedTitle.current = title;
+    cachedActions.current = actions;
+  }
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
+
+    if (open) {
+      setClosing(false);
+      if (!dialog.open) dialog.showModal();
+      return undefined;
+    }
+
+    if (!dialog.open) return undefined;
+
+    setClosing(true);
+    const timeout = window.setTimeout(() => {
+      if (dialog.open) dialog.close();
+      setClosing(false);
+    }, motionMs());
+
+    return () => window.clearTimeout(timeout);
+  }, [open]);
+
+  useEffect(() => {
     if (!open) {
       setConfirming(false);
       setPending(false);
@@ -26,25 +58,33 @@ export default function ActionSheet({ open, title, actions = [], onClose, confir
     onClose?.();
   }
 
+  const visibleTitle = (open ? title : cachedTitle.current) || 'Actions';
+  const visibleActions = (open ? actions : cachedActions.current) || [];
+
   return (
     <dialog
       ref={ref}
-      className={styles.dialog}
+      className={`${styles.dialog} ${closing ? styles.closing : ''}`}
       onClose={onClose}
+      onCancel={(e) => {
+        e.preventDefault();
+        onClose?.();
+      }}
       onClick={(e) => {
         if (e.target === ref.current) onClose?.();
       }}
     >
       <div className={styles.panel}>
         <div className={styles.handle} />
-        <h2 className={styles.title}>{confirming ? (confirm?.title || 'Are you sure?') : title}</h2>
+        <h2 className={styles.title}>{confirming ? (confirm?.title || 'Are you sure?') : visibleTitle}</h2>
         {!confirming && (
           <div className={styles.list}>
-            {actions.map((action) => (
+            {visibleActions.map((action, index) => (
               <button
                 key={action.id}
                 type="button"
                 className={`${styles.item} ${action.danger ? styles.danger : ''}`}
+                style={{ '--i': index }}
                 onClick={() => handleClick(action)}
               >
                 {action.icon}

@@ -49,7 +49,7 @@ export default function ViewMedia({ type }) {
   if (!item) return <p className={styles.count}>Loading…</p>;
 
   return (
-    <div className={styles.stack}>
+    <div className={`${styles.stack} page-enter`}>
       <button
         type="button"
         className="btn btn-ghost"

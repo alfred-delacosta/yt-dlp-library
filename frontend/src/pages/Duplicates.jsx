@@ -77,7 +77,7 @@ export default function Duplicates() {
     : 0;
 
   return (
-    <div className={page.stack}>
+    <div className={`${page.stack} page-enter`}>
       <div className={page.header}>
         <h1 className={page.title}>Duplicate videos</h1>
       </div>
@@ -161,7 +161,7 @@ function Group({ group, busy, selected, onToggle, onRemove, onOpen }) {
   }
 
   return (
-    <article className={styles.group}>
+    <article className={`${styles.group} rise-in`}>
       <div className={styles.groupHead}>
         <div>
           <h3 className={styles.groupLabel}>{group.label}</h3>

@@ -40,7 +40,7 @@ export default function EditVideo() {
   if (!video) return <p className={styles.count}>Loading…</p>;
 
   return (
-    <form className={styles.stack} onSubmit={handleUpdateClick}>
+    <form className={`${styles.stack} page-enter`} onSubmit={handleUpdateClick}>
       <h1 className={styles.title}>Edit video</h1>
       <div>
         <label htmlFor="name">Video name</label>

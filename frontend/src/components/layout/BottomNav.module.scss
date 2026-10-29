@@ -22,7 +22,14 @@
   color: var(--muted);
   font-size: 0.7rem;
   font-weight: 600;
-  transition: color var(--duration) var(--ease), transform var(--duration-fast) var(--ease);
+  transition:
+    color var(--duration) var(--ease),
+    transform var(--duration-fast) var(--ease),
+    background var(--duration) var(--ease);
+}
+
+.link svg {
+  transition: transform var(--duration) var(--ease);
 }
 
 .link:active {
@@ -33,6 +40,10 @@
   color: var(--accent);
 }
 
+.linkActive svg {
+  transform: scale(1.08);
+}
+
 .indicator {
   position: absolute;
   top: 0.2rem;
@@ -40,7 +51,8 @@
   height: 0.2rem;
   border-radius: 999px;
   background: var(--accent);
-  transition: transform var(--duration) var(--ease);
+  transform-origin: center;
+  animation: indicator-in var(--duration) var(--ease);
 }
 
 .rail {
@@ -72,6 +84,10 @@
     padding: var(--space-3) 0;
   }
 
+  .link:hover {
+    background: var(--surface-2);
+  }
+
   .linkActive {
     background: var(--accent-soft);
   }
@@ -79,4 +95,9 @@
   .indicator {
     display: none;
   }
+}
+
+@keyframes indicator-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }

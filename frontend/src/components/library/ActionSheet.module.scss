@@ -18,14 +18,12 @@
   animation: sheet-up var(--duration) var(--ease);
 }
 
-@keyframes sheet-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.closing::backdrop {
+  animation: sheet-fade-out var(--duration) var(--ease) forwards;
 }
 
-@keyframes sheet-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+.closing .panel {
+  animation: sheet-down var(--duration) var(--ease) forwards;
 }
 
 .handle {
@@ -58,11 +56,17 @@
   border-radius: var(--radius-sm);
   font-weight: 500;
   text-align: left;
-  transition: background var(--duration-fast) var(--ease);
+  animation: item-in var(--duration) var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+  transition: background var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
 }
 
 .item:hover {
   background: var(--surface-2);
+}
+
+.item:active {
+  transform: scale(0.99);
 }
 
 .danger {
@@ -73,6 +77,60 @@
   display: flex;
   gap: var(--space-2);
   margin-top: var(--space-3);
+  animation: item-in var(--duration) var(--ease) both;
+}
+
+@keyframes sheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sheet-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes sheet-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes sheet-scale {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sheet-scale-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 700px) {
@@ -83,5 +141,10 @@
   .panel {
     border-radius: var(--radius-lg);
     padding-bottom: var(--space-6);
+    animation: sheet-scale var(--duration-slow) var(--ease);
+  }
+
+  .closing .panel {
+    animation: sheet-scale-out var(--duration) var(--ease) forwards;
   }
 }

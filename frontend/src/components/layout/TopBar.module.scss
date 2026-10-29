@@ -22,6 +22,10 @@
   white-space: nowrap;
 }
 
+.logo:hover .mark {
+  transform: scale(1.06);
+}
+
 .mark {
   width: 1.75rem;
   height: 1.75rem;
@@ -31,6 +35,7 @@
   display: grid;
   place-items: center;
   font-size: 0.85rem;
+  transition: transform var(--duration-fast) var(--ease);
 }
 
 .search {

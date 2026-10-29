@@ -8,7 +8,7 @@ export default function AppShell() {
     <div className={styles.shell}>
       <TopBar />
       <BottomNav />
-      <main className={`${styles.main} route-fade`}>
+      <main className={styles.main}>
         <Outlet />
       </main>
     </div>

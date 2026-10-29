@@ -48,7 +48,7 @@ export default function Legacy() {
   }
 
   return (
-    <div className={styles.stack}>
+    <div className={`${styles.stack} page-enter`}>
       <h1 className={styles.title}>Legacy application functions</h1>
       {legacyEnabled && !optionsRevealed && (
         <button className="btn btn-primary" type="button" onClick={() => setOptionsRevealed(true)}>
@@ -56,7 +56,7 @@ export default function Legacy() {
         </button>
       )}
       {legacyEnabled && optionsRevealed && (
-        <div className={styles.actions}>
+        <div className={`${styles.actions} page-enter`}>
           <button className="btn btn-primary" type="button" disabled={updateLegacyTablesButtonDisabled} onClick={handleUpdateLegacyTablesClick}>
             Update legacy tables
           </button>

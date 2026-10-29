@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  animation: card-in var(--duration-slow) var(--ease) backwards;
 }
 
 .thumb,
@@ -37,4 +38,12 @@
   border-radius: 6px;
 }
 
+@keyframes card-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
