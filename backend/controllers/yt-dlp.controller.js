@@ -55,7 +55,7 @@ export const downloadRegular = async (req, res) => {
       try {
         res.write(`data: Process exited with code ${code}\n\n`);
 
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl);
+        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "regular");
         res.end();
       } catch (error) {
         console.error(error);
@@ -102,7 +102,7 @@ export const downloadX = async (req, res) => {
       try {
         res.write(`data: Process exited with code ${code}\n\n`);
 
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl);
+        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "x");
         res.end();
       } catch (error) {
         console.error(error);
@@ -148,7 +148,7 @@ export const downloadMp3 = async (req, res) => {
       try {
         res.write(`data: Process exited with code ${code}\n\n`);
 
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl);
+        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "mp3");
         res.end();
       } catch (error) {
         console.error(error);
@@ -201,7 +201,7 @@ export const downloadMp4 = async (req, res) => {
       try {
         res.write(`data: Process exited with code ${code}\n\n`);
 
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl);
+        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "mp4");
         res.end();
       } catch (error) {
         console.error(error);

@@ -10,6 +10,7 @@ import Signup from './pages/Signup'
 const Library = lazy(() => import('./pages/Library'))
 const Download = lazy(() => import('./pages/Download'))
 const Tags = lazy(() => import('./pages/Tags'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Account = lazy(() => import('./pages/Account'))
 const ViewMedia = lazy(() => import('./pages/ViewMedia'))
 const EditVideo = lazy(() => import('./pages/EditVideo'))
@@ -94,6 +95,7 @@ function App() {
           <Route path="/audio" element={<Library />} />
           <Route path="/download" element={<Download />} />
           <Route path="/tags" element={<Tags />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/account" element={<Account />} />
           <Route path="/duplicates" element={<Duplicates />} />
           <Route path="/video/:id" element={<ViewMedia type="video" />} />
@@ -101,7 +103,6 @@ function App() {
           <Route path="/edit/video/:id" element={<EditVideo />} />
           <Route path="/legacy" element={<Legacy />} />
         </Route>
-        <Route path="/dashboard" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

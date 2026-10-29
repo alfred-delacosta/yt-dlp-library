@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useSearchParams } from 'react-router';
 import {
   Book,
   ClosedCaption,
@@ -14,9 +14,12 @@ import {
 import MediaGrid from '../components/library/MediaGrid';
 import MediaSkeleton from '../components/library/MediaSkeleton';
 import ActionSheet from '../components/library/ActionSheet';
+import FilterPills from '../components/library/FilterPills';
+import TagPicker from '../components/library/TagPicker';
 import ProgressPanel from '../components/download/ProgressPanel';
 import { useDebouncedSearch } from '../hooks/useDebouncedSearch';
 import { useMediaActions } from '../hooks/useMediaActions';
+import { fetchTags } from '../lib/tags';
 import { useLibraryStore } from '../stores/libraryStore';
 import styles from './pages.module.scss';
 
@@ -38,8 +41,12 @@ export default function Library() {
   const scrollPosition = useLibraryStore((s) => s.scrollPosition);
   const setScrollPosition = useLibraryStore((s) => s.setScrollPosition);
   const [menuItem, setMenuItem] = useState(null);
+  const [tagItem, setTagItem] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const actions = useMediaActions();
-  const navigate = useNavigate();
+  const selectedTag = searchParams.get('tag') || 'all';
+  const updateItemTags = useLibraryStore((s) => s.updateItemTags);
 
   useDebouncedSearch();
 
@@ -47,6 +54,10 @@ export default function Library() {
     setType(viewType);
     loadLibrary(viewType);
   }, [viewType, setType, loadLibrary]);
+
+  useEffect(() => {
+    fetchTags().then(setTags).catch(() => setTags([]));
+  }, []);
 
   const hasRestoredRef = useRef(false);
 
@@ -86,8 +97,28 @@ export default function Library() {
       const db = new Date(b.downloadDate || 0).getTime();
       return sortDirection === 'desc' ? db - da : da - db;
     });
+    if (selectedTag !== 'all') {
+      return sorted.filter((item) =>
+        (item.tags || []).some((tag) => String(tag.id) === String(selectedTag))
+      );
+    }
     return sorted;
-  }, [videos, mp3s, viewType, sortDirection]);
+  }, [videos, mp3s, viewType, sortDirection, selectedTag]);
+
+  const tagPills = useMemo(
+    () => [
+      { id: 'all', label: 'All' },
+      ...tags.map((tag) => ({ id: String(tag.id), label: tag.name })),
+    ],
+    [tags]
+  );
+
+  function setTagFilter(id) {
+    const next = new URLSearchParams(searchParams);
+    if (!id || id === 'all') next.delete('tag');
+    else next.set('tag', String(id));
+    setSearchParams(next, { replace: true });
+  }
 
   const visible = items.slice(0, visibleCount);
   const hasMore = visible.length < items.length;
@@ -114,9 +145,9 @@ export default function Library() {
         },
         {
           id: 'tags',
-          label: 'Tags (soon)',
+          label: 'Manage tags',
           icon: <Tags size={18} />,
-          onClick: () => navigate('/tags'),
+          onClick: () => setTagItem(menuItem),
         },
         menuItem.mediaType === 'video' && {
           id: 'jellyfin',
@@ -158,6 +189,14 @@ export default function Library() {
         <h1 className={styles.title}>{viewType === 'mp3' ? 'Audio' : 'Videos'}</h1>
         <span className={styles.count}>{items.length} items</span>
       </div>
+      {tags.length > 0 && (
+        <FilterPills
+          pills={tagPills}
+          value={selectedTag}
+          onChange={setTagFilter}
+          ariaLabel="Filter by tag"
+        />
+      )}
       <div className={styles.sortControls}>
         <span className={styles.sortLabel}>Sort by date</span>
         <button
@@ -204,6 +243,16 @@ export default function Library() {
           title: `Delete “${menuItem?.name}”?`,
           label: 'Delete',
           onConfirm: () => menuItem && actions.remove(menuItem),
+        }}
+      />
+      <TagPicker
+        open={Boolean(tagItem)}
+        item={tagItem}
+        onClose={() => setTagItem(null)}
+        onSaved={(nextTags) => {
+          if (!tagItem) return;
+          updateItemTags(tagItem.mediaType, tagItem.id, nextTags);
+          fetchTags().then(setTags).catch(() => {});
         }}
       />
     </div>

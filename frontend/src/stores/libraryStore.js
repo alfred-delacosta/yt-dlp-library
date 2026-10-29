@@ -140,4 +140,39 @@ export const useLibraryStore = create((set, get) => ({
     mp3s: s.mp3s.filter((v) => String(v.id) !== String(id)),
     browseMp3s: s.browseMp3s.filter((v) => String(v.id) !== String(id)),
   })),
+  updateItemTags: (type, id, tags) => set((s) => {
+    const patch = (list) => list.map((item) => (
+      String(item.id) === String(id) ? { ...item, tags } : item
+    ));
+    if (type === 'mp3') {
+      return { mp3s: patch(s.mp3s), browseMp3s: patch(s.browseMp3s) };
+    }
+    return { videos: patch(s.videos), browseVideos: patch(s.browseVideos) };
+  }),
+  renameTagOnItems: (tagId, name) => set((s) => {
+    const patch = (list) => list.map((item) => ({
+      ...item,
+      tags: (item.tags || []).map((tag) => (
+        String(tag.id) === String(tagId) ? { ...tag, name } : tag
+      )),
+    }));
+    return {
+      videos: patch(s.videos),
+      browseVideos: patch(s.browseVideos),
+      mp3s: patch(s.mp3s),
+      browseMp3s: patch(s.browseMp3s),
+    };
+  }),
+  removeTagFromItems: (tagId) => set((s) => {
+    const patch = (list) => list.map((item) => ({
+      ...item,
+      tags: (item.tags || []).filter((tag) => String(tag.id) !== String(tagId)),
+    }));
+    return {
+      videos: patch(s.videos),
+      browseVideos: patch(s.browseVideos),
+      mp3s: patch(s.mp3s),
+      browseMp3s: patch(s.browseMp3s),
+    };
+  }),
 }));

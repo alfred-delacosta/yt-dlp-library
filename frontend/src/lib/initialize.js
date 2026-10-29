@@ -23,6 +23,7 @@ export async function initializeApp() {
     await api.get('/initialize/videos');
     await api.get('/initialize/thumbnails');
     await api.get('/initialize/mp3s');
+    await api.get('/initialize/tags');
     await api.post('/initialize/maintenance');
     toast.dismiss();
   } catch (error) {

@@ -1,12 +1,13 @@
 import { getAllMp3sForUser, getMp3, getMp3CountForUser, sqlDeleteMp3 } from "../db/queries.mp3s.js"
 import { sqlSearchMp3s } from "../db/queries.search.js";
+import { attachMp3Tags } from "../db/queries.tags.js";
 import { removeMediaFiles } from "../utils/mediaFiles.js";
 
 export const getMp3s = async (req, res) => {
     try {
         const mp3s = await getAllMp3sForUser(req.userId);
-
-        res.json(mp3s.reverse());
+        const withTags = await attachMp3Tags(req.userId, mp3s.reverse());
+        res.json(withTags);
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the mp3s for the user.' })
@@ -17,8 +18,8 @@ export const getMp3ById = async (req, res) => {
     try {
         const mp3Id = req.params.id;
         const mp3 = await getMp3(req.userId, mp3Id);
-
-        res.json(mp3);
+        const withTags = await attachMp3Tags(req.userId, mp3);
+        res.json(withTags);
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the mp3 for the user.' })
@@ -69,8 +70,9 @@ export const deleteMp3ByIdAndUserId = async (req, res) => {
 export const searchMp3s = async (req, res) => {
     try {
         const { searchTerm } = req.body;
-        const count = await sqlSearchMp3s(searchTerm, req.userId);
-        res.json(count);
+        const results = await sqlSearchMp3s(searchTerm, req.userId);
+        const withTags = await attachMp3Tags(req.userId, results);
+        res.json(withTags);
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error searching for the mp3.' })

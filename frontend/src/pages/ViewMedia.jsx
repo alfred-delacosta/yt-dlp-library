@@ -8,13 +8,17 @@ import {
   Music,
   Pencil,
   SquareArrowOutUpRight,
+  Tags,
   Trash2,
 } from 'lucide-react';
 import MediaPlayer from '../components/player/MediaPlayer';
 import ProgressPanel from '../components/download/ProgressPanel';
+import TagChips from '../components/library/TagChips';
+import TagPicker from '../components/library/TagPicker';
 import { fetchMp3ById, fetchVideoById } from '../lib/mediaActions';
 import { formatDate } from '../lib/media';
 import { useMediaActions } from '../hooks/useMediaActions';
+import { useLibraryStore } from '../stores/libraryStore';
 import styles from './pages.module.scss';
 
 export default function ViewMedia({ type }) {
@@ -22,7 +26,9 @@ export default function ViewMedia({ type }) {
   const navigate = useNavigate();
   const [item, setItem] = useState(null);
   const [error, setError] = useState(null);
+  const [tagOpen, setTagOpen] = useState(false);
   const actions = useMediaActions();
+  const updateItemTags = useLibraryStore((s) => s.updateItemTags);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,8 +68,12 @@ export default function ViewMedia({ type }) {
       <div className={styles.playerMeta}>
         <h1 className={styles.title}>{item.name}</h1>
         <span className={styles.count}>{formatDate(item.downloadDate)}</span>
+        <TagChips tags={item.tags} />
         {item.description && <div className={styles.description}>{item.description}</div>}
         <div className={styles.actions}>
+          <button type="button" className="btn btn-ghost" onClick={() => setTagOpen(true)}>
+            <Tags size={16} /> Tags
+          </button>
           {type === 'video' && (
             <Link className="btn btn-ghost" to={`/edit/video/${item.id}`}>
               <Pencil size={16} /> Edit
@@ -126,6 +136,15 @@ export default function ViewMedia({ type }) {
         <ProgressPanel log={actions.log} active={actions.busy} />
         {item.subtitles && <div className={styles.subtitles}>{item.subtitles}</div>}
       </div>
+      <TagPicker
+        open={tagOpen}
+        item={item}
+        onClose={() => setTagOpen(false)}
+        onSaved={(nextTags) => {
+          setItem((current) => (current ? { ...current, tags: nextTags } : current));
+          updateItemTags(type, item.id, nextTags);
+        }}
+      />
     </div>
   );
 }

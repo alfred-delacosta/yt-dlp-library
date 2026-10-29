@@ -1,10 +1,11 @@
 import { createElement, useState, useEffect } from 'react';
 import { NavLink } from 'react-router';
-import { Download, Music, Settings, Tags, User, Video } from 'lucide-react';
+import { Download, LayoutDashboard, Music, Settings, Tags, User, Video } from 'lucide-react';
 import { api } from '../../lib/axios';
 import styles from './BottomNav.module.scss';
 
 const ITEMS = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/', label: 'Videos', icon: Video, end: true },
   { to: '/audio', label: 'Audio', icon: Music },
   { to: '/download', label: 'Download', icon: Download },

@@ -32,8 +32,8 @@ export const sqlDeleteMp3 = async (userId, mp3Id) => {
     return results.affectedRows === 1;
 }
 
-export const addMp3ToDb = async (file, description="", userId) => {
-    const [ results, fields ] = await pool.execute('INSERT INTO `mp3s` (`id`, `name`, `description`, `downloadDate`, `link`, `mp3Path`, `userId`, `serverPath`) VALUES (NULL, ?, ?, NOW(), ?, ?, ?, ?);', [file.basename, description, file.link, file.path, userId, file.serverPath]);
+export const addMp3ToDb = async (file, description="", userId, downloadOption = null) => {
+    const [ results, fields ] = await pool.execute('INSERT INTO `mp3s` (`id`, `name`, `description`, `downloadDate`, `link`, `mp3Path`, `userId`, `serverPath`, `downloadOption`) VALUES (NULL, ?, ?, NOW(), ?, ?, ?, ?, ?);', [file.basename, description, file.link, file.path, userId, file.serverPath, downloadOption]);
 
     return results;
 }

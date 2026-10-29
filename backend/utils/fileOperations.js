@@ -6,6 +6,7 @@ import getFileParts from "./fileUtils.js";
 import { sqlAddVideo } from "../db/queries.videos.js";
 import { addThumbnailToDb } from "../db/queries.thumbnails.js";
 import { addMp3ToDb } from "../db/queries.mp3s.js";
+import { sqlAddDownload } from "../db/queries.downloads.js";
 
 export const __filename = fileURLToPath(import.meta.url);
 
@@ -63,7 +64,7 @@ export const deleteVideoProcessingFolder = async (req, res, videoProcessingFolde
   }
 };
 
-export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFolder, link) => {
+export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFolder, link, downloadOption = "regular") => {
   try {
     let video, thumbnail, subtitle, description, mp3, videoId = undefined;
     const folderContents = await fs.readdir(videoProcessingFolder);
@@ -159,8 +160,14 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
     }
 
     if (video !== undefined) {
-        const queryResults = await sqlAddVideo(video, description, req.userId);
+        const queryResults = await sqlAddVideo(video, description, req.userId, downloadOption);
         videoId = queryResults.insertId;
+        await sqlAddDownload({
+          userId: req.userId,
+          downloadOption,
+          mediaType: "video",
+          mediaId: videoId,
+        });
         res.write("data: Video added to database!\n\n");
     }
 
@@ -170,7 +177,13 @@ export const moveFilesFromProcessingFolder = async (req, res,videoProcessingFold
     }
 
     if (mp3 !== undefined) {
-        const queryResults = await addMp3ToDb(mp3, description, req.userId);
+        const queryResults = await addMp3ToDb(mp3, description, req.userId, downloadOption);
+        await sqlAddDownload({
+          userId: req.userId,
+          downloadOption,
+          mediaType: "mp3",
+          mediaId: queryResults.insertId,
+        });
         res.write("data: MP3 added to database!\n\n");
     }
 

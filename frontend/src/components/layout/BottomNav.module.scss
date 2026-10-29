@@ -4,17 +4,24 @@
   right: 0;
   bottom: 0;
   z-index: var(--z-nav);
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
   padding: var(--space-1) var(--space-2) calc(var(--safe-bottom) + var(--space-1));
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--border);
 }
 
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
 .link {
   position: relative;
   display: flex;
+  flex: 1 0 auto;
+  min-width: 4.35rem;
   flex-direction: column;
   align-items: center;
   gap: 0.15rem;
@@ -80,6 +87,8 @@
   }
 
   .link {
+    flex: none;
+    min-width: 0;
     border-radius: var(--radius-sm);
     padding: var(--space-3) 0;
   }

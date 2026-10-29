@@ -15,8 +15,8 @@ export const sqlGetVideo = async (userId, videoId) => {
     return results;
 }
 
-export const sqlAddVideo = async (file, description="No description", userId) => {
-    const [ results, fields ] = await pool.execute('INSERT INTO `videos` (`id`, `name`, `description`, `ext`, `downloadDate`, `link`, `type`, `videoPath`, `userId`, `serverPath`) VALUES (NULL, ?, ?, ?, NOW(), ?, ?, ?, ?, ?);', [file.basename, description, file.extension, file.link, 0, file.path, userId, file.serverPath]);
+export const sqlAddVideo = async (file, description="No description", userId, downloadOption = null) => {
+    const [ results, fields ] = await pool.execute('INSERT INTO `videos` (`id`, `name`, `description`, `ext`, `downloadDate`, `link`, `type`, `videoPath`, `userId`, `serverPath`, `downloadOption`) VALUES (NULL, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?);', [file.basename, description, file.extension, file.link, 0, file.path, userId, file.serverPath, downloadOption]);
 
     return results;
 }

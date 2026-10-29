@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MoreVertical, Music } from 'lucide-react';
 import { highlightText, mediaUrl, formatDuration } from '../../lib/media';
+import TagChips from './TagChips';
 import styles from './MediaCard.module.scss';
 
 export default function MediaCard({ item, query, onOpen, onMenu, index = 0, animateEnter = true }) {
@@ -53,6 +54,7 @@ export default function MediaCard({ item, query, onOpen, onMenu, index = 0, anim
           )}
         </div>
         <div className={styles.sub}>{isVideo ? 'Video' : 'Audio'}</div>
+        <TagChips tags={item.tags} max={2} />
       </button>
     </article>
   );
