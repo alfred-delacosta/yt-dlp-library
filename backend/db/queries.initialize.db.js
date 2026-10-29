@@ -34,3 +34,56 @@ export const sqlSetLegacyAppUpdated = `UPDATE maintenance SET legacyAppUpdated =
 export const getLegacyAppUpdated = `SELECT legacyAppUpdated FROM maintenance WHERE id = 1`;
 
 export const upgradeVideosSubtitlesToLongtext = `ALTER TABLE videos MODIFY COLUMN subtitles LONGTEXT;`;
+
+export const createTagsTable = `
+CREATE TABLE IF NOT EXISTS tags (
+  id INT NOT NULL AUTO_INCREMENT,
+  userId INT NOT NULL,
+  name VARCHAR(80) NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY tags_user_name (userId, name),
+  CONSTRAINT fk_tags_user FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB
+`;
+
+export const createVideoTagsTable = `
+CREATE TABLE IF NOT EXISTS video_tags (
+  videoId INT NOT NULL,
+  tagId INT NOT NULL,
+  PRIMARY KEY (videoId, tagId),
+  KEY vt_tag (tagId),
+  CONSTRAINT fk_vt_video FOREIGN KEY (videoId) REFERENCES videos (id) ON DELETE CASCADE,
+  CONSTRAINT fk_vt_tag FOREIGN KEY (tagId) REFERENCES tags (id) ON DELETE CASCADE
+) ENGINE=InnoDB
+`;
+
+export const createMp3TagsTable = `
+CREATE TABLE IF NOT EXISTS mp3_tags (
+  mp3Id INT NOT NULL,
+  tagId INT NOT NULL,
+  PRIMARY KEY (mp3Id, tagId),
+  KEY mt_tag (tagId),
+  CONSTRAINT fk_mt_mp3 FOREIGN KEY (mp3Id) REFERENCES mp3s (id) ON DELETE CASCADE,
+  CONSTRAINT fk_mt_tag FOREIGN KEY (tagId) REFERENCES tags (id) ON DELETE CASCADE
+) ENGINE=InnoDB
+`;
+
+export const createDownloadsTable = `
+CREATE TABLE IF NOT EXISTS downloads (
+  id INT NOT NULL AUTO_INCREMENT,
+  userId INT NOT NULL,
+  downloadOption VARCHAR(20) NOT NULL,
+  mediaType VARCHAR(10) NOT NULL,
+  mediaId INT NULL,
+  downloadedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY downloads_user (userId),
+  KEY downloads_user_date (userId, downloadedAt),
+  CONSTRAINT fk_downloads_user FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB
+`;
+
+export const addDownloadOptionToVideos = `ALTER TABLE videos ADD COLUMN downloadOption VARCHAR(20) NULL`;
+
+export const addDownloadOptionToMp3s = `ALTER TABLE mp3s ADD COLUMN downloadOption VARCHAR(20) NULL`;

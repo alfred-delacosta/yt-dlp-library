@@ -9,9 +9,12 @@ import initializeRoutes from "./routes/initialize.route.js"
 import ytdlpRoutes from './routes/yt-dlp.route.js';
 import videosRoutes from './routes/videos.route.js';
 import mp3Routes from './routes/mp3s.route.js';
+import tagsRoutes from './routes/tags.route.js';
+import statsRoutes from './routes/stats.route.js';
 import cookieParser from 'cookie-parser';
 import { requireMediaAccess } from './middleware/media.middleware.js';
 import { ensureAuthSchema } from './db/refreshTokenStore.js';
+import { ensureMediaSchema } from './db/ensureMediaSchema.js';
 
 //#region Initializations
 const app = express();
@@ -39,6 +42,8 @@ app.use("/api/initialize", initializeRoutes);
 app.use("/api/ytdlp", ytdlpRoutes);
 app.use("/api/videos", videosRoutes);
 app.use("/api/mp3s", mp3Routes);
+app.use("/api/tags", tagsRoutes);
+app.use("/api/stats", statsRoutes);
 
 //#endregion
 
@@ -67,6 +72,7 @@ export { app };
 
 export async function startServer() {
   await ensureAuthSchema();
+  await ensureMediaSchema();
   const server = app.listen(env.PORT, () => console.log(`Server running on port ${env.PORT}`));
   server.setTimeout(30 * 60 * 1000);
   server.keepAliveTimeout = 30 * 60 * 1000 + 1000;

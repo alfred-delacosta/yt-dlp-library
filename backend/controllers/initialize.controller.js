@@ -10,6 +10,7 @@ import { sqlUpdateVideoPaths } from "../db/queries.videos.js";
 import { getAllMp3s, sqlUpdateMp3Paths } from "../db/queries.mp3s.js";
 import { getAllThumbnails, sqlUpdateThumbnailPaths } from "../db/queries.thumbnails.js";
 import { spawn } from "child_process";
+import { ensureMediaSchema } from "../db/ensureMediaSchema.js";
 
 export const initializeDb = async (req, res) => {
   try {
@@ -449,9 +450,24 @@ export const createMaintenanceTableEntry = async (req, res) => {
   }
 }
 
+export const initializeTagsTables = async (req, res) => {
+  try {
+    await ensureMediaSchema();
+    res.json({ message: "Tags tables initialized.", tagsTableInitialized: true });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "There was an error creating the tags tables." });
+  }
+};
+
 export const checkForAppInitialization = async (req, res) => {
   try {
     const [results, fields] = await pool.query(getMaintenanceTableEntry);
+    try {
+      await ensureMediaSchema();
+    } catch (schemaError) {
+      console.error(schemaError);
+    }
     res.json({ results, appInit: true });
   } catch (error) {
     if (error.code === 'ER_NO_SUCH_TABLE') {

@@ -1,4 +1,5 @@
 import { sqlDeleteVideo, sqlDeleteVideoRowsOnly, sqlListVideosForDuplicateScan, getAllVideosForUser, sqlGetVideo, getVideoCountForUser, sqlUpdateVideo, sqlAddSubtitlesToVideo, sqlAddSubtitlesFileToVideo } from "../db/queries.videos.js"
+import { attachVideoTags } from "../db/queries.tags.js";
 import { groupDuplicateVideos } from "../utils/duplicateVideos.js"
 import { sqlGetThumbnailsForVideo } from "../db/queries.thumbnails.js";
 import { removeMediaFiles } from "../utils/mediaFiles.js";
@@ -35,8 +36,8 @@ const __dirname = path.dirname(__filename);
 export const getVideos = async (req, res) => {
     try {
         const videos = await getAllVideosForUser(req.userId);
-
-        res.json(videos.reverse());
+        const withTags = await attachVideoTags(req.userId, videos.reverse());
+        res.json(withTags);
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the videos for the user.' })
@@ -47,8 +48,8 @@ export const getVideoById = async (req, res) => {
     try {
         const videoId = req.params.id;
         const video = await sqlGetVideo(req.userId, videoId);
-
-        res.json(video);
+        const withTags = await attachVideoTags(req.userId, video);
+        res.json(withTags);
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error getting the videos for the user.' })
@@ -146,7 +147,8 @@ export const searchVideos = async (req, res) => {
     try {
         const { searchTerm } = req.body;
         const results = await sqlSearchVideos(searchTerm, req.userId);
-        res.json(results);
+        const withTags = await attachVideoTags(req.userId, results);
+        res.json(withTags);
     } catch (error) {
         console.error(error);
         res.send(400).json({ message: 'There was an error searching for the video.' })

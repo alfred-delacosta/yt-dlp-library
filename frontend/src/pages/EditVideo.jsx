@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import toast from 'react-hot-toast';
+import { Tags } from 'lucide-react';
 import { api } from '../lib/axios';
 import { fetchVideoById } from '../lib/mediaActions';
+import TagChips from '../components/library/TagChips';
+import TagPicker from '../components/library/TagPicker';
 import { useLibraryStore } from '../stores/libraryStore';
 import styles from './pages.module.scss';
 
@@ -14,6 +17,8 @@ export default function EditVideo() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [link, setLink] = useState('');
+  const [tagOpen, setTagOpen] = useState(false);
+  const updateItemTags = useLibraryStore((s) => s.updateItemTags);
 
   useEffect(() => {
     (async () => {
@@ -40,21 +45,44 @@ export default function EditVideo() {
   if (!video) return <p className={styles.count}>Loading…</p>;
 
   return (
-    <form className={`${styles.stack} page-enter`} onSubmit={handleUpdateClick}>
-      <h1 className={styles.title}>Edit video</h1>
-      <div>
-        <label htmlFor="name">Video name</label>
-        <input id="name" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
-      </div>
-      <div>
-        <label htmlFor="description">Description</label>
-        <textarea id="description" name="description" rows={8} value={description} onChange={(e) => setDescription(e.target.value)} />
-      </div>
-      <div>
-        <label htmlFor="link">Original link</label>
-        <input id="link" name="link" type="url" value={link} onChange={(e) => setLink(e.target.value)} />
-      </div>
-      <button className="btn btn-primary" type="submit">Update</button>
-    </form>
+    <>
+      <form className={`${styles.stack} page-enter`} onSubmit={handleUpdateClick}>
+        <h1 className={styles.title}>Edit video</h1>
+        <div>
+          <label htmlFor="name">Video name</label>
+          <input id="name" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <label htmlFor="description">Description</label>
+          <textarea id="description" name="description" rows={8} value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
+        <div>
+          <label htmlFor="link">Original link</label>
+          <input id="link" name="link" type="url" value={link} onChange={(e) => setLink(e.target.value)} />
+        </div>
+        <div>
+          <span className={styles.count}>Tags</span>
+          <TagChips tags={video.tags} />
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ marginTop: '0.75rem' }}
+            onClick={() => setTagOpen(true)}
+          >
+            <Tags size={16} /> Manage tags
+          </button>
+        </div>
+        <button className="btn btn-primary" type="submit">Update</button>
+      </form>
+      <TagPicker
+        open={tagOpen}
+        item={{ ...video, mediaType: 'video' }}
+        onClose={() => setTagOpen(false)}
+        onSaved={(nextTags) => {
+          setVideo((current) => (current ? { ...current, tags: nextTags } : current));
+          updateItemTags('video', id, nextTags);
+        }}
+      />
+    </>
   );
 }
