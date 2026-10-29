@@ -83,7 +83,7 @@ export default function ActionSheet({ open, title, actions = [], onClose, confir
               <button
                 key={action.id}
                 type="button"
-                className={`${styles.item} ${action.danger ? styles.danger : ''}`}
+                className={`${styles.item} ${action.danger ? styles.danger : ''} ${action.active ? styles.active : ''}`}
                 style={{ '--i': index }}
                 onClick={() => handleClick(action)}
               >

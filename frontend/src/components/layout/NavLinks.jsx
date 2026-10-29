@@ -13,7 +13,9 @@ const ITEMS = [
   { to: '/account', label: 'Account', icon: User },
 ];
 
-export default function NavLinks({ variant = 'bottom' }) {
+const MOBILE_PRIMARY = new Set(['/', '/audio', '/download', '/tags']);
+
+export function useNavItems() {
   const [navItems, setNavItems] = useState(ITEMS);
   useEffect(() => {
     api.get('/initialize/checkLegacyUpdateEnabled').then((r) => {
@@ -22,7 +24,26 @@ export default function NavLinks({ variant = 'bottom' }) {
       }
     }).catch(() => {});
   }, []);
-  return navItems.map((item) => (
+  return navItems;
+}
+
+export function splitMobileNavItems(items) {
+  const primary = [];
+  const overflow = [];
+  for (const item of items) {
+    if (MOBILE_PRIMARY.has(item.to)) primary.push(item);
+    else overflow.push(item);
+  }
+  return { primary, overflow };
+}
+
+export function pathMatchesItem(item, pathname) {
+  if (item.end) return pathname === item.to;
+  return pathname === item.to || pathname.startsWith(`${item.to}/`);
+}
+
+export default function NavLinks({ variant = 'bottom', items }) {
+  return items.map((item) => (
     <NavLink
       key={item.to}
       to={item.to}
@@ -33,7 +54,7 @@ export default function NavLinks({ variant = 'bottom' }) {
         <>
           {variant === 'bottom' && isActive && <span className={styles.indicator} />}
           {createElement(item.icon, { size: 20 })}
-          <span>{item.label}</span>
+          <span className={styles.label}>{item.label}</span>
         </>
       )}
     </NavLink>

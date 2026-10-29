@@ -73,6 +73,15 @@
   color: var(--danger);
 }
 
+.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.active:hover {
+  background: var(--accent-soft);
+}
+
 .confirm {
   display: flex;
   gap: var(--space-2);
