@@ -5,27 +5,22 @@
   bottom: 0;
   z-index: var(--z-nav);
   display: flex;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: hidden;
   padding: var(--space-1) var(--space-2) calc(var(--safe-bottom) + var(--space-1));
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--border);
 }
 
-.nav::-webkit-scrollbar {
-  display: none;
-}
-
 .link {
   position: relative;
   display: flex;
-  flex: 1 0 auto;
-  min-width: 4.35rem;
+  flex: 1 1 0;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
   gap: 0.15rem;
-  padding: var(--space-2) 0;
+  padding: var(--space-2) 0.15rem;
   color: var(--muted);
   font-size: 0.7rem;
   font-weight: 600;
@@ -35,7 +30,15 @@
     background var(--duration) var(--ease);
 }
 
+.label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .link svg {
+  flex-shrink: 0;
   transition: transform var(--duration) var(--ease);
 }
 
@@ -88,6 +91,7 @@
 
   .link {
     flex: none;
+    width: 100%;
     min-width: 0;
     border-radius: var(--radius-sm);
     padding: var(--space-3) 0;
