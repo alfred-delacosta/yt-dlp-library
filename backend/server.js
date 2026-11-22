@@ -21,7 +21,15 @@ const app = express();
 const env = process.env;
 // Comement out below if you are only running locally.
 if (env.ENVIRONMENT === 'production') {
-    app.use(helmet());
+    // Explicit worker-src keeps the PWA service worker allowed under CSP.
+    app.use(helmet({
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          workerSrc: ["'self'"],
+        },
+      },
+    }));
 }
 app.use(express.json());
 //#endregion
