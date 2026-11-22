@@ -1,10 +1,18 @@
 import { Link, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
-import { Moon, Sun } from 'lucide-react';
+import { Download, Moon, Sun } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuthStore, api } from '../lib/axios';
 import { useTheme } from '../hooks/useTheme';
 import styles from './pages.module.scss';
+
+function isStandaloneDisplay() {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true
+  );
+}
 
 export default function Account() {
   const logout = useAuthStore((s) => s.logout);
@@ -16,12 +24,54 @@ export default function Account() {
   const [restoreDisabled, setRestoreDisabled] = useState(false);
   const [sessions, setSessions] = useState([]);
   const [sessionsBusy, setSessionsBusy] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installed, setInstalled] = useState(() => isStandaloneDisplay());
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     api.get('/initialize/checkLegacyUpdateEnabled').then((r) => setAdminEnabled(!!r.data.enabled)).catch(() => setAdminEnabled(false));
     api.get('/auth/sessions').then((r) => setSessions(r.data.sessions || [])).catch(() => setSessions([]));
   }, []);
+
+  useEffect(() => {
+    if (isStandaloneDisplay()) {
+      setInstalled(true);
+      return undefined;
+    }
+
+    function onBeforeInstallPrompt(event) {
+      event.preventDefault();
+      setInstallPrompt(event);
+    }
+
+    function onAppInstalled() {
+      setInstallPrompt(null);
+      setInstalled(true);
+    }
+
+    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+    window.addEventListener('appinstalled', onAppInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', onAppInstalled);
+    };
+  }, []);
+
+  async function handleInstallApp() {
+    if (!installPrompt) return;
+    try {
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      setInstallPrompt(null);
+      if (choice?.outcome === 'accepted') {
+        setInstalled(true);
+        toast.success('App installed');
+      }
+    } catch (error) {
+      toast.error('Could not open the install prompt.');
+      console.log(error);
+    }
+  }
 
   async function handleLogout() {
     await logout();
@@ -120,14 +170,26 @@ export default function Account() {
           Log out
         </button>
       </div>
-      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 1 }}>
+      {!installed && installPrompt && (
+        <div className={`${styles.accountCard} rise-in`} style={{ '--i': 1 }}>
+          <div>
+            <div className={styles.count}>Desktop app</div>
+            <strong>Install this library</strong>
+          </div>
+          <button type="button" className="btn btn-ghost" onClick={handleInstallApp}>
+            <Download size={18} />
+            Install app
+          </button>
+        </div>
+      )}
+      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 2 }}>
         <div>
           <div className={styles.count}>Library</div>
           <strong>Duplicate videos</strong>
         </div>
         <Link to="/duplicates" className="btn btn-ghost">Review duplicate videos</Link>
       </div>
-      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 2 }}>
+      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 3 }}>
         <div>
           <div className={styles.count}>Sessions</div>
           <strong>Devices signed in</strong>
@@ -151,7 +213,7 @@ export default function Account() {
           Log out other devices
         </button>
       </div>
-      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 3 }}>
+      <div className={`${styles.accountCard} rise-in`} style={{ '--i': 4 }}>
         <div>
           <div className={styles.count}>Database</div>
           <strong>Download a backup</strong>

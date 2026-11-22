@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "yt-dlp Library",
   "short_name": "yt-dlp",
   "description": "Private media library for yt-dlp downloads",
@@ -6,7 +7,7 @@
   "display": "standalone",
   "background_color": "#0c0c0e",
   "theme_color": "#2563eb",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "/icons/icon-192.png",
