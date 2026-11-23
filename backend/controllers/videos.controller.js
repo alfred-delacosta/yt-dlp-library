@@ -11,6 +11,15 @@ import fsSync from 'fs';
 import FormDataGrok from '../utils/form-data-grok.js';
 import { copyFile, readFile, rm } from "fs/promises";
 import "@dotenvx/dotenvx/config";
+import { fileURLToPath } from 'url';
+import {
+    createVideoProcessingFolder
+} from "../utils/fileOperations.js";
+import { setSSEHeaders, sseProcessOutput } from "../utils/ytdlpOperations.js";
+import { spawn } from "child_process";
+import { whisperXApiConvertToMp3, whisperXApiGetSubtitlesText, whisperXApiTranscribe } from "../service/whisperXApi.service.js";
+import { Agent, fetch } from "undici";
+
 const env = process.env;
 
 const WHISPER_X_API_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -20,15 +29,6 @@ const whisperAgent = new Agent({
   bodyTimeout: WHISPER_X_API_TIMEOUT_MS,
   connectTimeout: 30000,
 });
-
-import { fileURLToPath } from 'url';
-import {
-    createVideoProcessingFolder
-} from "../utils/fileOperations.js";
-import { setSSEHeaders, sseProcessOutput } from "../utils/ytdlpOperations.js";
-import { spawn } from "child_process";
-import { whisperXApiConvertToMp3, whisperXApiGetSubtitlesText, whisperXApiTranscribe } from "../service/whisperXApi.service.js";
-import { Agent } from "undici";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,7 +40,7 @@ export const getVideos = async (req, res) => {
         res.json(withTags);
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+        res.status(400).json({ message: 'There was an error getting the videos for the user.' })
     }
 }
 
@@ -52,7 +52,7 @@ export const getVideoById = async (req, res) => {
         res.json(withTags);
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+        res.status(400).json({ message: 'There was an error getting the videos for the user.' })
     }
 }
 
@@ -62,7 +62,7 @@ export const getUserVideoCount = async (req, res) => {
         res.json(count);
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error getting the videos for the user.' })
+        res.status(400).json({ message: 'There was an error getting the videos for the user.' })
     }
 }
 
@@ -151,7 +151,7 @@ export const searchVideos = async (req, res) => {
         res.json(withTags);
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error searching for the video.' })
+        res.status(400).json({ message: 'There was an error searching for the video.' })
     }
 }
 
@@ -162,7 +162,7 @@ export const updateVideo = async (req, res) => {
         res.json(results)
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error updating the video.' })
+        res.status(400).json({ message: 'There was an error updating the video.' })
     }
 }
 
@@ -177,7 +177,7 @@ export const moveVideoToJellyfin = async (req, res) => {
         return res.json({ message: "File successfully copied to Jellyfin. " })
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error copying the video.' })
+        res.status(400).json({ message: 'There was an error copying the video.' })
     }
 }
 
@@ -301,7 +301,7 @@ export const generateSubtitles = async (req, res) => {
         // res.json(video);
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error generating the subtitles.' })
+        res.status(400).json({ message: 'There was an error generating the subtitles.' })
     }
 }
 
@@ -384,7 +384,7 @@ export const whisperXAPIConvertVideoToMp3 = async (req, res) => {
         // }
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error with converting the video through the WhisperX API.' })
+        res.status(400).json({ message: 'There was an error with converting the video through the WhisperX API.' })
     }
 }
 
@@ -411,6 +411,6 @@ export const whisperXApiTranscribeVideo = async (req, res) => {
         res.json({ message: "Video transcribed successfully!", video });
     } catch (error) {
         console.error(error);
-        res.send(400).json({ message: 'There was an error with converting the video through the WhisperX API.' })
+        res.status(400).json({ message: 'There was an error with converting the video through the WhisperX API.' })
     }
 }
