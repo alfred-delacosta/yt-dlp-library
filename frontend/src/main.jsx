@@ -2,8 +2,15 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import { Toaster } from 'react-hot-toast'
+import { registerSW } from 'virtual:pwa-register'
 import './styles/theme.scss'
 import App from './App.jsx'
+
+try {
+  registerSW({ immediate: true })
+} catch {
+  // Service worker registration is best-effort; the app still works without it.
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
