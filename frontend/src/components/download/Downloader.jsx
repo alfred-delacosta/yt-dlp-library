@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/axios';
 import { readSseStream } from '../../lib/sse';
+import {
+  loadDownloadOptions,
+  saveDownloadOptions,
+  SUPPORTED_BROWSERS,
+} from '../../lib/downloadOptions';
 import { useLibraryStore } from '../../stores/libraryStore';
 import ProgressPanel from './ProgressPanel';
 import styles from './Downloader.module.scss';
+
+function browserLabel(name) {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
 
 export default function Downloader() {
   const loadLibrary = useLibraryStore((s) => s.loadLibrary);
@@ -12,8 +21,24 @@ export default function Downloader() {
   const invalidateVideos = useLibraryStore((s) => s.invalidateVideos);
   const [videoUrl, setVideoUrl] = useState('');
   const [downloadType, setDownloadType] = useState('mp4');
+  const [options, setOptions] = useState(() => loadDownloadOptions());
   const [log, setLog] = useState('');
   const [loading, setLoading] = useState(false);
+  const skipFirstSave = useRef(true);
+
+  const { writeDescription, writeThumbnail, useCookies, browser } = options;
+
+  useEffect(() => {
+    if (skipFirstSave.current) {
+      skipFirstSave.current = false;
+      return;
+    }
+    saveDownloadOptions(options);
+  }, [options]);
+
+  function updateOption(patch) {
+    setOptions((prev) => ({ ...prev, ...patch }));
+  }
 
   async function handleFocus() {
     try {
@@ -27,13 +52,23 @@ export default function Downloader() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (useCookies && !browser) {
+      toast.error('Select a browser for cookies.');
+      return;
+    }
     setLoading(true);
     setLog('');
     toast.loading('Downloading…');
     try {
       const response = await api.post(
         `/ytdlp/download/${downloadType}`,
-        { videoUrl },
+        {
+          videoUrl,
+          writeDescription,
+          writeThumbnail,
+          useCookies,
+          browser: useCookies ? browser : undefined,
+        },
         {
           headers: { Accept: 'text/event-stream' },
           responseType: 'stream',
@@ -59,6 +94,8 @@ export default function Downloader() {
     }
   }
 
+  const thumbnailLabel = downloadType === 'mp3' ? 'Embed thumbnail' : 'Save thumbnail';
+
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.row}>
@@ -72,17 +109,79 @@ export default function Downloader() {
           onChange={(e) => setVideoUrl(e.target.value)}
           onFocus={handleFocus}
           placeholder="https://"
+          disabled={loading}
         />
       </div>
       <div className={styles.row}>
         <label htmlFor="downloadType">Type</label>
-        <select id="downloadType" name="downloadType" value={downloadType} onChange={(e) => setDownloadType(e.target.value)}>
+        <select
+          id="downloadType"
+          name="downloadType"
+          value={downloadType}
+          onChange={(e) => setDownloadType(e.target.value)}
+          disabled={loading}
+        >
           <option value="mp4">MP4</option>
           <option value="mp3">MP3</option>
           <option value="x">X / Twitter</option>
           <option value="regular">Best</option>
         </select>
       </div>
+
+      <fieldset className={styles.options} disabled={loading}>
+        <legend className={styles.optionsLegend}>Options</legend>
+
+        <label className={styles.option}>
+          <input
+            type="checkbox"
+            checked={writeDescription}
+            onChange={(e) => updateOption({ writeDescription: e.target.checked })}
+          />
+          <span>Save description</span>
+        </label>
+
+        <label className={styles.option}>
+          <input
+            type="checkbox"
+            checked={writeThumbnail}
+            onChange={(e) => updateOption({ writeThumbnail: e.target.checked })}
+          />
+          <span>{thumbnailLabel}</span>
+        </label>
+
+        <label className={styles.option}>
+          <input
+            type="checkbox"
+            checked={useCookies}
+            onChange={(e) => updateOption({ useCookies: e.target.checked })}
+          />
+          <span>Use cookies from browser</span>
+        </label>
+
+        {useCookies && (
+          <div className={styles.browserRow}>
+            <label htmlFor="cookieBrowser">Browser</label>
+            <select
+              id="cookieBrowser"
+              name="cookieBrowser"
+              value={browser}
+              onChange={(e) => updateOption({ browser: e.target.value })}
+              required={useCookies}
+            >
+              {SUPPORTED_BROWSERS.map((name) => (
+                <option key={name} value={name}>
+                  {browserLabel(name)}
+                </option>
+              ))}
+            </select>
+            <p className={styles.hint}>
+              yt-dlp reads cookies from the selected browser on this machine. Close the browser if
+              cookie access fails.
+            </p>
+          </div>
+        )}
+      </fieldset>
+
       <div className={styles.actions}>
         <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
           {loading ? 'Downloading…' : 'Download'}

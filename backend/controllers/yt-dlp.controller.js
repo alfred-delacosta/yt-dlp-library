@@ -1,15 +1,70 @@
 import '@dotenvx/dotenvx/config';
 import { spawn } from "child_process";
-import { promisify } from "util";
 import {
   createVideoProcessingFolder,
   moveFilesFromProcessingFolder,
-  rootFolder,
 } from "../utils/fileOperations.js";
-import path from "path";
-import { setSSEHeaders, sseProcessOutput } from "../utils/ytdlpOperations.js";
+import {
+  setSSEHeaders,
+  sseProcessOutput,
+  resolveDownloadOptions,
+  buildDownloadArgs,
+} from "../utils/ytdlpOperations.js";
 
 // Using Server-Sent Events (SSE)
+
+const failDownloadOptions = (res, message) => {
+  setSSEHeaders(res);
+  res.write(`data: Error: ${message}\n\n`);
+  res.end();
+};
+
+const runDownload = async (req, res, downloadOption) => {
+  try {
+    const { videoUrl } = req.body;
+    const resolved = resolveDownloadOptions(req.body);
+    if (!resolved.ok) {
+      failDownloadOptions(res, resolved.message);
+      return;
+    }
+
+    setSSEHeaders(res);
+    const tempDir = await createVideoProcessingFolder(req, res);
+
+    const ytdlpProcess = spawn(
+      "yt-dlp",
+      buildDownloadArgs({
+        type: downloadOption,
+        videoUrl,
+        ...resolved.options,
+      }),
+      { cwd: tempDir }
+    );
+
+    sseProcessOutput(req, res, ytdlpProcess);
+
+    ytdlpProcess.on("close", async (code) => {
+      try {
+        res.write(`data: Process exited with code ${code}\n\n`);
+
+        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, downloadOption);
+        res.end();
+      } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: "There was an error!" });
+      }
+    });
+
+    req.on("close", () => {
+      if (!ytdlpProcess.killed) {
+        ytdlpProcess.kill();
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "There was an error updating yt-dlp." });
+  }
+};
 
 export const updateYtDlp = async (req, res) => {
   try {
@@ -25,198 +80,17 @@ export const updateYtDlp = async (req, res) => {
 };
 
 export const downloadRegular = async (req, res) => {
-  try {
-    const { videoUrl } = req.body;
-    setSSEHeaders(res);
-    const tempDir = await createVideoProcessingFolder(req, res);
-
-    const ytdlpProcess = spawn(
-      "yt-dlp",
-      [
-        "--windows-filenames",
-        "--restrict-filenames",
-        "--write-description",
-        "--write-subs",
-        "--write-thumbnail",
-        "--embed-subs",
-        "--cookies-from-browser",
-        process.env.BROWSER,
-        "--impersonate",
-        "chrome-99",
-        videoUrl,
-      ],
-      { cwd: tempDir }
-    );
-
-    sseProcessOutput(req, res, ytdlpProcess);
-
-    // Handle process completion
-    ytdlpProcess.on("close", async (code) => {
-      try {
-        res.write(`data: Process exited with code ${code}\n\n`);
-
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "regular");
-        res.end();
-      } catch (error) {
-        console.error(error);
-        res.status(400).json({ message: 'There was an error!' })
-      }
-    });
-
-    // Clean up if client disconnects
-    req.on("close", () => {
-      if (!ytdlpProcess.killed) {
-        ytdlpProcess.kill(); // Terminate ytdlpProcess
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "There was an error updating yt-dlp." });
-  }
+  await runDownload(req, res, "regular");
 };
 
 export const downloadX = async (req, res) => {
-  try {
-    const { videoUrl } = req.body;
-    setSSEHeaders(res);
-    const tempDir = await createVideoProcessingFolder(req, res);
-
-    const ytdlpProcess = spawn(
-      "yt-dlp",
-      [
-        "--write-description",
-        "--write-subs",
-        "--write-thumbnail",
-        "--embed-subs",
-        '-o', 
-        '%(uploader_id)s-%(id)s-%(upload_date)s.%(ext)s',
-        videoUrl,
-      ],
-      { cwd: tempDir }
-    );
-
-    sseProcessOutput(req, res, ytdlpProcess);
-
-    // Handle process completion
-    ytdlpProcess.on("close", async (code) => {
-      try {
-        res.write(`data: Process exited with code ${code}\n\n`);
-
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "x");
-        res.end();
-      } catch (error) {
-        console.error(error);
-        res.status(400).json({ message: 'There was an error!' })
-      }
-    });
-
-    // Clean up if client disconnects
-    req.on("close", () => {
-      if (!ytdlpProcess.killed) {
-        ytdlpProcess.kill(); // Terminate ytdlpProcess
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "There was an error updating yt-dlp." });
-  }
+  await runDownload(req, res, "x");
 };
 
 export const downloadMp3 = async (req, res) => {
-  try {
-    const { videoUrl } = req.body;
-    setSSEHeaders(res);
-    const tempDir = await createVideoProcessingFolder(req, res);
-
-    const ytdlpProcess = spawn(
-      "yt-dlp",
-      [
-        "--restrict-filenames",
-        "--write-description",
-        "--embed-thumbnail",
-        '-t', 
-        'mp3',
-        videoUrl,
-      ],
-      { cwd: tempDir }
-    );
-
-    sseProcessOutput(req, res, ytdlpProcess);
-
-    // Handle process completion
-    ytdlpProcess.on("close", async (code) => {
-      try {
-        res.write(`data: Process exited with code ${code}\n\n`);
-
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "mp3");
-        res.end();
-      } catch (error) {
-        console.error(error);
-        res.status(400).json({ message: 'There was an error!' })
-      }
-    });
-
-    // Clean up if client disconnects
-    req.on("close", () => {
-      if (!ytdlpProcess.killed) {
-        ytdlpProcess.kill(); // Terminate ytdlpProcess
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "There was an error updating yt-dlp." });
-  }
+  await runDownload(req, res, "mp3");
 };
 
 export const downloadMp4 = async (req, res) => {
-  try {
-    const { videoUrl } = req.body;
-    setSSEHeaders(res);
-    const tempDir = await createVideoProcessingFolder(req, res);
-
-    const ytdlpProcess = spawn(
-      "yt-dlp",
-      [
-        "--windows-filenames",
-        "--restrict-filenames",
-        "--write-description",
-        "--write-subs",
-        "--write-thumbnail",
-        "--embed-subs",
-        "--cookies-from-browser",
-        process.env.BROWSER,
-        "--impersonate",
-        "chrome-99",
-        "-t",
-        "mp4",
-        videoUrl,
-      ],
-      { cwd: tempDir }
-    );
-
-    sseProcessOutput(req, res, ytdlpProcess);
-
-    // Handle process completion
-    ytdlpProcess.on("close", async (code) => {
-      try {
-        res.write(`data: Process exited with code ${code}\n\n`);
-
-        await moveFilesFromProcessingFolder(req, res, tempDir, videoUrl, "mp4");
-        res.end();
-      } catch (error) {
-        console.error(error);
-        res.status(400).json({ message: 'There was an error!' })
-      }
-    });
-
-    // Clean up if client disconnects
-    req.on("close", () => {
-      if (!ytdlpProcess.killed) {
-        ytdlpProcess.kill(); // Terminate ytdlpProcess
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "There was an error updating yt-dlp." });
-  }
+  await runDownload(req, res, "mp4");
 };
