@@ -5,7 +5,7 @@ import fsSync from 'fs';
 import { copyFile, readFile, rm } from "fs/promises";
 import "@dotenvx/dotenvx/config";
 import { __dirname, __filename } from "../utils/fileOperations.js";
-import { Agent } from "undici";
+import { Agent, fetch } from "undici";
 
 const env = process.env;
 
