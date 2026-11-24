@@ -10,14 +10,26 @@ export const SUPPORTED_BROWSERS = [
   'whale',
 ];
 
+export const COOKIE_SOURCES = ['none', 'browser', 'harvest'];
+
 const KEY = 'yt-dlp-download-options';
 
 export const DEFAULT_DOWNLOAD_OPTIONS = {
   writeDescription: true,
   writeThumbnail: true,
-  useCookies: false,
+  cookieSource: 'none',
   browser: 'chrome',
 };
+
+function normalizeCookieSource(parsed) {
+  if (typeof parsed.cookieSource === 'string') {
+    const source = parsed.cookieSource.toLowerCase();
+    if (COOKIE_SOURCES.includes(source)) return source;
+  }
+  // Legacy: useCookies boolean
+  if (parsed.useCookies) return 'browser';
+  return DEFAULT_DOWNLOAD_OPTIONS.cookieSource;
+}
 
 export function loadDownloadOptions() {
   try {
@@ -31,7 +43,7 @@ export function loadDownloadOptions() {
     return {
       writeDescription: parsed.writeDescription !== false,
       writeThumbnail: parsed.writeThumbnail !== false,
-      useCookies: Boolean(parsed.useCookies),
+      cookieSource: normalizeCookieSource(parsed),
       browser,
     };
   } catch {
@@ -46,7 +58,7 @@ export function saveDownloadOptions(options) {
       JSON.stringify({
         writeDescription: Boolean(options.writeDescription),
         writeThumbnail: Boolean(options.writeThumbnail),
-        useCookies: Boolean(options.useCookies),
+        cookieSource: options.cookieSource || DEFAULT_DOWNLOAD_OPTIONS.cookieSource,
         browser: options.browser || DEFAULT_DOWNLOAD_OPTIONS.browser,
       })
     );
