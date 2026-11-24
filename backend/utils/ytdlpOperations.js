@@ -43,22 +43,64 @@ export const sseProcessOutput = (req, res, ytdlpProcess) => {
   });
 };
 
+export const COOKIE_SOURCES = ["none", "browser", "harvest"];
+
 /**
  * Normalize download options from the request body.
  * Returns { ok: true, options } or { ok: false, message }.
+ *
+ * cookieSource: 'none' | 'browser' | 'harvest'
+ * Legacy: useCookies true without cookieSource maps to 'browser'.
  */
 export const resolveDownloadOptions = (body = {}) => {
   const writeDescription = body.writeDescription !== false;
   const writeThumbnail = body.writeThumbnail !== false;
-  const useCookies = Boolean(body.useCookies);
 
-  if (!useCookies) {
+  let cookieSource =
+    typeof body.cookieSource === "string" && body.cookieSource.trim()
+      ? body.cookieSource.trim().toLowerCase()
+      : null;
+
+  if (!cookieSource) {
+    cookieSource = Boolean(body.useCookies) ? "browser" : "none";
+  }
+
+  if (!COOKIE_SOURCES.includes(cookieSource)) {
     return {
-      ok: true,
-      options: { writeDescription, writeThumbnail, useCookies: false, browser: null },
+      ok: false,
+      message: `Unsupported cookieSource "${cookieSource}". Supported: ${COOKIE_SOURCES.join(", ")}.`,
     };
   }
 
+  if (cookieSource === "none") {
+    return {
+      ok: true,
+      options: {
+        writeDescription,
+        writeThumbnail,
+        cookieSource: "none",
+        useCookies: false,
+        browser: null,
+        cookiesPath: null,
+      },
+    };
+  }
+
+  if (cookieSource === "harvest") {
+    return {
+      ok: true,
+      options: {
+        writeDescription,
+        writeThumbnail,
+        cookieSource: "harvest",
+        useCookies: false,
+        browser: null,
+        cookiesPath: null,
+      },
+    };
+  }
+
+  // cookieSource === 'browser'
   const requested =
     typeof body.browser === "string" && body.browser.trim()
       ? body.browser.trim().toLowerCase()
@@ -86,7 +128,14 @@ export const resolveDownloadOptions = (body = {}) => {
 
   return {
     ok: true,
-    options: { writeDescription, writeThumbnail, useCookies: true, browser },
+    options: {
+      writeDescription,
+      writeThumbnail,
+      cookieSource: "browser",
+      useCookies: true,
+      browser,
+      cookiesPath: null,
+    },
   };
 };
 
@@ -100,6 +149,8 @@ export const buildDownloadArgs = ({
   writeThumbnail = true,
   useCookies = false,
   browser = null,
+  cookiesPath = null,
+  cookieSource = null,
 }) => {
   const args = [];
 
@@ -124,7 +175,9 @@ export const buildDownloadArgs = ({
     }
   }
 
-  if (useCookies && browser) {
+  if (cookiesPath) {
+    args.push("--cookies", cookiesPath);
+  } else if ((useCookies || cookieSource === "browser") && browser) {
     args.push("--cookies-from-browser", browser);
   }
 

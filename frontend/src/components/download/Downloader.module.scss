@@ -51,7 +51,8 @@
   background: color-mix(in srgb, var(--surface-2) 70%, transparent);
 }
 
-.option input[type='checkbox'] {
+.option input[type='checkbox'],
+.option input[type='radio'] {
   width: 1.25rem;
   height: 1.25rem;
   min-width: 1.25rem;
@@ -59,6 +60,25 @@
   flex-shrink: 0;
   accent-color: var(--accent);
   cursor: pointer;
+}
+
+.cookieSource {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0.15rem 0;
+}
+
+.cookieSourceLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.cookieSourceChoices {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .option span {
@@ -87,7 +107,8 @@
 }
 
 fieldset:disabled .option,
-fieldset:disabled .browserRow {
+fieldset:disabled .browserRow,
+fieldset:disabled .cookieSource {
   opacity: 0.55;
   cursor: not-allowed;
 }

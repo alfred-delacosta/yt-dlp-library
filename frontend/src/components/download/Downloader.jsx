@@ -26,7 +26,7 @@ export default function Downloader() {
   const [loading, setLoading] = useState(false);
   const skipFirstSave = useRef(true);
 
-  const { writeDescription, writeThumbnail, useCookies, browser } = options;
+  const { writeDescription, writeThumbnail, cookieSource, browser } = options;
 
   useEffect(() => {
     if (skipFirstSave.current) {
@@ -52,7 +52,7 @@ export default function Downloader() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (useCookies && !browser) {
+    if (cookieSource === 'browser' && !browser) {
       toast.error('Select a browser for cookies.');
       return;
     }
@@ -66,8 +66,8 @@ export default function Downloader() {
           videoUrl,
           writeDescription,
           writeThumbnail,
-          useCookies,
-          browser: useCookies ? browser : undefined,
+          cookieSource,
+          browser: cookieSource === 'browser' ? browser : undefined,
         },
         {
           headers: { Accept: 'text/event-stream' },
@@ -149,16 +149,49 @@ export default function Downloader() {
           <span>{thumbnailLabel}</span>
         </label>
 
-        <label className={styles.option}>
-          <input
-            type="checkbox"
-            checked={useCookies}
-            onChange={(e) => updateOption({ useCookies: e.target.checked })}
-          />
-          <span>Use cookies from browser</span>
-        </label>
+        <div className={styles.cookieSource}>
+          <span className={styles.cookieSourceLabel} id="cookieSourceLabel">
+            Cookies
+          </span>
+          <div
+            className={styles.cookieSourceChoices}
+            role="radiogroup"
+            aria-labelledby="cookieSourceLabel"
+          >
+            <label className={styles.option}>
+              <input
+                type="radio"
+                name="cookieSource"
+                value="none"
+                checked={cookieSource === 'none'}
+                onChange={() => updateOption({ cookieSource: 'none' })}
+              />
+              <span>Off</span>
+            </label>
+            <label className={styles.option}>
+              <input
+                type="radio"
+                name="cookieSource"
+                value="browser"
+                checked={cookieSource === 'browser'}
+                onChange={() => updateOption({ cookieSource: 'browser' })}
+              />
+              <span>From installed browser</span>
+            </label>
+            <label className={styles.option}>
+              <input
+                type="radio"
+                name="cookieSource"
+                value="harvest"
+                checked={cookieSource === 'harvest'}
+                onChange={() => updateOption({ cookieSource: 'harvest' })}
+              />
+              <span>Auto-harvest (Playwright)</span>
+            </label>
+          </div>
+        </div>
 
-        {useCookies && (
+        {cookieSource === 'browser' && (
           <div className={styles.browserRow}>
             <label htmlFor="cookieBrowser">Browser</label>
             <select
@@ -166,7 +199,7 @@ export default function Downloader() {
               name="cookieBrowser"
               value={browser}
               onChange={(e) => updateOption({ browser: e.target.value })}
-              required={useCookies}
+              required={cookieSource === 'browser'}
             >
               {SUPPORTED_BROWSERS.map((name) => (
                 <option key={name} value={name}>
@@ -177,6 +210,16 @@ export default function Downloader() {
             <p className={styles.hint}>
               yt-dlp reads cookies from the selected browser on this machine. Close the browser if
               cookie access fails.
+            </p>
+          </div>
+        )}
+
+        {cookieSource === 'harvest' && (
+          <div className={styles.browserRow}>
+            <p className={styles.hint}>
+              Opens Google Chrome on the server, visits the URL, starts playback when possible,
+              exports cookies for yt-dlp, then closes the browser. Chrome must be installed on the
+              host.
             </p>
           </div>
         )}
